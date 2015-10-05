@@ -35,7 +35,7 @@ import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
 
-public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment
+public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a long comment.
 {
     public void loopBody()
     {
