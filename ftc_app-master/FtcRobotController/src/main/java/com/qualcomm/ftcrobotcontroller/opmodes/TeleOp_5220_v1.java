@@ -37,19 +37,70 @@ import com.qualcomm.robotcore.util.*;
 
 public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a long comment.
 {
+    private static final double JOYSTICK_THRESHOLD = 0.08; //below this joysticks won't cause movement.
+
+    private double g1Stick1Xinit;
+    private double g1Stick1Yinit;
+
+    public void specialInitialize ()
+    {
+        g1Stick1Xinit = gamepad1.left_stick_x;
+        g1Stick1Yinit = gamepad1.left_stick_y;
+    }
+
     public void loopBody()
     {
-        double throttle  = -gamepad1.left_stick_y;
-        double direction =  gamepad1.left_stick_x;
+        double throttle  = (-(gamepad1.left_stick_y - g1Stick1Yinit));
+        double direction =  (gamepad1.left_stick_x - g1Stick1Xinit);
         double right = throttle - direction;
         double left  = throttle + direction;
 
         // clip the right/left values so that the values never exceed +/- 1
-        right = Range.clip(right, -1, 1);
-        left  = Range.clip(left,  -1, 1);
+        right = Range.clip(right, -2, 2);
+        left  = Range.clip(left,  -2, 2);
+
+
+        if (right > 1)
+        {
+            right = 1;
+        }
+
+        if (right < -1)
+        {
+            right = -1;
+        }
+
+        if (left > 1)
+        {
+            left = 1;
+        }
+
+        if (left < -1)
+        {
+            left = -1;
+        }
+
+        if (Math.abs (right) < JOYSTICK_THRESHOLD)
+        {
+            right = 0;
+        }
+
+        if (Math.abs(left) < JOYSTICK_THRESHOLD)
+        {
+            left = 0;
+        }
+
+        telemetry.addData("2", "Left: " + left);
+        telemetry.addData("3", "Right: " + right);
 
         setLeftDrivePower(left);
         setRightDrivePower(right);
+
+        if (gamepad1.left_stick_button)
+        {
+            g1Stick1Xinit = gamepad1.left_stick_x;
+            g1Stick1Yinit = gamepad1.left_stick_y;
+        }
     }
 
     public void main ()

@@ -75,10 +75,11 @@ public class FtcOpModeRegister implements OpModeRegister {
 
     //manager.register("NxtTeleOp", NxtTeleOp.class);
     
-    manager.register("LinearK9TeleOp", LinearK9TeleOp.class); //uncommented just to make sure the register works.
+    //manager.register("LinearK9TeleOp", LinearK9TeleOp.class); //uncommented just to make sure the register works.
     //manager.register("LinearIrExample", LinearIrExample.class);
 
-    
+
+
     //manager.register ("PushBotManual1", PushBotManual1.class);
     //manager.register ("PushBotAutoSensors", PushBotAutoSensors.class);
     //manager.register ("PushBotIrEvent", PushBotIrEvent.class);
@@ -95,6 +96,7 @@ public class FtcOpModeRegister implements OpModeRegister {
     //OUR PROGRAMS:
 
       manager.register("Autonomous_5220_v1", Autonomous_5220_v1.class);
+      manager.register("TeleOp_5220_v1", TeleOp_5220_v1.class);
       manager.register("Old_5220_OpMode", Old_5220_OpMode.class);
   }
 }

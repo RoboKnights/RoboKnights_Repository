@@ -55,7 +55,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     Stopwatch gameTimer;
 
-    public final void setup()//this and the declarations above are the equivalent of the pragmas in RobotC
+    public void setup()//this and the declarations above are the equivalent of the pragmas in RobotC
     {
         driveController1 = hardwareMap.dcMotorController.get("motorController_P0");
         driveController1.setMotorChannelMode(1, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
@@ -69,6 +69,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         rightFrontMotor = hardwareMap.dcMotor.get("motor_P0_2");
         leftBackMotor = hardwareMap.dcMotor.get("motor_P1_1");
         rightBackMotor = hardwareMap.dcMotor.get("motor_P1_2");
+
+        rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
         /*
         servoL = hardwareMap.servo.get("servo_P1_1");
         servoR = hardwareMap.servo.get("servo_P1_2");
@@ -81,7 +84,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     }
 
-    public final void initialize()
+    public void initialize()
     {
         specialInitialize();
     }
