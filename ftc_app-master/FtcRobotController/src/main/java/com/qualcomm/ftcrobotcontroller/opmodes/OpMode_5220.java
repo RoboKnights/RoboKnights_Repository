@@ -173,13 +173,30 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         setDrivePower(0);
     }
 
-    public final void move(int encoderCount) {
+    public final void resetDriveEncoders ()
+    {
 
+    }
+
+    public final boolean driveEncodersHaveReached(int count)
+    {
+        return false;
     }
 
     public final void move(int encoderCount, double power)
     {
+        resetDriveEncoders();
+        setDrivePower(power);
+        while (!driveEncodersHaveReached(encoderCount))
+        {
 
+        }
+        stopDrivetrain();
+    }
+
+    public final void move(int encoderCount)
+    {
+        move (encoderCount, DEFAULT_DRIVE_POWER);
     }
 
     public final void moveTime(int time, double power)

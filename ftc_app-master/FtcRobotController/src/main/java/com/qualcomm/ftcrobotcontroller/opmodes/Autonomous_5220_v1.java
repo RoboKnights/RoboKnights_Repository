@@ -78,6 +78,13 @@ public class Autonomous_5220_v1 extends OpMode_5220
         }
 
         stopDrivetrain();
+        System.exit(0);
+    }
+
+
+    public void autonomous ()
+    {
+
     }
 
     public void main ()
@@ -85,6 +92,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         //new ProgramKiller().start();
         telemetry.addData ("2", "hello world!");
         test();
+        autonomous();
     }
 
 
