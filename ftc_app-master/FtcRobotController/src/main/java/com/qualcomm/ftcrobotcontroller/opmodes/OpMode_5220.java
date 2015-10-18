@@ -40,7 +40,23 @@ import com.qualcomm.robotcore.util.*;
 public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET DECENT VERSION CONTROL INSTEAD OF HAVING TO SAVE AS FOR EVERY NEW VERSION
 {
     //CONSTANTS:
-    protected static final int DEFAULT_DRIVE_POWER = 95;
+
+    protected static final int HAS_NOT_STARTED = 0;
+    protected static final int SETUP = 1;
+    protected static final int INIT = 2;
+    protected static final int WAITING = 3;
+    protected static final int RUNNING = 4;
+    //protected static enum ProgramType {UNDECIDED, AUTONOMOUS, TELEOP};
+
+    protected static final double WHEEL_DIAMETER = 6.0; //in inches
+    protected static final double GEAR_RATIO = 2 / 3;
+    protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
+    protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
+
+    //CONFIGURABLE CONSTANTS:
+    protected static final double DEFAULT_DRIVE_POWER = 0.95;
+    protected static final double DEFAULT_TURN_POWER = 0.30;
+    protected static final double DEFAULT_TURN_POWER_HIGH = 0.80;
     protected static final double INIT_SERVO_POSITION = 0.5;
 
     //MOTORS AND SERVOS:
@@ -53,10 +69,13 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     //OTHER GLOBAL VARIABLES:
 
-    Stopwatch gameTimer;
+    protected Stopwatch gameTimer;
+    protected int phase = HAS_NOT_STARTED;
 
     public void setup()//this and the declarations above are the equivalent of the pragmas in RobotC
     {
+        phase = SETUP;
+
         driveController1 = hardwareMap.dcMotorController.get("motorController_P0");
         driveController1.setMotorChannelMode(1, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         driveController1.setMotorChannelMode(2, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
@@ -76,22 +95,25 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         servoL = hardwareMap.servo.get("servo_P1_1");
         servoR = hardwareMap.servo.get("servo_P1_2");
         */
-        specialSetup();
-    }
-
-    public void specialSetup ()
-    {
-
     }
 
     public void initialize()
     {
-        specialInitialize();
+        phase = INIT;
     }
 
-    public void specialInitialize () //not sure whether to keep this whole "special" system or not
+    public void waitForStart5220() //override this to do stuff if neccessary
     {
+        while (!opModeIsActive())
+        {
 
+        }
+    }
+
+    public void waitForStart () throws InterruptedException //forget about this override and put the phase change in runOpMode if neccessary.
+    {
+        phase = WAITING;
+        super.waitForStart();
     }
 
     public abstract void main(); //implement in all subclasses. This is the main body of the program. Maybe also make initializeRobot something to override if its different between OpModes.
@@ -100,8 +122,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         setup();
         initialize();
+        //waitForStart5220(); //uncomment this if it turns out that it works just as well as waitForStart();
         waitForStart();
+
+        phase = RUNNING;
         gameTimer = new Stopwatch();
+
         main();
     }
 
@@ -117,8 +143,21 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         public double time() {
             long now = System.currentTimeMillis();
-            return (now - start) / 1000.0;
+            return ((double) (now - start)) / 1000.0;
         }
+    }
+
+    public int distanceToEncoderCount (double distance) //distance is in inches
+    {
+        double wheelRotations = distance / WHEEL_CIRCUMFERENCE;
+        double motorRotations = wheelRotations / GEAR_RATIO;
+        long encoderCounts = Math.round(motorRotations * ENCODER_COUNTS_PER_ROTATION);
+        return (int) encoderCounts; //typecast is okay because the encoder count should NEVER exceed Integer.MAX
+    }
+
+    public void updateLoopBody()
+    {
+
     }
 
     public void sleep(int millis)
@@ -138,6 +177,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         telemetry.addData("01", "Hello world!");
     }
+
+    //MOVEMENT:
+
+    //changes to make: unify moveTime and move with encoder into method with choice of encoder or time as a parameter.
+    //do the same thing for rotation except with three options: gyro, encoder, and time.
 
     public final void setMotorPower(DcMotor motor, double power) //maybe not neccessary
     {
@@ -162,11 +206,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         setRightDrivePower(power);
     }
     
-    public final void setTurnPower (double power)
-    {
-        setLeftDrivePower(power);
-        setRightDrivePower(-power);
-    }
+
 
     public final void stopDrivetrain ()
     {
@@ -182,21 +222,25 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         return false;
     }
+    public final boolean turnEncodersHaveReached(int count)
+    {
+        return false;
+    }
 
-    public final void move(int encoderCount, double power)
+    public final void move(double distance, double power) //add something to make sure that negative distance = negative power.
     {
         resetDriveEncoders();
         setDrivePower(power);
-        while (!driveEncodersHaveReached(encoderCount))
+        while (!driveEncodersHaveReached(distanceToEncoderCount(distance)))
         {
 
         }
         stopDrivetrain();
     }
 
-    public final void move(int encoderCount)
+    public final void move(double distance)
     {
-        move (encoderCount, DEFAULT_DRIVE_POWER);
+        move (distance, DEFAULT_DRIVE_POWER);
     }
 
     public final void moveTime(int time, double power)
@@ -206,8 +250,57 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         stopDrivetrain();
     }
 
+    /* fix this so that negative time means go backwards
     public final void moveTime(int time) //time is in millis
     {
         moveTime (time, DEFAULT_DRIVE_POWER);
+    }
+*/
+    //ROTATION:
+
+    public final void setTurnPower (double power)
+    {
+        setLeftDrivePower(power);
+        setRightDrivePower(-power);
+    }
+
+    public final void waitForGyroRotation (double degrees)
+    {
+        //finish later
+    }
+
+    public final void rotate (double degrees, double power) //gyro rotation, add thing to make negative degrees = negative power.
+    {
+        setTurnPower(power);
+        waitForGyroRotation (degrees);
+        stopDrivetrain();
+    }
+
+    public final void rotate (double degrees)
+    {
+        rotate (degrees, DEFAULT_TURN_POWER);
+    }
+
+    public final void rotateEncoder (double distance, double power) //add thing to make negative distance = negative power.
+    {
+        resetDriveEncoders();
+        setTurnPower(power);
+        while (!turnEncodersHaveReached(distanceToEncoderCount(distance)))
+        {
+
+        }
+        stopDrivetrain();
+    }
+
+    public final void rotateEncoder (double distance)
+    {
+        rotateEncoder(distance, DEFAULT_TURN_POWER_HIGH);
+    }
+
+    public final void rotateTime (int time, double power) //time in millis
+    {
+        setTurnPower(power);
+        sleep (time);
+        stopDrivetrain();
     }
 }

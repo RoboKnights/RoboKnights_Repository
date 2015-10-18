@@ -42,8 +42,9 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private double g1Stick1Xinit;
     private double g1Stick1Yinit;
 
-    public void specialInitialize ()
+    public void initialize ()
     {
+        super.initialize();
         g1Stick1Xinit = gamepad1.left_stick_x;
         g1Stick1Yinit = gamepad1.left_stick_y;
     }
