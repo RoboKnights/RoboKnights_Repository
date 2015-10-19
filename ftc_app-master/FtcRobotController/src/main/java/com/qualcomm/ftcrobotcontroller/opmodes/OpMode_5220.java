@@ -89,8 +89,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         leftBackMotor = hardwareMap.dcMotor.get("motor_P1_1");
         rightBackMotor = hardwareMap.dcMotor.get("motor_P1_2");
 
-        rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-        rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
         /*
         servoL = hardwareMap.servo.get("servo_P1_1");
         servoR = hardwareMap.servo.get("servo_P1_2");

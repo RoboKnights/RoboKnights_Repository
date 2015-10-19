@@ -73,8 +73,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         private int currentSetting = 0;
 
+        private String[] telemetryLines = new String[NUM_SETTINGS];
+
         public void run ()
         {
+            telemetry.addData("1", "AUTONOMOUS CONFIGURATION:");
+
             boolean prevL = false;
             boolean prevR = false;
             boolean bothPressed = false;
@@ -132,8 +136,17 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         private void nextSetting ()
         {
+            if (telemetryLines[currentSetting].charAt(0) == '*') //change to string equals comparison if this doesn't work
+            {
+                telemetryLines[currentSetting] = telemetryLines[currentSetting].substring(1); //remove starter asterisk for old setting
+            }
+
             currentSetting++;
             currentSetting = currentSetting % NUM_SETTINGS;
+
+            telemetryLines[currentSetting] = "*" + telemetryLines[currentSetting]; //add starter asterisk to new setting
+
+            writeLinesToTelemetry();
         }
 
         private void adjustSetting (int setting, int direction)
@@ -141,16 +154,41 @@ public class Autonomous_5220_v1 extends OpMode_5220
             if (setting == COLOR)
             {
                 color = !color;
+
+                telemetryLines[COLOR] = ("Color: " + (color == RED ? "RED" : "BLUE"));
             }
 
             else if (setting == WAIT)
             {
                 startWaitTime += direction;
+                if (startWaitTime < 0)
+                {
+                    startWaitTime = 0;
+                }
+
+                telemetryLines[WAIT] = ("Wait Time: " + startWaitTime /*+ " seconds"*/);
             }
 
             else if (setting == DETECT)
             {
                 smartDetectOn = !smartDetectOn;
+
+                telemetryLines[DETECT] = ("Smart Detection: " + (smartDetectOn ? "ON" : "OFF"));
+            }
+
+            if (telemetryLines[currentSetting].charAt(0) != '*') //change to string equals comparison if this doesn't work
+            {
+                telemetryLines[currentSetting] = "*" + telemetryLines[currentSetting];
+            }
+
+            writeLinesToTelemetry();
+        }
+
+        private void writeLinesToTelemetry ()
+        {
+            for (int i = 0; i < telemetryLines.length; i++)
+            {
+                telemetry.addData("" + (i + 2), telemetryLines[i]);
             }
         }
 
