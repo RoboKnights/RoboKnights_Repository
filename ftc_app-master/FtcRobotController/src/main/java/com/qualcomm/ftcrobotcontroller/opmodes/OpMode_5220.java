@@ -62,10 +62,19 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     //MOTORS AND SERVOS:
     protected DcMotorController driveController1; //MAKE SURE THESE THINGS HAVE SAME NAME AS IN PHONE CONFIGURATION
     protected DcMotorController driveController2;
+    protected DcMotorController armAndSweeperController;
+    protected ServoController armServoController;
+
     protected DcMotor leftFrontMotor;
     protected DcMotor rightFrontMotor;
     protected DcMotor leftBackMotor;
     protected DcMotor rightBackMotor;
+    protected DcMotor sweeperMotor;
+    protected DcMotor armMotor;
+
+    protected Servo armServo;
+    protected Servo tiltServo;
+
 
     //OTHER GLOBAL VARIABLES:
 
@@ -76,21 +85,34 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         phase = SETUP;
 
-        driveController1 = hardwareMap.dcMotorController.get("motorController_P0");
+        driveController1 = hardwareMap.dcMotorController.get("Motor Controller 1");
         driveController1.setMotorChannelMode(1, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         driveController1.setMotorChannelMode(2, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 
-        driveController2 = hardwareMap.dcMotorController.get("motorController_P1");
+        driveController2 = hardwareMap.dcMotorController.get("Motor Controller 2");
         driveController2.setMotorChannelMode(1, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         driveController2.setMotorChannelMode(2, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 
-        leftFrontMotor = hardwareMap.dcMotor.get("motor_P0_1");
-        rightFrontMotor = hardwareMap.dcMotor.get("motor_P0_2");
-        leftBackMotor = hardwareMap.dcMotor.get("motor_P1_1");
-        rightBackMotor = hardwareMap.dcMotor.get("motor_P1_2");
+        armAndSweeperController = hardwareMap.dcMotorController.get("Motor Controller 3");
+        armAndSweeperController.setMotorChannelMode(1, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        armAndSweeperController.setMotorChannelMode(2, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+
+        armServoController = hardwareMap.servoController.get("Servo Controller 4");
+
+        leftFrontMotor = hardwareMap.dcMotor.get("lf");
+        rightFrontMotor = hardwareMap.dcMotor.get("rf");
+        leftBackMotor = hardwareMap.dcMotor.get("lb");
+        rightBackMotor = hardwareMap.dcMotor.get("rb");
 
         leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
         leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
+
+        armMotor = hardwareMap.dcMotor.get("arm");
+        sweeperMotor = hardwareMap.dcMotor.get("sweeper");
+
+        armServo = hardwareMap.servo.get("rServo");
+        tiltServo = hardwareMap.servo.get("tServo");
+
         /*
         servoL = hardwareMap.servo.get("servo_P1_1");
         servoR = hardwareMap.servo.get("servo_P1_2");

@@ -102,11 +102,17 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             g1Stick1Xinit = gamepad1.left_stick_x;
             g1Stick1Yinit = gamepad1.left_stick_y;
         }
+
+        setMotorPower(sweeperMotor, (gamepad1.right_bumper ? 0.99 : 0));
+        setMotorPower(armMotor, Range.clip (gamepad1.right_stick_x, -0.15, 0.15));
+
+        tiltServo.setPosition(gamepad1.a ? 0.99 : 0);
+        armServo.setPosition(Math.abs(gamepad1.right_stick_y));
     }
 
     public void main ()
     {
-        while (opModeIsActive() && (gameTimer.time() /1000) < 120)
+        while (opModeIsActive() /*&& (gameTimer.time() /1000) < 120*/) //add game timer control back when we want to test with time cutoff
         {
             loopBody();
         }
