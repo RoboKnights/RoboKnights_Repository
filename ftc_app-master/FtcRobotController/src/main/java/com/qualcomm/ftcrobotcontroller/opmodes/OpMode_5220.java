@@ -48,6 +48,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final int RUNNING = 4;
     //protected static enum ProgramType {UNDECIDED, AUTONOMOUS, TELEOP};
 
+    protected static final double NORMAL = 2;
+    protected static final double ENCODER = 3;
+    protected static final double GYRO = 4;
+
     protected static final double WHEEL_DIAMETER = 6.0; //in inches
     protected static final double GEAR_RATIO = 2 / 3;
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
@@ -55,11 +59,20 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     //CONFIGURABLE CONSTANTS:
     protected static final double DEFAULT_DRIVE_POWER = 0.95;
+    protected static final double DEFAULT_SYNC_POWER = 0.56;
     protected static final double DEFAULT_TURN_POWER = 0.30;
     protected static final double DEFAULT_TURN_POWER_HIGH = 0.80;
     protected static final double INIT_SERVO_POSITION = 0.5;
 
+    protected static final double ENCODER_SYNC_PROPORTIONALITY_CONSTANT = 0.001; //0.001 means 50 encoder counts --> 5% power difference
+    protected static final double GYRO_SYNC_PROPORTIONALITY_CONSTANT = 0.02; //this times 100 is the motor power difference per degree off.
+    protected static final double ENCODER_SYNC_UPDATE_TIME = 20; //in milliseconds for convenience
+    protected static final double GYRO_SYNC_UPDATE_TIME = 20; //in milliseconds for convenience
+
     //MOTORS AND SERVOS:
+
+    protected static final String[] motorNames = {}; //Fill this in later.
+
     protected DcMotorController driveController1; //MAKE SURE THESE THINGS HAVE SAME NAME AS IN PHONE CONFIGURATION
     protected DcMotorController driveController2;
     protected DcMotorController armAndSweeperController;
@@ -72,9 +85,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected DcMotor sweeperMotor;
     protected DcMotor armMotor;
 
+    protected DcMotor[] driveMotors = new DcMotor[4];
+
     protected Servo armServo;
     protected Servo tiltServo;
-
 
     //OTHER GLOBAL VARIABLES:
 
@@ -106,6 +120,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
         leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
+
+        driveMotors[0] = leftFrontMotor;
+        driveMotors[1] = rightFrontMotor;
+        driveMotors[2] = leftBackMotor;
+        driveMotors[3] = rightBackMotor;
 
         armMotor = hardwareMap.dcMotor.get("arm");
         sweeperMotor = hardwareMap.dcMotor.get("sweeper");
@@ -195,6 +214,16 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         }
     }
 
+    public int getEncoderValue (DcMotor motor)
+    {
+        return motor.getCurrentPosition();
+    }
+
+    public double getGyroDirection () //placeholder
+    {
+        return 1.0;
+    }
+
     public void update_telemetry() //fix this to make it actually useful later. or maybe let is override
     {
         telemetry.addData("01", "Hello world!");
@@ -227,8 +256,6 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         setLeftDrivePower(power);
         setRightDrivePower(power);
     }
-    
-
 
     public final void stopDrivetrain ()
     {
@@ -237,16 +264,103 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final void resetDriveEncoders ()
     {
+        for (DcMotor motor: driveMotors)
+        {
+            motor.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+            motor.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        }
 
     }
 
-    public final boolean driveEncodersHaveReached(int count)
+    public final boolean driveEncodersHaveReached(int encoderCount)
     {
         return false;
     }
     public final boolean turnEncodersHaveReached(int count)
     {
         return false;
+    }
+
+    public final void move (double distance, double... params)
+    {
+        double power = DEFAULT_DRIVE_POWER;
+        double mode = NORMAL;
+
+        if (params.length > 2)
+        {
+            return;
+        }
+
+        else if (params.length == 1)
+        {
+            if (Math.abs(params[0]) < 1.1) //second parameter is power, 1.1 used instead of 1 to completely deal with floating point inaccuracy
+            {
+                power = params[0];
+            }
+
+            else
+            {
+                mode = params[0];
+                if (mode != NORMAL)
+                {
+                    power = DEFAULT_SYNC_POWER;
+                }
+            }
+        }
+
+        else if (params.length == 2)
+        {
+            power = params[0];
+            mode = params[1];
+        }
+
+        //If params.length == 0, no need to do anything, since power and mode are initialized to their proper values.
+
+        //Main method body:
+
+        int encoderCount = distanceToEncoderCount(distance);
+        double initialDirection = getGyroDirection();
+
+        double powerChange = 0;
+        double updateTime = ((mode == ENCODER) ? ENCODER_SYNC_UPDATE_TIME : GYRO_SYNC_UPDATE_TIME) / 1000;
+
+        resetDriveEncoders();
+        setDrivePower(power);
+
+        while (!driveEncodersHaveReached(encoderCount))
+        {
+            if (mode != NORMAL)
+            {
+                if (mode == ENCODER)
+                {
+                    double frontDifference = getEncoderValue(leftFrontMotor) - getEncoderValue(rightFrontMotor);
+                    double backDifference = getEncoderValue(leftBackMotor) - getEncoderValue(rightBackMotor);
+                    double averageDifference = (frontDifference + backDifference) / 2;
+                    powerChange = averageDifference * ENCODER_SYNC_PROPORTIONALITY_CONSTANT;
+                }
+
+                else if (mode == GYRO)
+                {
+                    powerChange = (getGyroDirection() - initialDirection) * GYRO_SYNC_PROPORTIONALITY_CONSTANT;
+                }
+
+                setLeftDrivePower(power - powerChange);
+                setRightDrivePower(power + powerChange);
+
+                double initTime = gameTimer.time();
+                while ((gameTimer.time() - initTime) < updateTime)
+                {
+                    if (driveEncodersHaveReached(encoderCount))
+                    {
+                        break;
+                    }
+                }
+            }
+
+            //do nothing if mode is NORMAL.
+        }
+
+        stopDrivetrain();
     }
 
     public final void move(double distance, double power) //add something to make sure that negative distance = negative power.
@@ -263,6 +377,38 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public final void move(double distance)
     {
         move (distance, DEFAULT_DRIVE_POWER);
+    }
+
+    public final void moveSynced (double distance, double power) //never make power more than about 0.6, and only use on flat mat
+    {
+        int encoderCount = distanceToEncoderCount(distance);
+        resetDriveEncoders();
+        setDrivePower(power);
+
+        while (!driveEncodersHaveReached(encoderCount))
+        {
+            double frontDifference = getEncoderValue(leftFrontMotor) - getEncoderValue(rightFrontMotor);
+            double backDifference = getEncoderValue(leftBackMotor) - getEncoderValue(rightBackMotor);
+            double averageDifference = (frontDifference + backDifference) / 2;
+            double powerChange = averageDifference * ENCODER_SYNC_PROPORTIONALITY_CONSTANT;
+
+            setLeftDrivePower(power - powerChange);
+            setRightDrivePower(power + powerChange);
+
+            double initTime = gameTimer.time();
+            while ((gameTimer.time() - initTime) < (ENCODER_SYNC_UPDATE_TIME / 1000))
+            {
+                if (driveEncodersHaveReached(encoderCount))
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    public final void moveGyro (double distance, double power)
+    {
+
     }
 
     public final void moveTime(int time, double power)
