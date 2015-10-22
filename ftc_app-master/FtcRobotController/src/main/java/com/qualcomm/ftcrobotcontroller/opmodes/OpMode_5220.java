@@ -363,54 +363,6 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         stopDrivetrain();
     }
 
-    public final void move(double distance, double power) //add something to make sure that negative distance = negative power.
-    {
-        resetDriveEncoders();
-        setDrivePower(power);
-        while (!driveEncodersHaveReached(distanceToEncoderCount(distance)))
-        {
-
-        }
-        stopDrivetrain();
-    }
-
-    public final void move(double distance)
-    {
-        move (distance, DEFAULT_DRIVE_POWER);
-    }
-
-    public final void moveSynced (double distance, double power) //never make power more than about 0.6, and only use on flat mat
-    {
-        int encoderCount = distanceToEncoderCount(distance);
-        resetDriveEncoders();
-        setDrivePower(power);
-
-        while (!driveEncodersHaveReached(encoderCount))
-        {
-            double frontDifference = getEncoderValue(leftFrontMotor) - getEncoderValue(rightFrontMotor);
-            double backDifference = getEncoderValue(leftBackMotor) - getEncoderValue(rightBackMotor);
-            double averageDifference = (frontDifference + backDifference) / 2;
-            double powerChange = averageDifference * ENCODER_SYNC_PROPORTIONALITY_CONSTANT;
-
-            setLeftDrivePower(power - powerChange);
-            setRightDrivePower(power + powerChange);
-
-            double initTime = gameTimer.time();
-            while ((gameTimer.time() - initTime) < (ENCODER_SYNC_UPDATE_TIME / 1000))
-            {
-                if (driveEncodersHaveReached(encoderCount))
-                {
-                    break;
-                }
-            }
-        }
-    }
-
-    public final void moveGyro (double distance, double power)
-    {
-
-    }
-
     public final void moveTime(int time, double power)
     {
         setDrivePower(power);
