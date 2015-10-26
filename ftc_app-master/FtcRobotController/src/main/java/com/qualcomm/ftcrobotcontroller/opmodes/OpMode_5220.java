@@ -473,4 +473,22 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         sleep (time);
         stopDrivetrain();
     }
+
+    //ATTACHMENTS:
+
+    public static final boolean COLLECT = false;
+    public static final boolean DISPENSE = true;
+
+    private boolean armPosition = COLLECT;
+
+    public final void moveArm ()
+    {
+        armPosition = !armPosition;
+
+        if (armPosition == COLLECT) {
+
+        } else if (armPosition == DISPENSE) {
+
+        }
+    }
 }
