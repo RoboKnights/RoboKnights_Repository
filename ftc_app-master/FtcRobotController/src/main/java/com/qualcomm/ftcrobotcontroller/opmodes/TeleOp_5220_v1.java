@@ -38,13 +38,41 @@ import com.qualcomm.robotcore.util.*;
 public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a long comment.
 {
     private static final double JOYSTICK_THRESHOLD = 0.08; //below this joysticks won't cause movement.
+    private static final double SLOW_POWER = 0.15;
+
+    private static final double SWIVEL_INCREMENT = 0.01;
+    private static final double SWIVEL_INCREMENT_TIME = 70; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
+    private static final double SWIVEL_360 = 0.242;
+
+    private static final double ARM_INCREMENT = 0.04;
+    private static final double ARM_INCREMENT_TIME = 30; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
 
     private double g1Stick1Xinit;
     private double g1Stick1Yinit;
 
+    private Stopwatch topHatXTime;
+    private Stopwatch topHatYTime;
+
+    private boolean prevTopHatUp1;
+    private boolean prevTopHatDown1;
+    private boolean prevTopHatLeft1;
+    private boolean prevTopHatRight1;
+    /*
+    private void updateTopHat()
+    {
+        if (gamepad1.)
+    }
+
+    private void updatePrevTopHat ()
+    {
+
+    }
+*/
     public void initialize ()
     {
         super.initialize();
+        swivelServo.setPosition(1); //full range is 6.25 rotation, approximately. 1 is collection position
+        armServo.setPosition(1);
         g1Stick1Xinit = gamepad1.left_stick_x;
         g1Stick1Yinit = gamepad1.left_stick_y;
     }
@@ -60,25 +88,51 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         right = Range.clip(right, -2, 2);
         left  = Range.clip(left,  -2, 2);
 
-
-        if (right > 1)
+        if (gamepad1.left_stick_button)
         {
-            right = 1;
+            if (right > SLOW_POWER)
+            {
+                right = SLOW_POWER;
+            }
+
+            if (right < -SLOW_POWER)
+            {
+                right = -SLOW_POWER;
+            }
+
+            if (left > SLOW_POWER)
+            {
+                left = SLOW_POWER;
+            }
+
+            if (left < -SLOW_POWER)
+            {
+                left = -SLOW_POWER;
+            }
         }
 
-        if (right < -1)
+        else
         {
-            right = -1;
-        }
 
-        if (left > 1)
-        {
-            left = 1;
-        }
+            if (right > 1)
+            {
+                right = 1;
+            }
 
-        if (left < -1)
-        {
-            left = -1;
+            if (right < -1)
+            {
+                right = -1;
+            }
+
+            if (left > 1)
+            {
+                left = 1;
+            }
+
+            if (left < -1)
+            {
+                left = -1;
+            }
         }
 
         if (Math.abs (right) < JOYSTICK_THRESHOLD)
@@ -91,8 +145,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             left = 0;
         }
 
-        telemetry.addData("2", "Left: " + left);
-        telemetry.addData("3", "Right: " + right);
+       // telemetry.addData("2", "Left: " + left);
+       // telemetry.addData("3", "Right: " + right);
 
         setLeftDrivePower(left);
         setRightDrivePower(right);
@@ -104,14 +158,72 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         }
 
         setMotorPower(sweeperMotor, (gamepad1.right_bumper ? 0.99 : 0));
-        setMotorPower(armMotor, Range.clip (gamepad1.right_stick_x, -0.15, 0.15));
 
         tiltServo.setPosition(gamepad1.a ? 0.99 : 0);
-        armServo.setPosition(Math.abs(gamepad1.right_stick_y));
+       // armServo.setPosition(1 - Math.abs(gamepad1.right_stick_y));
+
+        //SWIVEL CONTROL:
+
+        if ((gamepad1.dpad_left) && (!prevTopHatLeft1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
+        {
+            double newPosition = swivelServo.getPosition() + SWIVEL_INCREMENT;
+            if (newPosition > 1) newPosition = 1;
+            swivelServo.setPosition(newPosition);
+            topHatXTime = new Stopwatch();
+        }
+
+        if ((gamepad1.dpad_right) && (!prevTopHatRight1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
+        {
+            double newPosition = swivelServo.getPosition() - SWIVEL_INCREMENT;
+            if (newPosition < 0) newPosition = 0;
+            swivelServo.setPosition(newPosition);
+            topHatXTime = new Stopwatch();
+        }
+
+        if (!gamepad1.dpad_left && !gamepad1.dpad_right)
+        {
+            topHatXTime = null;
+        }
+
+        //ARM CONTROL:
+        if ((gamepad1.dpad_up) && (!prevTopHatUp1 || (topHatYTime != null && topHatYTime.time() > ARM_INCREMENT_TIME)))
+        {
+            double newPosition = armServo.getPosition() + ARM_INCREMENT;
+            if (newPosition > 1) newPosition = 1;
+            armServo.setPosition(newPosition);
+            topHatYTime = new Stopwatch();
+        }
+
+        if ((gamepad1.dpad_down) && (!prevTopHatDown1 || (topHatYTime != null && topHatYTime.time() > ARM_INCREMENT_TIME)))
+        {
+            double newPosition = armServo.getPosition() - ARM_INCREMENT;
+            if (newPosition < 0) newPosition = 0;
+            armServo.setPosition(newPosition);
+            topHatYTime = new Stopwatch();
+        }
+
+        if (!gamepad1.dpad_down && !gamepad1.dpad_up)
+        {
+            topHatYTime = null;
+        }
+
+
+        //Previous value settings:
+
+        prevTopHatUp1 = gamepad1.dpad_up;
+        prevTopHatDown1 = gamepad1.dpad_down;
+        prevTopHatRight1 = gamepad1.dpad_right;
+        prevTopHatLeft1 = gamepad1.dpad_left;
+
     }
 
     public void main ()
     {
+        new DebuggerDisplayLoop().start();
+
+        for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+
+        leftFrontMotor.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         while (opModeIsActive() /*&& (gameTimer.time() /1000) < 120*/) //add game timer control back when we want to test with time cutoff
         {
             loopBody();

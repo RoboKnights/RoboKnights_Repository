@@ -11,9 +11,9 @@
     <ServoController name="Servo Controller 4" serialNumber="AI02RN3S">
         <Servo name="rServo" port="1" />
         <Servo name="tServo" port="2" />
+        <Servo name="sServo" port="3" />
     </ServoController>
     <MotorController name="Motor Controller 3" serialNumber="AL00UVMQ">
-        <Motor name="arm" port="1" />
         <Motor name="sweeper" port="2" />
     </MotorController>
 </Robot>

@@ -55,8 +55,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
             }
 
+            stopDrivetrain();
             //throw new RuntimeException("Program terminated by user.");
-            System.exit(0);
+            //System.exit(0);
         }
     }
 
@@ -228,16 +229,23 @@ public class Autonomous_5220_v1 extends OpMode_5220
         telemetry.addData("5", "all stoppedd");
         */
 
-        //moveTime(2000);
-        setDrivePower(0.99);
 
+
+        //moveTime(2000);
+        //leftFrontMotor.setTargetPosition(5000);
+        ///sleep(2000);
+       // moveTime(500, 0.2);
+        moveSimple (1000);
+        sleep (1000);
+        move (1000);
         while (opModeIsActive())
         {
 
         }
 
         stopDrivetrain();
-        System.exit(0);
+
+       // System.exit(0);
     }
 
 
@@ -311,10 +319,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void main ()
     {
         new ProgramKiller().start();
+        new DebuggerDisplayLoop().start();
        // telemetry.clearData();
         telemetry.addData ("2", "hello world!");
         test();
-        autonomous();
+        //autonomous();
     }
 
 

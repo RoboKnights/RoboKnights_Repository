@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 Qualcomm Technologies Inc
+/* Copyright (c) 2014 Qualcomm Technologies Inc
 
 All rights reserved.
 
@@ -31,14 +31,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.*;
-import com.qualcomm.robotcore.hardware.*;
-import com.qualcomm.robotcore.util.*;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
+import com.qualcomm.robotcore.util.Range;
 
-//add program off switch for using any one particular motor
-
-public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET DECENT VERSION CONTROL INSTEAD OF HAVING TO SAVE AS FOR EVERY NEW VERSION
+/**
+ * TeleOp Mode
+ * <p>
+ * Enables control of the robot via the gamepad
+ */
+public class LoopTest5220 extends OpMode
 {
+
     //CONSTANTS:
 
     protected static final int HAS_NOT_STARTED = 0;
@@ -96,21 +103,35 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected Stopwatch gameTimer;
     protected int phase = HAS_NOT_STARTED;
 
+    public class Stopwatch
+    {
+        private final long start;
+
+        public Stopwatch() {
+            start = System.currentTimeMillis();
+        }
+
+        public double time() {
+            long now = System.currentTimeMillis();
+            return ((double) (now - start)) / 1000.0;
+        }
+    }
+
     public void setup()//this and the declarations above are the equivalent of the pragmas in RobotC
     {
         phase = SETUP;
 
         driveController1 = hardwareMap.dcMotorController.get("Motor Controller 1");
-        driveController1.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
-        driveController1.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
+        driveController1.setMotorChannelMode(1, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        driveController1.setMotorChannelMode(2, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 
         driveController2 = hardwareMap.dcMotorController.get("Motor Controller 2");
-        driveController2.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
-        driveController2.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
+        driveController2.setMotorChannelMode(1, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        driveController2.setMotorChannelMode(2, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 
         armAndSweeperController = hardwareMap.dcMotorController.get("Motor Controller 3");
-        armAndSweeperController.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
-        armAndSweeperController.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
+        armAndSweeperController.setMotorChannelMode(1, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        armAndSweeperController.setMotorChannelMode(2, DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 
         armServoController = hardwareMap.servoController.get("Servo Controller 4");
 
@@ -130,12 +151,14 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
-       // armMotor = hardwareMap.dcMotor.get("arm");
+        // armMotor = hardwareMap.dcMotor.get("arm");
         sweeperMotor = hardwareMap.dcMotor.get("sweeper");
 
         swivelServo = hardwareMap.servo.get("sServo");
         armServo = hardwareMap.servo.get("rServo");
         tiltServo = hardwareMap.servo.get("tServo");
+
+        gameTimer = new Stopwatch();
 
         /*
         servoL = hardwareMap.servo.get("servo_P1_1");
@@ -143,66 +166,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         */
     }
 
-    public void initialize()
-    {
-        phase = INIT;
-    }
-
-    public void waitForStart5220() //override this to do stuff if neccessary
-    {
-        while (!opModeIsActive())
-        {
-
-        }
-    }
-
-    public void waitForStart () throws InterruptedException //forget about this override and put the phase change in runOpMode if neccessary.
-    {
-        phase = WAITING;
-        super.waitForStart();
-    }
-
-    public abstract void main(); //implement in all subclasses. This is the main body of the program. Maybe also make initializeRobot something to override if its different between OpModes.
-
-    public final void runOpMode() throws InterruptedException
-    {
-        setup();
-        initialize();
-        //waitForStart5220(); //uncomment this if it turns out that it works just as well as waitForStart();
-        waitForStart();
-
-        phase = RUNNING;
-        gameTimer = new Stopwatch();
-
-        main();
-    }
-
-    //HELPER CLASSES AND METHODS:
-    //______________________________________________________________________________________________________________
-    public class Stopwatch
-    {
-        private final long start;
-
-        public Stopwatch() {
-            start = System.currentTimeMillis();
-        }
-
-        public double time() {
-            long now = System.currentTimeMillis();
-            return ((int) (now - start));
-        }
-
-        public double timeSeconds() {
-            long now = System.currentTimeMillis();
-            return (((double) (now - start)) / 1000);
-        }
-    }
-
     public class DebuggerDisplayLoop extends Thread
     {
         public void run()
         {
-            while (opModeIsActive())
+            while (true)
             {
                 telemetry.addData("1", "LFM: " + leftFrontMotor.getCurrentPosition());
                 telemetry.addData("2", "RFM: " + rightFrontMotor.getCurrentPosition());
@@ -362,12 +330,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         double initialDirection = getGyroDirection();
 
         double powerChange = 0;
-        double updateTime = ((mode == ENCODER) ? ENCODER_SYNC_UPDATE_TIME : GYRO_SYNC_UPDATE_TIME);
+        double updateTime = ((mode == ENCODER) ? ENCODER_SYNC_UPDATE_TIME : GYRO_SYNC_UPDATE_TIME) / 1000;
 
         resetDriveEncoders();
         setDrivePower(power);
 
-        while (opModeIsActive() && !driveEncodersHaveReached(encoderCount))
+        while (!driveEncodersHaveReached(encoderCount))
         {
             if (mode != NORMAL)
             {
@@ -406,7 +374,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public void moveSimple (int count)
     {
         setDrivePower(DEFAULT_DRIVE_POWER);
-        while (opModeIsActive() && !driveEncodersHaveReached(count))
+        while (!driveEncodersHaveReached(count))
         {
 
         }
@@ -473,4 +441,126 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         sleep (time);
         stopDrivetrain();
     }
+
+    //ATTACHMENTS:
+
+    public static final boolean COLLECT = false;
+    public static final boolean DISPENSE = true;
+
+    private boolean armPosition = COLLECT;
+
+    public final void moveArm ()
+    {
+        armPosition = !armPosition;
+
+        if (armPosition == COLLECT) {
+
+        } else if (armPosition == DISPENSE) {
+
+        }
+    }
+
+	/*
+	 * Code to run when the op mode is first enabled goes here
+	 * 
+	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
+	 */
+	@Override
+	public void init()
+    {
+        setup();
+       // new DebuggerDisplayLoop().start();
+	}
+
+	/*
+	 * This method will be called repeatedly in a loop
+	 * 
+	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
+	 */
+	//@Override
+
+    private static final double JOYSTICK_THRESHOLD = 0.08; //below this joysticks won't cause movement.
+
+    private double g1Stick1Xinit;
+    private double g1Stick1Yinit;
+	public void loop()
+    {
+        double throttle  = (-(gamepad1.left_stick_y - g1Stick1Yinit));
+        double direction =  (gamepad1.left_stick_x - g1Stick1Xinit);
+        double right = throttle - direction;
+        double left  = throttle + direction;
+
+        // clip the right/left values so that the values never exceed +/- 1
+        right = Range.clip(right, -2, 2);
+        left  = Range.clip(left,  -2, 2);
+
+
+        if (right > 1)
+        {
+            right = 1;
+        }
+
+        if (right < -1)
+        {
+            right = -1;
+        }
+
+        if (left > 1)
+        {
+            left = 1;
+        }
+
+        if (left < -1)
+        {
+            left = -1;
+        }
+
+        if (Math.abs (right) < JOYSTICK_THRESHOLD)
+        {
+            right = 0;
+        }
+
+        if (Math.abs(left) < JOYSTICK_THRESHOLD)
+        {
+            left = 0;
+        }
+
+        // telemetry.addData("2", "Left: " + left);
+        // telemetry.addData("3", "Right: " + right);
+
+        setLeftDrivePower(left);
+        setRightDrivePower(right);
+
+        if (gamepad1.left_stick_button)
+        {
+            g1Stick1Xinit = gamepad1.left_stick_x;
+            g1Stick1Yinit = gamepad1.left_stick_y;
+        }
+
+        setMotorPower(sweeperMotor, (gamepad1.right_bumper ? 0.99 : 0));
+
+        tiltServo.setPosition(gamepad1.a ? 0.99 : 0);
+        armServo.setPosition(1 - Math.abs(gamepad1.right_stick_y));
+        swivelServo.setPosition(0.76); //full range is 6.25 rotation, approximately. 1 is collection position
+
+        telemetry.addData("1", "LFM: " + leftFrontMotor.getCurrentPosition());
+        telemetry.addData("2", "RFM: " + rightFrontMotor.getCurrentPosition());
+        telemetry.addData("3", "LBM: " + leftBackMotor.getCurrentPosition());
+        telemetry.addData("4", "RBM: " + rightBackMotor.getCurrentPosition());
+        telemetry.addData("5", "Swivel: " + swivelServo.getPosition());
+        telemetry.addData("6", "Arm: " + armServo.getPosition());
+        telemetry.addData("7", "Tilt: " + tiltServo.getPosition());
+        telemetry.addData("8", "Time Elapsed:" + gameTimer.time());
+
+	}
+
+	/*
+	 * Code to run when the op mode is first disabled goes here
+	 * 
+	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
+	 */
+	@Override
+	public void stop() {
+
+	}
 }
