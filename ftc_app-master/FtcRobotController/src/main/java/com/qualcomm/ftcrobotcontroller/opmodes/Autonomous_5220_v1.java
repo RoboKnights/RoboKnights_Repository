@@ -46,6 +46,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean smartDetectOn = false;
 
+    public ProgramType getProgramType ()
+    {
+        return ProgramType.AUTONOMOUS;
+    }
+
     private class ProgramKiller extends Thread
     {
         public void run()

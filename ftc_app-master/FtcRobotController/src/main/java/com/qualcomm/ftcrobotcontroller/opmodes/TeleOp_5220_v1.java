@@ -47,16 +47,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private static final double ARM_INCREMENT = 0.04;
     private static final double ARM_INCREMENT_TIME = 30; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
 
+    private static final double HOOK_TILT_INCREMENT = 0.015;
+
     private double g1Stick1Xinit;
     private double g1Stick1Yinit;
 
-    private Stopwatch topHatXTime;
-    private Stopwatch topHatYTime;
 
-    private boolean prevTopHatUp1;
-    private boolean prevTopHatDown1;
-    private boolean prevTopHatLeft1;
-    private boolean prevTopHatRight1;
     /*
     private void updateTopHat()
     {
@@ -68,6 +64,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
     }
 */
+
+    public ProgramType getProgramType ()
+    {
+        return ProgramType.TELEOP;
+    }
+
     public void initialize ()
     {
         super.initialize();
@@ -77,156 +79,196 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         g1Stick1Yinit = gamepad1.left_stick_y;
     }
 
-    public void loopBody()
+    public void loop5220()
     {
-        double throttle  = (-(gamepad1.left_stick_y - g1Stick1Yinit));
-        double direction =  (gamepad1.left_stick_x - g1Stick1Xinit);
-        double right = throttle - direction;
-        double left  = throttle + direction;
+        Stopwatch topHatXTime = null;
+        Stopwatch topHatYTime = null;
 
-        // clip the right/left values so that the values never exceed +/- 1
-        right = Range.clip(right, -2, 2);
-        left  = Range.clip(left,  -2, 2);
+        boolean prevTopHatUp1 = false; //maybe change these initialization if they mess something up
+        boolean prevTopHatDown1 = false;
+        boolean prevTopHatLeft1 = false;
+        boolean prevTopHatRight1 = false;
+        boolean prevLB = false;
+        boolean prevLT = false;
 
-        if (gamepad1.left_stick_button)
+        while (runConditions())
         {
-            if (right > SLOW_POWER)
+            //DRIVETRAIN CONTROL:
+
+            double throttle = (-(gamepad1.left_stick_y - g1Stick1Yinit));
+            double direction = (gamepad1.left_stick_x - g1Stick1Xinit);
+            double right = throttle - direction;
+            double left = throttle + direction;
+
+            // clip the right/left values so that the values never exceed +/- 1
+            right = Range.clip(right, -2, 2);
+            left = Range.clip(left, -2, 2);
+
+            if (gamepad1.left_stick_button)
             {
-                right = SLOW_POWER;
+                if (right > SLOW_POWER)
+                {
+                    right = SLOW_POWER;
+                }
+
+                if (right < -SLOW_POWER)
+                {
+                    right = -SLOW_POWER;
+                }
+
+                if (left > SLOW_POWER)
+                {
+                    left = SLOW_POWER;
+                }
+
+                if (left < -SLOW_POWER)
+                {
+                    left = -SLOW_POWER;
+                }
             }
 
-            if (right < -SLOW_POWER)
+            else
             {
-                right = -SLOW_POWER;
+
+                if (right > 1)
+                {
+                    right = 1;
+                }
+
+                if (right < -1)
+                {
+                    right = -1;
+                }
+
+                if (left > 1)
+                {
+                    left = 1;
+                }
+
+                if (left < -1)
+                {
+                    left = -1;
+                }
             }
 
-            if (left > SLOW_POWER)
+            if (Math.abs(right) < JOYSTICK_THRESHOLD)
             {
-                left = SLOW_POWER;
+                right = 0;
             }
 
-            if (left < -SLOW_POWER)
+            if (Math.abs(left) < JOYSTICK_THRESHOLD)
             {
-                left = -SLOW_POWER;
-            }
-        }
-
-        else
-        {
-
-            if (right > 1)
-            {
-                right = 1;
+                left = 0;
             }
 
-            if (right < -1)
+            setLeftDrivePower(left);
+            setRightDrivePower(right);
+
+            if (gamepad1.left_stick_button)
             {
-                right = -1;
+                g1Stick1Xinit = gamepad1.left_stick_x;
+                g1Stick1Yinit = gamepad1.left_stick_y;
             }
 
-            if (left > 1)
+            //SWEEPER CONTROL:
+
+            double sweeperPower = 0;
+
+            if (gamepad1.right_bumper)
             {
-                left = 1;
+                sweeperPower = 1;
             }
 
-            if (left < -1)
+            else if (gamepad1.right_trigger > 0.7) //not entirely sure we can or will ever need to do this, move the sweeper in reverse.
             {
-                left = -1;
+                sweeperPower = -1;
             }
+
+            setMotorPower(sweeperMotor, sweeperPower);
+
+            //DOOR CONTROL:
+
+            moveDoor(gamepad1.a ? OPEN : CLOSE);
+
+            //SWIVEL CONTROL:
+
+            if ((gamepad1.dpad_left) && (!prevTopHatLeft1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
+            {
+                double newPosition = swivelServo.getPosition() + SWIVEL_INCREMENT;
+                if (newPosition > 1) newPosition = 1;
+                swivelServo.setPosition(newPosition);
+                topHatXTime = new Stopwatch();
+            }
+
+            if ((gamepad1.dpad_right) && (!prevTopHatRight1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
+            {
+                double newPosition = swivelServo.getPosition() - SWIVEL_INCREMENT;
+                if (newPosition < 0) newPosition = 0;
+                swivelServo.setPosition(newPosition);
+                topHatXTime = new Stopwatch();
+            }
+
+            if (!gamepad1.dpad_left && !gamepad1.dpad_right)
+            {
+                topHatXTime = null;
+            }
+
+            //ARM CONTROL:
+
+            if ((gamepad1.dpad_up) && (!prevTopHatUp1 || (topHatYTime != null && topHatYTime.time() > ARM_INCREMENT_TIME)))
+            {
+                double newPosition = armServo.getPosition() + ARM_INCREMENT;
+                if (newPosition > 1) newPosition = 1;
+                armServo.setPosition(newPosition);
+                topHatYTime = new Stopwatch();
+            }
+
+            if ((gamepad1.dpad_down) && (!prevTopHatDown1 || (topHatYTime != null && topHatYTime.time() > ARM_INCREMENT_TIME)))
+            {
+                double newPosition = armServo.getPosition() - ARM_INCREMENT;
+                if (newPosition < 0) newPosition = 0;
+                armServo.setPosition(newPosition);
+                topHatYTime = new Stopwatch();
+            }
+
+            if (!gamepad1.dpad_down && !gamepad1.dpad_up)
+            {
+                topHatYTime = null;
+            }
+
+            //HOOK TILT CONTROL:
+
+            if (gamepad1.left_bumper != prevLB)
+            {
+                if (gamepad1.left_bumper)
+                {
+                    hookTiltServo.setPosition(hookTiltServo.getPosition() + HOOK_TILT_INCREMENT);
+                }
+            }
+
+            else if ((gamepad1.left_trigger > 0.7) != prevLT)
+            {
+                if (gamepad1.left_trigger > 0.7)
+                {
+                    hookTiltServo.setPosition(hookTiltServo.getPosition() - HOOK_TILT_INCREMENT);
+                }
+            }
+
+            //Previous value settings:
+
+            prevTopHatUp1 = gamepad1.dpad_up;
+            prevTopHatDown1 = gamepad1.dpad_down;
+            prevTopHatRight1 = gamepad1.dpad_right;
+            prevTopHatLeft1 = gamepad1.dpad_left;
+            prevLB = gamepad1.left_bumper;
+            prevLT = gamepad1.left_trigger > 0.7;
         }
-
-        if (Math.abs (right) < JOYSTICK_THRESHOLD)
-        {
-            right = 0;
-        }
-
-        if (Math.abs(left) < JOYSTICK_THRESHOLD)
-        {
-            left = 0;
-        }
-
-       // telemetry.addData("2", "Left: " + left);
-       // telemetry.addData("3", "Right: " + right);
-
-        setLeftDrivePower(left);
-        setRightDrivePower(right);
-
-        if (gamepad1.left_stick_button)
-        {
-            g1Stick1Xinit = gamepad1.left_stick_x;
-            g1Stick1Yinit = gamepad1.left_stick_y;
-        }
-
-        setMotorPower(sweeperMotor, (gamepad1.right_bumper ? 0.99 : 0));
-
-        tiltServo.setPosition(gamepad1.a ? 0.99 : 0);
-       // armServo.setPosition(1 - Math.abs(gamepad1.right_stick_y));
-
-        //SWIVEL CONTROL:
-
-        if ((gamepad1.dpad_left) && (!prevTopHatLeft1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
-        {
-            double newPosition = swivelServo.getPosition() + SWIVEL_INCREMENT;
-            if (newPosition > 1) newPosition = 1;
-            swivelServo.setPosition(newPosition);
-            topHatXTime = new Stopwatch();
-        }
-
-        if ((gamepad1.dpad_right) && (!prevTopHatRight1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
-        {
-            double newPosition = swivelServo.getPosition() - SWIVEL_INCREMENT;
-            if (newPosition < 0) newPosition = 0;
-            swivelServo.setPosition(newPosition);
-            topHatXTime = new Stopwatch();
-        }
-
-        if (!gamepad1.dpad_left && !gamepad1.dpad_right)
-        {
-            topHatXTime = null;
-        }
-
-        //ARM CONTROL:
-        if ((gamepad1.dpad_up) && (!prevTopHatUp1 || (topHatYTime != null && topHatYTime.time() > ARM_INCREMENT_TIME)))
-        {
-            double newPosition = armServo.getPosition() + ARM_INCREMENT;
-            if (newPosition > 1) newPosition = 1;
-            armServo.setPosition(newPosition);
-            topHatYTime = new Stopwatch();
-        }
-
-        if ((gamepad1.dpad_down) && (!prevTopHatDown1 || (topHatYTime != null && topHatYTime.time() > ARM_INCREMENT_TIME)))
-        {
-            double newPosition = armServo.getPosition() - ARM_INCREMENT;
-            if (newPosition < 0) newPosition = 0;
-            armServo.setPosition(newPosition);
-            topHatYTime = new Stopwatch();
-        }
-
-        if (!gamepad1.dpad_down && !gamepad1.dpad_up)
-        {
-            topHatYTime = null;
-        }
-
-
-        //Previous value settings:
-
-        prevTopHatUp1 = gamepad1.dpad_up;
-        prevTopHatDown1 = gamepad1.dpad_down;
-        prevTopHatRight1 = gamepad1.dpad_right;
-        prevTopHatLeft1 = gamepad1.dpad_left;
-
     }
 
     public void main ()
     {
         new DebuggerDisplayLoop().start();
-
         for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-
-        leftFrontMotor.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        while (opModeIsActive() /*&& (gameTimer.time() /1000) < 120*/) //add game timer control back when we want to test with time cutoff
-        {
-            loopBody();
-        }
+        loop5220();
     }
 }

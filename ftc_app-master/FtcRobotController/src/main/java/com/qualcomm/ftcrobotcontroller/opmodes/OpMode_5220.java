@@ -34,6 +34,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
+//hello!
 
 //add program off switch for using any one particular motor
 
@@ -46,7 +47,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final int INIT = 2;
     protected static final int WAITING = 3;
     protected static final int RUNNING = 4;
-    //protected static enum ProgramType {UNDECIDED, AUTONOMOUS, TELEOP};
+
+    protected static enum ProgramType {UNDECIDED, AUTONOMOUS, TELEOP};
+    protected static ProgramType programType = ProgramType.UNDECIDED;
 
     protected static final double NORMAL = 2;
     protected static final double ENCODER = 3;
@@ -58,6 +61,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
 
     //CONFIGURABLE CONSTANTS:
+
+    protected static final boolean TIMER_ON = false;
+    protected static final int TIMER_STOP_BUFFER = 500; //in millis
+
     protected static final double DEFAULT_DRIVE_POWER = 0.95;
     protected static final double DEFAULT_SYNC_POWER = 0.56;
     protected static final double DEFAULT_TURN_POWER = 0.30;
@@ -89,7 +96,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     protected Servo swivelServo;
     protected Servo armServo;
-    protected Servo tiltServo;
+    protected Servo doorServo;
+    protected Servo hookTiltServo;
 
     //OTHER GLOBAL VARIABLES:
 
@@ -101,16 +109,16 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         phase = SETUP;
 
         driveController1 = hardwareMap.dcMotorController.get("Motor Controller 1");
-        driveController1.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
-        driveController1.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
+        //driveController1.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
+        //driveController1.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
 
         driveController2 = hardwareMap.dcMotorController.get("Motor Controller 2");
-        driveController2.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
-        driveController2.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
+       // driveController2.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
+       // driveController2.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
 
         armAndSweeperController = hardwareMap.dcMotorController.get("Motor Controller 3");
-        armAndSweeperController.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
-        armAndSweeperController.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
+        //armAndSweeperController.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
+       // armAndSweeperController.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
 
         armServoController = hardwareMap.servoController.get("Servo Controller 4");
 
@@ -135,7 +143,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         swivelServo = hardwareMap.servo.get("sServo");
         armServo = hardwareMap.servo.get("rServo");
-        tiltServo = hardwareMap.servo.get("tServo");
+        doorServo = hardwareMap.servo.get("tServo");
+        hookTiltServo = hardwareMap.servo.get("hServo");
 
         /*
         servoL = hardwareMap.servo.get("servo_P1_1");
@@ -187,7 +196,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             start = System.currentTimeMillis();
         }
 
-        public double time() {
+        public int time() {
             long now = System.currentTimeMillis();
             return ((int) (now - start));
         }
@@ -210,10 +219,31 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 telemetry.addData("4", "RBM: " + rightBackMotor.getCurrentPosition());
                 telemetry.addData("5", "Swivel: " + swivelServo.getPosition());
                 telemetry.addData("6", "Arm: " + armServo.getPosition());
-                telemetry.addData("7", "Tilt: " + tiltServo.getPosition());
+                telemetry.addData("7", "Tilt: " + doorServo.getPosition());
                 telemetry.addData("8", "Time Elapsed:" + gameTimer.time());
             }
         }
+    }
+
+    public abstract ProgramType getProgramType();
+
+    public boolean runConditions()
+    {
+        int maxTime;
+
+        if (getProgramType() == ProgramType.AUTONOMOUS)
+        {
+            maxTime = 120000 - TIMER_STOP_BUFFER;
+        }
+
+        else if (getProgramType() == ProgramType.TELEOP)
+        {
+            maxTime = 30000 - TIMER_STOP_BUFFER;
+        }
+
+        boolean timeValid = (!TIMER_ON || (gameTimer.time() < maxTime));
+        return (opModeIsActive() && timeValid);
+
     }
 
     public int distanceToEncoderCount (double distance) //distance is in inches
@@ -229,8 +259,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     }
 
-    public void sleep(int millis)
+    public void sleep(int millis) //change back to old way if the new way doesn't work
     {
+        /*
         try
         {
             Thread.sleep(millis);
@@ -240,6 +271,14 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         {
             System.exit(0);
         }
+        */
+
+        int startTime = gameTimer.time();
+        while (runConditions() && (gameTimer.time() < startTime + millis))
+        {
+
+        }
+        return;
     }
 
     public int getEncoderValue (DcMotor motor)
@@ -367,7 +406,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         resetDriveEncoders();
         setDrivePower(power);
 
-        while (opModeIsActive() && !driveEncodersHaveReached(encoderCount))
+        while (runConditions() && !driveEncodersHaveReached(encoderCount))
         {
             if (mode != NORMAL)
             {
@@ -406,7 +445,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public void moveSimple (int count)
     {
         setDrivePower(DEFAULT_DRIVE_POWER);
-        while (opModeIsActive() && !driveEncodersHaveReached(count))
+        while (runConditions() && !driveEncodersHaveReached(count))
         {
 
         }
@@ -455,7 +494,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         resetDriveEncoders();
         setTurnPower(power);
-        while (!turnEncodersHaveReached(distanceToEncoderCount(distance)))
+        while (runConditions() && !turnEncodersHaveReached(distanceToEncoderCount(distance)))
         {
 
         }
@@ -490,5 +529,27 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         } else if (armPosition == DISPENSE) {
 
         }
+    }
+
+    public static final boolean CLOSE = false;
+    public static final boolean OPEN = true;
+
+    public final void moveDoor (boolean position)
+    {
+        if (position == OPEN)
+        {
+            doorServo.setPosition(0.0);
+        }
+
+        else if (position == CLOSE)
+        {
+            doorServo.setPosition(1.0);
+        }
+
+    }
+
+    public final void moveDoor()
+    {
+        doorServo.setPosition(doorServo.getPosition() == 0.0 ? 1.0 : 0.0); //set door to whatever position it wasn't in before.
     }
 }
