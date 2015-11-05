@@ -52,6 +52,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private double g1Stick1Xinit;
     private double g1Stick1Yinit;
 
+    private boolean reverseDriveOn = false;
+
 
     /*
     private void updateTopHat()
@@ -73,7 +75,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     public void initialize ()
     {
         super.initialize();
-        swivelServo.setPosition(1); //full range is 6.25 rotation, approximately. 1 is collection position
+        swivelServo.setPosition(1); //full range is 6.25 rotation, approximately. 1 is collection position. CHANGE THIS TO 0.9 OR 0.8 SOON TO ALLOW LEEWAY AND FAST RETURN TO COLLECTION POSITION.
         armServo.setPosition(0.14);
         hookTiltServo.setPosition(1);
         g1Stick1Xinit = gamepad1.left_stick_x;
@@ -92,6 +94,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         boolean prevTopHatRight1 = false;
         boolean prevLB = false;
         boolean prevLT = false;
+        boolean prevBack = false;
 
         while (runConditions())
         {
@@ -99,6 +102,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             double throttle = (-(gamepad1.left_stick_y - g1Stick1Yinit));
             double direction = (gamepad1.left_stick_x - g1Stick1Xinit);
+
+            if (reverseDriveOn)
+            {
+                throttle = -throttle;
+            }
+
             double right = throttle - direction;
             double left = throttle + direction;
 
@@ -166,10 +175,15 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             setLeftDrivePower(left);
             setRightDrivePower(right);
 
-            if (gamepad1.left_stick_button)
+            if (gamepad1.start)
             {
                 g1Stick1Xinit = gamepad1.left_stick_x;
                 g1Stick1Yinit = gamepad1.left_stick_y;
+            }
+
+            if (gamepad1.back != prevBack && !gamepad1.back) //acts on button release
+            {
+                reverseDriveOn = !reverseDriveOn;
             }
 
             //SWEEPER CONTROL:
@@ -283,6 +297,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             prevTopHatLeft1 = gamepad1.dpad_left;
             prevLB = gamepad1.left_bumper;
             prevLT = gamepad1.left_trigger > 0.7;
+            prevBack = gamepad1.back;
         }
     }
 
