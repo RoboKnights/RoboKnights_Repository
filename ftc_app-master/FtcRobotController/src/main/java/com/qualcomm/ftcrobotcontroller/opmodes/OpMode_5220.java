@@ -90,6 +90,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected DcMotor leftBackMotor;
     protected DcMotor rightBackMotor;
     protected DcMotor sweeperMotor;
+    protected DcMotor hookMotor;
     //protected DcMotor armMotor;
 
     protected DcMotor[] driveMotors = new DcMotor[4];
@@ -98,6 +99,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected Servo armServo;
     protected Servo doorServo;
     protected Servo hookTiltServo;
+
+    protected double swivelServoInit;
 
     //OTHER GLOBAL VARIABLES:
 
@@ -140,10 +143,13 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
        // armMotor = hardwareMap.dcMotor.get("arm");
         sweeperMotor = hardwareMap.dcMotor.get("sweeper");
+        hookMotor = hardwareMap.dcMotor.get("hook");
+
+        hookMotor.setDirection(DcMotor.Direction.REVERSE);
 
         swivelServo = hardwareMap.servo.get("sServo");
-        armServo = hardwareMap.servo.get("rServo");
-        doorServo = hardwareMap.servo.get("tServo");
+        armServo = hardwareMap.servo.get("aServo");
+        doorServo = hardwareMap.servo.get("dServo");
         hookTiltServo = hardwareMap.servo.get("hServo");
 
         /*
@@ -154,6 +160,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public void initialize()
     {
+        swivelServoInit = swivelServo.getPosition();
         phase = INIT;
     }
 
@@ -184,6 +191,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         gameTimer = new Stopwatch();
 
         main();
+        end();
+    }
+
+    public void end()
+    {
+       stopDrivetrain();
     }
 
     //HELPER CLASSES AND METHODS:
@@ -196,12 +209,14 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             start = System.currentTimeMillis();
         }
 
-        public int time() {
+        public int time()
+        {
             long now = System.currentTimeMillis();
             return ((int) (now - start));
         }
 
-        public double timeSeconds() {
+        public double timeSeconds()
+        {
             long now = System.currentTimeMillis();
             return (((double) (now - start)) / 1000);
         }
@@ -225,7 +240,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         }
     }
 
-    public abstract ProgramType getProgramType();
+    public ProgramType getProgramType () //override in any meaningful subclass
+    {
+        return ProgramType.UNDECIDED;
+    }
 
     public boolean runConditions()
     {

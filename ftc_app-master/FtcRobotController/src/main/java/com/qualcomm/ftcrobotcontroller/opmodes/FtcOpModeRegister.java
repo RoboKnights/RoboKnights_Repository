@@ -97,6 +97,6 @@ public class FtcOpModeRegister implements OpModeRegister {
 
       manager.register("Autonomous_5220_v1", Autonomous_5220_v1.class);
       manager.register("TeleOp_5220_v1", TeleOp_5220_v1.class);
-      manager.register("LoopTest5220", LoopTest5220.class);
+      manager.register("Drive_Control_5220_v1", Drive_Control_5220_v1.class);
   }
 }

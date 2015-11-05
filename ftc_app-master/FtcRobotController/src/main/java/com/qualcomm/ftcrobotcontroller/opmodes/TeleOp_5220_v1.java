@@ -47,7 +47,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private static final double ARM_INCREMENT = 0.04;
     private static final double ARM_INCREMENT_TIME = 30; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
 
-    private static final double HOOK_TILT_INCREMENT = 0.015;
+    private static final double HOOK_TILT_INCREMENT = 0.025;
 
     private double g1Stick1Xinit;
     private double g1Stick1Yinit;
@@ -74,7 +74,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     {
         super.initialize();
         swivelServo.setPosition(1); //full range is 6.25 rotation, approximately. 1 is collection position
-        armServo.setPosition(1);
+        armServo.setPosition(0.14);
+        hookTiltServo.setPosition(1);
         g1Stick1Xinit = gamepad1.left_stick_x;
         g1Stick1Yinit = gamepad1.left_stick_y;
     }
@@ -83,6 +84,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     {
         Stopwatch topHatXTime = null;
         Stopwatch topHatYTime = null;
+        Stopwatch hookTiltTime = null;
 
         boolean prevTopHatUp1 = false; //maybe change these initialization if they mess something up
         boolean prevTopHatDown1 = false;
@@ -188,7 +190,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //DOOR CONTROL:
 
-            moveDoor(gamepad1.a ? OPEN : CLOSE);
+            moveDoor(gamepad1.b ? OPEN : CLOSE);
 
             //SWIVEL CONTROL:
 
@@ -242,7 +244,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             {
                 if (gamepad1.left_bumper)
                 {
-                    hookTiltServo.setPosition(hookTiltServo.getPosition() + HOOK_TILT_INCREMENT);
+                    double newPosition = hookTiltServo.getPosition() + HOOK_TILT_INCREMENT;
+                    hookTiltServo.setPosition(Math.min(newPosition, 1.0));
                 }
             }
 
@@ -250,8 +253,26 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             {
                 if (gamepad1.left_trigger > 0.7)
                 {
-                    hookTiltServo.setPosition(hookTiltServo.getPosition() - HOOK_TILT_INCREMENT);
+                    double newPosition = hookTiltServo.getPosition() - HOOK_TILT_INCREMENT;
+                    hookTiltServo.setPosition(Math.max(newPosition, 0.0));
                 }
+            }
+
+            //HOOK EXTENSION CONTROL:
+
+            if (gamepad1.y) //up
+            {
+                hookMotor.setPower(1);
+            }
+
+            else if (gamepad1.a)
+            {
+                hookMotor.setPower(-1);
+            }
+
+            else
+            {
+                hookMotor.setPower(0);
             }
 
             //Previous value settings:
