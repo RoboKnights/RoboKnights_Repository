@@ -40,8 +40,11 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private static final double JOYSTICK_THRESHOLD = 0.08; //below this joysticks won't cause movement.
     private static final double SLOW_POWER = 0.15;
 
-    private static final double SWIVEL_INCREMENT = 0.01;
-    private static final double SWIVEL_INCREMENT_TIME = 70; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
+    private static final double SWIVEL_INIT = 0.8;
+    private static final double SWIVEL_INCREMENT = 0.005;
+
+    private static final double SWIVEL_INCREMENT_TIME = 35; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
+    private static final double SWIVEL_INERTIA_CORRECTION_MULTIPLIER = 0.5;
     private static final double SWIVEL_360 = 0.242;
 
     private static final double ARM_INCREMENT = 0.04;
@@ -75,9 +78,10 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     public void initialize ()
     {
         super.initialize();
-        swivelServo.setPosition(1); //full range is 6.25 rotation, approximately. 1 is collection position. CHANGE THIS TO 0.9 OR 0.8 SOON TO ALLOW LEEWAY AND FAST RETURN TO COLLECTION POSITION.
+        swivelServo.setPosition(SWIVEL_INIT); //full range is 6.25 rotation, approximately. 1 is collection position. CHANGE THIS TO 0.9 OR 0.8 SOON TO ALLOW LEEWAY AND FAST RETURN TO COLLECTION POSITION.
         armServo.setPosition(0.14);
         hookTiltServo.setPosition(1);
+        moveDoor(CLOSE);
         g1Stick1Xinit = gamepad1.left_stick_x;
         g1Stick1Yinit = gamepad1.left_stick_y;
     }
@@ -87,6 +91,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         Stopwatch topHatXTime = null;
         Stopwatch topHatYTime = null;
         Stopwatch hookTiltTime = null;
+
+        double swivelMovementStart = 0.0;
 
         boolean prevTopHatUp1 = false; //maybe change these initialization if they mess something up
         boolean prevTopHatDown1 = false;
@@ -208,6 +214,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //SWIVEL CONTROL:
 
+
+
             if ((gamepad1.dpad_left) && (!prevTopHatLeft1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
             {
                 double newPosition = swivelServo.getPosition() + SWIVEL_INCREMENT;
@@ -226,8 +234,20 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             if (!gamepad1.dpad_left && !gamepad1.dpad_right)
             {
-                topHatXTime = null;
+                if (topHatXTime != null)
+                {
+                    double swivelChange = swivelServo.getPosition() - swivelMovementStart;
+                    if (swivelChange < -0.004)// out from collection
+                    {
+                        swivelServo.setPosition(swivelMovementStart + (swivelChange * SWIVEL_INERTIA_CORRECTION_MULTIPLIER));
+                    }
+
+                    topHatXTime = null;
+                    swivelMovementStart = swivelServo.getPosition();
+                }
             }
+
+
 
             //ARM CONTROL:
 

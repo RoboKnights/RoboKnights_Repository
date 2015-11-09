@@ -102,6 +102,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     protected double swivelServoInit;
 
+    //SENSORS:
+    protected ColorSensor colorSensor;
+
     //OTHER GLOBAL VARIABLES:
 
     protected Stopwatch gameTimer;
@@ -152,6 +155,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         doorServo = hardwareMap.servo.get("dServo");
         hookTiltServo = hardwareMap.servo.get("hServo");
 
+        colorSensor = hardwareMap.colorSensor.get("cSensor1");
+
         /*
         servoL = hardwareMap.servo.get("servo_P1_1");
         servoR = hardwareMap.servo.get("servo_P1_2");
@@ -160,7 +165,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public void initialize()
     {
-        swivelServoInit = swivelServo.getPosition();
+        //swivelServoInit = swivelServo.getPosition();
         phase = INIT;
     }
 
@@ -232,9 +237,16 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 telemetry.addData("2", "RFM: " + rightFrontMotor.getCurrentPosition());
                 telemetry.addData("3", "LBM: " + leftBackMotor.getCurrentPosition());
                 telemetry.addData("4", "RBM: " + rightBackMotor.getCurrentPosition());
+
+                telemetry.addData("5", "Red: " + colorSensor.red());
+                telemetry.addData("6", "Green: " + colorSensor.green());
+                telemetry.addData("7", "Blue: " + colorSensor.blue());
+
+                /*
                 telemetry.addData("5", "Swivel: " + swivelServo.getPosition());
                 telemetry.addData("6", "Arm: " + armServo.getPosition());
                 telemetry.addData("7", "Tilt: " + doorServo.getPosition());
+                */
                 telemetry.addData("8", "Time Elapsed:" + gameTimer.time());
             }
         }
@@ -361,7 +373,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         if (Math.abs(leftBackMotor.getCurrentPosition()) > encoderCount)
         {
-            telemetry.addData("9", "" + leftFrontMotor.getCurrentPosition());
+            //telemetry.addData("9", "" + leftFrontMotor.getCurrentPosition());
             return true;
 
 

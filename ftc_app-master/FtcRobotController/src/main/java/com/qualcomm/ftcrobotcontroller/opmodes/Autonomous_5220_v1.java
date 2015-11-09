@@ -63,6 +63,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             stopDrivetrain();
             //throw new RuntimeException("Program terminated by user.");
             //System.exit(0);
+            //maybe add system.exit here and just remember to restart robot in between the match periods (assuming that's allowed)
         }
     }
 
@@ -205,6 +206,35 @@ public class Autonomous_5220_v1 extends OpMode_5220
         }
     }
 
+    private Boolean getRescueBeaconColor () //experimental for the time being
+    {
+        double red = colorSensor.red();
+        double blue = colorSensor.blue();
+        double green = colorSensor.green();
+
+        if (green > red / 2 && green > blue / 2) // indeterminate if there is too much green
+        {
+            return null;
+        }
+
+        double rbRatio = red / blue;
+        double requiredRatio = 4.0;
+        if (rbRatio > requiredRatio)
+        {
+            return RED;
+        }
+
+        else if (rbRatio < (1.0 / requiredRatio))
+        {
+            return BLUE;
+        }
+
+        else
+        {
+            return null;
+        }
+    }
+
     private boolean touchSensorValue (int port) //currently a placeholder
     {
         return false;
@@ -218,6 +248,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void test()
     {
+        resetDriveEncoders();
         /*
         telemetry.addData ("1", "init");
         sleep (1000);
@@ -242,7 +273,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
        // moveTime(500, 0.2);
         moveSimple (1000);
         sleep (1000);
-        move (1000);
+        move (6);
         while (opModeIsActive())
         {
 

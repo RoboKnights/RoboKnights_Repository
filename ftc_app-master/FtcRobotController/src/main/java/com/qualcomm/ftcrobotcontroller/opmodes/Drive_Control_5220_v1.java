@@ -63,7 +63,7 @@ public class Drive_Control_5220_v1 extends OpMode_5220
     {
         public void run ()
         {
-            while (opModeIsActive() && phase == INIT)
+            while (phase != RUNNING)
             {
                 direction = (s.time() / OPTION_CHANGE_TIME) % 4;
                 telemetry.addData("1", "Direction: " + directionToString(direction));
