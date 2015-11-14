@@ -31,8 +31,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import android.app.Activity;
+import android.graphics.Color;
+import android.view.View;
+
+import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.util.*;
 //hello!
 
@@ -56,7 +62,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double GYRO = 4;
 
     protected static final double WHEEL_DIAMETER = 6.0; //in inches
-    protected static final double GEAR_RATIO = 2 / 3;
+    protected static final double GEAR_RATIO = 2.0 / 3.0;
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
 
@@ -94,6 +100,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     //protected DcMotor armMotor;
 
     protected DcMotor[] driveMotors = new DcMotor[4];
+    protected int[] driveMotorInitValues = new int[4];
 
     protected Servo swivelServo;
     protected Servo armServo;
@@ -166,6 +173,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public void initialize()
     {
         //swivelServoInit = swivelServo.getPosition();
+       // setCustomSkin();
         phase = INIT;
     }
 
@@ -206,6 +214,32 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     //HELPER CLASSES AND METHODS:
     //______________________________________________________________________________________________________________
+   /* public class DcMotor5220
+    {
+        private DcMotor dcMotor;
+        private int encoderInit = 0;
+
+        public DcMotor5220 (DcMotor dcMotor)
+        {
+
+        }
+
+        public void resetEncoder ()
+        {
+            encoderInit = getCurrentPosition();
+        }
+
+        public int getCurrentPosition ()
+        {
+            return super.getCurrentPosition() - encoderInit;
+        }
+
+        public int getAbsoluteCurrentPosition ()
+        {
+            return super.getCurrentPosition();
+        }
+    }
+*/
     public class Stopwatch
     {
         private final long start;
@@ -252,6 +286,38 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         }
     }
 
+    public void writeToLog (String toWrite)
+    {
+        String text = "USER MESSAGE: ";
+        for (int i = 0; i < 54; i++) text = text + "*";
+        for (int i = 0; i < 54; i++) text = text + " ";
+        text = text + " " + toWrite + " ";
+        for (int i = 0; i < 54; i++) text = text + " ";
+        for (int i = 0; i < 54; i++) text = text + "_";
+        DbgLog.msg(text);
+    }
+
+    public void setCustomSkin() //maybe transfer this sort of app modification stuff to ftcrobotcontrolleractivity. It might be more appropriate there.
+    {
+        View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(R.id.scanButton);
+        relativeLayout.setBackgroundColor(Color.CYAN);
+        View button1 = ((Activity) hardwareMap.appContext).findViewById(R.id.file_activate_button); //try different button if this doesn't work.
+        View.OnLongClickListener listener = new View.OnLongClickListener()
+        {
+            public int numPresses = 0;
+            public boolean onLongClick(View v)
+            {
+                telemetry.addData("4", "Button clicks: " + numPresses++);
+                return false;
+            }
+        };
+        button1.setOnLongClickListener(listener);
+        View entireScreen = ((Activity) hardwareMap.appContext).findViewById(R.id.entire_screen); //try different button if this doesn't work.
+        View button2 = ((Activity) hardwareMap.appContext).findViewById(R.id.textWifiDirectStatus); //try different button if this doesn't work.
+        //button2.setOnLongClickListener(); //maybe put new teleOp thing here.
+        //try adding a new listener to the buttons to make them do different things.
+    }
+
     public ProgramType getProgramType () //override in any meaningful subclass
     {
         return ProgramType.UNDECIDED;
@@ -279,8 +345,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public int distanceToEncoderCount (double distance) //distance is in inches
     {
         double wheelRotations = distance / WHEEL_CIRCUMFERENCE;
+        //writeToLog("Wheel rotations:" + wheelRotations);
         double motorRotations = wheelRotations / GEAR_RATIO;
+        //writeToLog("Motor Rotations: " + motorRotations);
         long encoderCounts = Math.round(motorRotations * ENCODER_COUNTS_PER_ROTATION);
+      //  writeToLog("Encoder Counts: " + encoderCounts);
         return (int) encoderCounts; //typecast is okay because the encoder count should NEVER exceed Integer.MAX
     }
 
@@ -309,11 +378,6 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         }
         return;
-    }
-
-    public int getEncoderValue (DcMotor motor)
-    {
-        return motor.getCurrentPosition();
     }
 
     public double getGyroDirection () //placeholder
@@ -360,18 +424,62 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     }
 
     public final void resetDriveEncoders ()
-    {
+    {/*
         for (DcMotor motor: driveMotors)
         {
             motor.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
             motor.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         }
+        */
 
+        for (DcMotor dcm: driveMotors)
+        {
+            resetEncoder(dcm);
+        }
+
+    }
+
+    public int getEncoderValue (DcMotor dcm)
+    {
+        return (dcm.getCurrentPosition() - driveMotorInitValues[motorToNumber(dcm)]);
+    }
+
+    public int motorToNumber (DcMotor dcm)
+    {
+        if (dcm == leftFrontMotor)
+        {
+            return 0;
+        }
+
+        if (dcm == rightFrontMotor)
+        {
+            return 1;
+        }
+
+        if (dcm == leftBackMotor)
+        {
+            return 2;
+        }
+
+        if (dcm == rightBackMotor)
+        {
+            return 3;
+        }
+
+        else
+        {
+            return -1;
+        }
+    }
+
+    public void resetEncoder (DcMotor dcm)
+    {
+        driveMotorInitValues[motorToNumber(dcm)] = dcm.getCurrentPosition();
     }
 
     public final boolean driveEncodersHaveReached(int encoderCount)
     {
-        if (Math.abs(leftBackMotor.getCurrentPosition()) > encoderCount)
+        if (Math.abs((getEncoderValue(leftFrontMotor) + getEncoderValue(rightFrontMotor))/ 2.0) > Math.abs(encoderCount))
         {
             //telemetry.addData("9", "" + leftFrontMotor.getCurrentPosition());
             return true;
@@ -387,7 +495,19 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final boolean turnEncodersHaveReached(int count)
     {
-        return false;
+        if (Math.abs((getEncoderValue(leftFrontMotor))/* - getEncoderValue(rightFrontMotor))/ 2.0*/) > Math.abs(count))
+        {
+            writeToLog("abs of encoder value = " + Math.abs(getEncoderValue(leftFrontMotor)) + " abs of count = " + Math.abs(count));
+            //telemetry.addData("9", "" + leftFrontMotor.getCurrentPosition());
+            return true;
+
+
+        }
+
+        else
+        {
+            return false;
+        }
     }
 
     public final void move (double distance, double... params)
@@ -428,6 +548,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         //Main method body:
 
         int encoderCount = distanceToEncoderCount(distance);
+        writeToLog("Distance: " + distance + ", Encoder Count: " + encoderCount);
         double initialDirection = getGyroDirection();
 
         double powerChange = 0;
@@ -436,7 +557,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         resetDriveEncoders();
         setDrivePower(power);
 
-        while (runConditions() && !driveEncodersHaveReached(encoderCount))
+        writeToLog("Normal Mode: " + (mode == NORMAL) + ", Power: " + power);
+
+        while (opModeIsActive() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works
         {
             if (mode != NORMAL)
             {
@@ -475,7 +598,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public void moveSimple (int count)
     {
         setDrivePower(DEFAULT_DRIVE_POWER);
-        while (runConditions() && !driveEncodersHaveReached(count))
+        while (opModeIsActive() && !driveEncodersHaveReached(count))
         {
 
         }
@@ -524,7 +647,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         resetDriveEncoders();
         setTurnPower(power);
-        while (runConditions() && !turnEncodersHaveReached(distanceToEncoderCount(distance)))
+        while (opModeIsActive() && !turnEncodersHaveReached(distanceToEncoderCount(distance))) //change back to runConditions if neecessary
         {
 
         }

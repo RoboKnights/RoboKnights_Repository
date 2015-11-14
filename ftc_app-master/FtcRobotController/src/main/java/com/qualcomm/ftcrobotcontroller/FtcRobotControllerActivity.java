@@ -180,7 +180,8 @@ public class FtcRobotControllerActivity extends Activity {
   }
 
   @Override
-  protected void onStart() {
+  protected void onStart()
+  {
     super.onStart();
 
     // save 4MB of logcat to the SD card
@@ -200,6 +201,8 @@ public class FtcRobotControllerActivity extends Activity {
         return false;
       }
     });
+
+    loadModifications5220();
 
   }
 
@@ -384,5 +387,10 @@ public class FtcRobotControllerActivity extends Activity {
         toast.show();
       }
     });
+  }
+
+  public void loadModifications5220 ()
+  {
+
   }
 }

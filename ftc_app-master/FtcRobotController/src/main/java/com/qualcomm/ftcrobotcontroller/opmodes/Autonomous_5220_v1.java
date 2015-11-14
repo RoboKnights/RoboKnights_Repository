@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
@@ -248,7 +249,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void test()
     {
-        resetDriveEncoders();
+       // resetDriveEncoders();
         /*
         telemetry.addData ("1", "init");
         sleep (1000);
@@ -271,14 +272,46 @@ public class Autonomous_5220_v1 extends OpMode_5220
         //leftFrontMotor.setTargetPosition(5000);
         ///sleep(2000);
        // moveTime(500, 0.2);
-        moveSimple (1000);
+/*
+        setRightDrivePower(0.9);
+        sleep(1000);
+        stopDrivetrain();
+        sleep(1000);
+        /*
+        writeToLog("About to start moveSimple.");
+       // moveSimple(1000);
         sleep (1000);
-        move (6);
+        */
+/*
+       // moveSimple(1000);
+        sleep(1000);
+        move(10);
+        writeToLog("Starting LF Encoder Value: " + getEncoderValue(leftFrontMotor));
+        writeToLog("Starting turn method.");
+        resetDriveEncoders();
+        rotateEncoder(18);
+        writeToLog("Done with turn method.");
+        writeToLog("LF Encoder Value: " + getEncoderValue(leftFrontMotor));
+        resetDriveEncoders();
+        writeToLog("Reset LF Encoder Value: " + getEncoderValue(leftFrontMotor));
+
+*/
+
+        //setDrivePower(0.6);
+        //leftFrontMotor.setPower(0.8);
+        /*
         while (opModeIsActive())
         {
 
         }
 
+
+*/
+        move (24); // only works if absolute encoder values are negative.
+        sleep(1000);
+        rotateEncoder(12);
+        sleep(1000);
+        move (12);
         stopDrivetrain();
 
        // System.exit(0);
@@ -357,7 +390,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         new ProgramKiller().start();
         new DebuggerDisplayLoop().start();
        // telemetry.clearData();
-        telemetry.addData ("2", "hello world!");
+        //telemetry.addData ("2", "hello world!");
         test();
         //autonomous();
     }
