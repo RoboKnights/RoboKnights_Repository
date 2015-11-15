@@ -62,13 +62,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
             }
 
             stopDrivetrain();
-            //throw new RuntimeException("Program terminated by user.");
-            //System.exit(0);
-            //maybe add system.exit here and just remember to restart robot in between the match periods (assuming that's allowed)
+            writeToLog("Program Killer has terminated the program.");
         }
     }
 
-    private class ConfigLoop extends Thread
+    private class ConfigLoop extends Thread //uses touch sensors to configure robot
     {
         private static final int UP = 1;
         private static final int DOWN = -1;
@@ -249,148 +247,43 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void test()
     {
-       // resetDriveEncoders();
-        /*
-        telemetry.addData ("1", "init");
-        sleep (1000);
-        //servoL.setPosition(0.1);
-        telemetry.addData ("2", "servo moving");
-        sleep(2000);
-        leftFrontMotor.setPower(0.5);
-        telemetry.addData ("3", "dc motor moving");
-        sleep (3000);
-        leftFrontMotor.setPower(0);
-        telemetry.addData("4", "dc motor stopped");
-        sleep (1000);
-        // servoL.setPosition(0.5);
-        telemetry.addData("5", "all stoppedd");
-        */
-
-
-
-        //moveTime(2000);
-        //leftFrontMotor.setTargetPosition(5000);
-        ///sleep(2000);
-       // moveTime(500, 0.2);
-/*
-        setRightDrivePower(0.9);
-        sleep(1000);
-        stopDrivetrain();
-        sleep(1000);
-        /*
-        writeToLog("About to start moveSimple.");
-       // moveSimple(1000);
-        sleep (1000);
-        */
-/*
-       // moveSimple(1000);
-        sleep(1000);
-        move(10);
-        writeToLog("Starting LF Encoder Value: " + getEncoderValue(leftFrontMotor));
-        writeToLog("Starting turn method.");
-        resetDriveEncoders();
-        rotateEncoder(18);
-        writeToLog("Done with turn method.");
-        writeToLog("LF Encoder Value: " + getEncoderValue(leftFrontMotor));
-        resetDriveEncoders();
-        writeToLog("Reset LF Encoder Value: " + getEncoderValue(leftFrontMotor));
-
-*/
-
-        //setDrivePower(0.6);
-        //leftFrontMotor.setPower(0.8);
-        /*
-        while (opModeIsActive())
-        {
-
-        }
-
-
-*/
         move (24); // only works if absolute encoder values are negative.
         sleep(1000);
         rotateEncoder(12);
         sleep(1000);
         move (12);
         stopDrivetrain();
-
-       // System.exit(0);
     }
 
 
     public void autonomous ()
     {
-        move (24); //12 = one foot, 24 = one floor tile
-        if (BLUE)
+        if (color == RED)
         {
-            rotate(45);
-        }
-
-        else
-        {
+            move (24); //12 = one foot, 24 = one floor tile
             rotate(-45);
-        }
-        move(67.88);
-        if (BLUE)
-        {
-            rotate(-45);
-        }
-
-        else
-        {
+            move(67.88);
             rotate(45);
-        }
-
-        //detect first side
-        move(12);
-        //detect second side
-        //make decision on which side it is.
-        //press appropriate button
-
-        if (BLUE)
-        {
-            rotate(90);
-        }
-
-        else
-        {
+            //detect first side
+            move(12);
+            //detect second side, make decision where to push
             rotate(-90);
-        }
-
-        //go forward, dump climbers and move back
-
-        if (BLUE)
-        {
-            rotate(-45);
-        }
-
-        else
-        {
+            //go forward, dump climbers, and come back.
             rotate(45);
+            move (-33.94);
+            moveTime(30000, 99); //drive at full power up the mountain until ProgramKiller kills the program at the 30 second mark.
         }
 
-        move (-33.94);
-
-        if (BLUE)
+        else if (color == BLUE)
         {
-            rotate(90);
+
         }
-
-        else
-        {
-            rotate(-90);
-        }
-
-        moveTime(30000, 99); //drive at full power up the mountain until ProgramKiller kills the program at the 30 second mark.
-
     }
 
     public void main ()
     {
         new ProgramKiller().start();
         new DebuggerDisplayLoop().start();
-       // telemetry.clearData();
-        //telemetry.addData ("2", "hello world!");
         test();
         //autonomous();
     }

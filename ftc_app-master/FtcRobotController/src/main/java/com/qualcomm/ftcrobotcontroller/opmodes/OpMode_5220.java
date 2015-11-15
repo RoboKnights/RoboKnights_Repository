@@ -44,6 +44,22 @@ import com.qualcomm.robotcore.util.*;
 
 //add program off switch for using any one particular motor
 
+/* TODO (in priority order from highest to lowest):
+
+Get the encoder checks and everything in move and rotate to work.
+
+Get the color sensor mounted and tested.
+
+Either get the touch sensors on, or figure out some alternative to ConfigLoop without touch sensors.
+
+Fine tune autonomous program
+
+add lift motors to TeleOp
+
+Get the TeleOp direction switch button and slow driving to work
+
+ */
+
 public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET DECENT VERSION CONTROL INSTEAD OF HAVING TO SAVE AS FOR EVERY NEW VERSION
 {
     //CONSTANTS:
@@ -122,17 +138,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         phase = SETUP;
 
         driveController1 = hardwareMap.dcMotorController.get("Motor Controller 1");
-        //driveController1.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
-        //driveController1.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
-
         driveController2 = hardwareMap.dcMotorController.get("Motor Controller 2");
-       // driveController2.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
-       // driveController2.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
-
         armAndSweeperController = hardwareMap.dcMotorController.get("Motor Controller 3");
-        //armAndSweeperController.setMotorChannelMode(1, DcMotorController.RunMode.RUN_USING_ENCODERS);
-       // armAndSweeperController.setMotorChannelMode(2, DcMotorController.RunMode.RUN_USING_ENCODERS);
-
         armServoController = hardwareMap.servoController.get("Servo Controller 4");
 
         leftFrontMotor = hardwareMap.dcMotor.get("lf");
@@ -151,7 +158,6 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
-       // armMotor = hardwareMap.dcMotor.get("arm");
         sweeperMotor = hardwareMap.dcMotor.get("sweeper");
         hookMotor = hardwareMap.dcMotor.get("hook");
 
@@ -163,11 +169,6 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         hookTiltServo = hardwareMap.servo.get("hServo");
 
         colorSensor = hardwareMap.colorSensor.get("cSensor1");
-
-        /*
-        servoL = hardwareMap.servo.get("servo_P1_1");
-        servoR = hardwareMap.servo.get("servo_P1_2");
-        */
     }
 
     public void initialize()
@@ -177,15 +178,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         phase = INIT;
     }
 
-    public void waitForStart5220() //override this to do stuff if neccessary
-    {
-        while (!opModeIsActive())
-        {
-
-        }
-    }
-
-    public void waitForStart () throws InterruptedException //forget about this override and put the phase change in runOpMode if neccessary.
+    public void waitForStart () throws InterruptedException
     {
         phase = WAITING;
         super.waitForStart();
@@ -197,7 +190,6 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         setup();
         initialize();
-        //waitForStart5220(); //uncomment this if it turns out that it works just as well as waitForStart();
         waitForStart();
 
         phase = RUNNING;
@@ -345,17 +337,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public int distanceToEncoderCount (double distance) //distance is in inches
     {
         double wheelRotations = distance / WHEEL_CIRCUMFERENCE;
-        //writeToLog("Wheel rotations:" + wheelRotations);
         double motorRotations = wheelRotations / GEAR_RATIO;
-        //writeToLog("Motor Rotations: " + motorRotations);
         long encoderCounts = Math.round(motorRotations * ENCODER_COUNTS_PER_ROTATION);
-      //  writeToLog("Encoder Counts: " + encoderCounts);
-        return (int) encoderCounts; //typecast is okay because the encoder count should NEVER exceed Integer.MAX
-    }
-
-    public void updateLoopBody()
-    {
-
+        return (int) encoderCounts; //typecast is okay because the encoder count should will NEVER exceed Integer.MAX (2^31 - 1)
     }
 
     public void sleep(int millis) //change back to old way if the new way doesn't work
@@ -477,14 +461,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         driveMotorInitValues[motorToNumber(dcm)] = dcm.getCurrentPosition();
     }
 
-    public final boolean driveEncodersHaveReached(int encoderCount)
+    public final boolean driveEncodersHaveReached(int encoderCount) //need to modify this, or just eliminate it and put the condidition stuff in the main move method.
     {
         if (Math.abs((getEncoderValue(leftFrontMotor) + getEncoderValue(rightFrontMotor))/ 2.0) > Math.abs(encoderCount))
         {
-            //telemetry.addData("9", "" + leftFrontMotor.getCurrentPosition());
             return true;
-
-
         }
 
         else
@@ -497,17 +478,22 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         if (Math.abs((getEncoderValue(leftFrontMotor))/* - getEncoderValue(rightFrontMotor))/ 2.0*/) > Math.abs(count))
         {
-            writeToLog("abs of encoder value = " + Math.abs(getEncoderValue(leftFrontMotor)) + " abs of count = " + Math.abs(count));
-            //telemetry.addData("9", "" + leftFrontMotor.getCurrentPosition());
+            //writeToLog("abs of encoder value = " + Math.abs(getEncoderValue(leftFrontMotor)) + " abs of count = " + Math.abs(count));
             return true;
-
-
         }
 
         else
         {
             return false;
         }
+    }
+
+    public String getModeText (double mode)
+    {
+        if (mode == NORMAL) return "Normal";
+        else if (mode == ENCODER) return "Encoder";
+        else if (mode == GYRO) return "Gyro";
+        else return "";
     }
 
     public final void move (double distance, double... params)
@@ -543,12 +529,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             mode = params[1];
         }
 
-        //If params.length == 0, no need to do anything, since power and mode are initialized to their proper values.
-
         //Main method body:
 
         int encoderCount = distanceToEncoderCount(distance);
-        writeToLog("Distance: " + distance + ", Encoder Count: " + encoderCount);
+        writeToLog("MOVING: Distance = " + distance + ", Encoder Count = " + encoderCount + ", Mode = " + getModeText(mode) + ", Power = " + power);
         double initialDirection = getGyroDirection();
 
         double powerChange = 0;
@@ -556,8 +540,6 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         resetDriveEncoders();
         setDrivePower(power);
-
-        writeToLog("Normal Mode: " + (mode == NORMAL) + ", Power: " + power);
 
         while (opModeIsActive() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works
         {
@@ -612,12 +594,6 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         stopDrivetrain();
     }
 
-    /* fix this so that negative time means go backwards
-    public final void moveTime(int time) //time is in millis
-    {
-        moveTime (time, DEFAULT_DRIVE_POWER);
-    }
-*/
     //ROTATION:
 
     public final void setTurnPower (double power)
