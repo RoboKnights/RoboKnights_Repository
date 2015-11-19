@@ -40,12 +40,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private static final double JOYSTICK_THRESHOLD = 0.08; //below this joysticks won't cause movement.
     private static final double SLOW_POWER = 0.15;
 
-    private static final double SWIVEL_INIT = 0.8;
+
     private static final double SWIVEL_INCREMENT = 0.005;
 
-    private static final double SWIVEL_INCREMENT_TIME = 35; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
+    private static final double SWIVEL_INCREMENT_TIME = 60; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
     private static final double SWIVEL_INERTIA_CORRECTION_MULTIPLIER = 0.5;
-    private static final double SWIVEL_360 = 0.242;
+
 
     private static final double ARM_INCREMENT = 0.04;
     private static final double ARM_INCREMENT_TIME = 30; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
@@ -212,6 +212,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             moveDoor(gamepad1.b ? OPEN : CLOSE);
 
+            //ADD SOME WAY TO DISABLE P1 ARM CONTROL WHILE P2 IS RUNNING AN ARM MOTION SUBROUTINE.
             //SWIVEL CONTROL:
 
 
@@ -234,6 +235,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             if (!gamepad1.dpad_left && !gamepad1.dpad_right)
             {
+                /* INERTIA CORRECTION
                 if (topHatXTime != null)
                 {
                     double swivelChange = swivelServo.getPosition() - swivelMovementStart;
@@ -245,9 +247,24 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                     topHatXTime = null;
                     swivelMovementStart = swivelServo.getPosition();
                 }
+                */
+                topHatXTime = null;
             }
 
+            if (gamepad2.dpad_left)
+            {
+                moveArm(DISPENSE_RED);
+            }
 
+            else if (gamepad2.dpad_right)
+            {
+                moveArm(DISPENSE_BLUE);
+            }
+
+            else if (gamepad2.dpad_down)
+            {
+                moveArm(COLLECT);
+            }
 
             //ARM CONTROL:
 
@@ -307,6 +324,23 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             else
             {
                 hookMotor.setPower(0);
+            }
+
+            //LIFT MOTOR CONTROL:
+
+            if (gamepad1.right_stick_y > 0.7)
+            {
+                setLiftPower(1);
+            }
+
+            else if (gamepad1.right_stick_y < -0.7)
+            {
+                setLiftPower(-1);
+            }
+
+            else
+            {
+                setLiftPower(0);
             }
 
             //Previous value settings:

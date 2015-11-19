@@ -39,6 +39,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -177,6 +178,8 @@ public class FtcRobotControllerActivity extends Activity {
     hittingMenuButtonBrightensScreen();
 
     if (USE_DEVICE_EMULATION) { ModernRoboticsHardwareFactory.enableDeviceEmulation(); }
+
+   // loadModifications5220();
   }
 
   @Override
@@ -202,7 +205,7 @@ public class FtcRobotControllerActivity extends Activity {
       }
     });
 
-    loadModifications5220();
+    //loadModifications5220();
 
   }
 
@@ -390,7 +393,27 @@ public class FtcRobotControllerActivity extends Activity {
   }
 
   public void loadModifications5220 ()
-  {
+  {/*
+      View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(R.id.scanButton);
+      relativeLayout.setBackgroundColor(Color.CYAN);
+      View button1 = ((Activity) hardwareMap.appContext).findViewById(R.id.file_activate_button); //try different button if this doesn't work.
+      View.OnLongClickListener listener = new View.OnLongClickListener()
+      {
+          public int numPresses = 0;
+          public boolean onLongClick(View v)
+          {
+              telemetry.addData("4", "Button clicks: " + numPresses++);
+              return false;
+          }
+      };
+      button1.setOnLongClickListener(listener);
+      View entireScreen = ((Activity) hardwareMap.appContext).findViewById(R.id.entire_screen); //try different button if this doesn't work.
+      View button2 = ((Activity) hardwareMap.appContext).findViewById(R.id.textWifiDirectStatus); //try different button if this doesn't work.
+      //button2.setOnLongClickListener(); //maybe put new teleOp thing here.
+      //try adding a new listener to the buttons to make them do different things.
+*/
+      View button1 = (View) findViewById(R.id.scanButton);
+      button1.setBackgroundColor(Color.BLUE);
 
   }
 }

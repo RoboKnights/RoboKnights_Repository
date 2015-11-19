@@ -40,10 +40,9 @@ import java.util.ArrayList;
 
 public class Autonomous_5220_v1 extends OpMode_5220
 {
-    private static final boolean BLUE = true;
-    private static final boolean RED = false;
 
-    private boolean color = RED; //RED by default, of course it'll change when neccessary
+
+    private boolean color = BLUE; //RED by default, of course it'll change when neccessary
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean smartDetectOn = false;
 
@@ -205,34 +204,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         }
     }
 
-    private Boolean getRescueBeaconColor () //experimental for the time being
-    {
-        double red = colorSensor.red();
-        double blue = colorSensor.blue();
-        double green = colorSensor.green();
 
-        if (green > red / 2 && green > blue / 2) // indeterminate if there is too much green
-        {
-            return null;
-        }
-
-        double rbRatio = red / blue;
-        double requiredRatio = 4.0;
-        if (rbRatio > requiredRatio)
-        {
-            return RED;
-        }
-
-        else if (rbRatio < (1.0 / requiredRatio))
-        {
-            return BLUE;
-        }
-
-        else
-        {
-            return null;
-        }
-    }
 
     private boolean touchSensorValue (int port) //currently a placeholder
     {
@@ -261,31 +233,52 @@ public class Autonomous_5220_v1 extends OpMode_5220
         if (color == RED)
         {
             move (24); //12 = one foot, 24 = one floor tile
-            rotate(-45);
+           // rotate(-45);
+            rotateEncoder(-6);
             move(67.88);
-            rotate(45);
+            //rotate(45);
+            rotateEncoder(-6);
             //detect first side
             move(12);
             //detect second side, make decision where to push
-            rotate(-90);
+            //rotate(-90);
+            rotateEncoder(-12);
             //go forward, dump climbers, and come back.
-            rotate(45);
+            //rotate(45);
+            rotateEncoder(6);
             move (-33.94);
+            rotateEncoder(12);
             moveTime(30000, 99); //drive at full power up the mountain until ProgramKiller kills the program at the 30 second mark.
         }
 
         else if (color == BLUE)
         {
-
+            move (24); //12 = one foot, 24 = one floor tile
+            // rotate(-45);
+            rotateEncoder(6);
+            move(67.88);
+            //rotate(45);
+            rotateEncoder(6);
+            //detect first side
+            move(12);
+            //detect second side, make decision where to push
+            //rotate(-90);
+            rotateEncoder(12);
+            //go forward, dump climbers, and come back.
+            //rotate(45);
+            rotateEncoder(-6);
+            move (-33.94);
+            rotateEncoder(-12);
+            moveTime(30000, 99); //drive at full power up the mountain until ProgramKiller kills the program at the 30 second mark.
         }
     }
 
     public void main ()
     {
-        new ProgramKiller().start();
+        //new ProgramKiller().start(); //PROGRAM KILLER SCREWS UP AUTONOMOUS.
         new DebuggerDisplayLoop().start();
-        test();
-        //autonomous();
+        //test();
+        autonomous();
     }
 
 

@@ -70,6 +70,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final int WAITING = 3;
     protected static final int RUNNING = 4;
 
+    protected static final boolean BLUE = true;
+    protected static final boolean RED = false;
+
     protected static enum ProgramType {UNDECIDED, AUTONOMOUS, TELEOP};
     protected static ProgramType programType = ProgramType.UNDECIDED;
 
@@ -81,6 +84,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double GEAR_RATIO = 2.0 / 3.0;
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
+
+    protected static final double SWIVEL_INIT = 0.8;
+    protected static final double SWIVEL_360 = 0.242;
 
     //CONFIGURABLE CONSTANTS:
 
@@ -113,6 +119,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected DcMotor rightBackMotor;
     protected DcMotor sweeperMotor;
     protected DcMotor hookMotor;
+    protected DcMotor liftMotor1;
+    protected DcMotor liftMotor2;
     //protected DcMotor armMotor;
 
     protected DcMotor[] driveMotors = new DcMotor[4];
@@ -127,10 +135,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     //SENSORS:
     protected ColorSensor colorSensor;
+    protected GyroSensor gyroSensor;
 
     //OTHER GLOBAL VARIABLES:
 
     protected Stopwatch gameTimer;
+    protected boolean isArmMoving = false;
     protected int phase = HAS_NOT_STARTED;
 
     public void setup()//this and the declarations above are the equivalent of the pragmas in RobotC
@@ -163,12 +173,17 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         hookMotor.setDirection(DcMotor.Direction.REVERSE);
 
+        liftMotor1 = hardwareMap.dcMotor.get("lm1");
+        liftMotor2 = hardwareMap.dcMotor.get("lm2");
+
         swivelServo = hardwareMap.servo.get("sServo");
         armServo = hardwareMap.servo.get("aServo");
         doorServo = hardwareMap.servo.get("dServo");
         hookTiltServo = hardwareMap.servo.get("hServo");
 
         colorSensor = hardwareMap.colorSensor.get("cSensor1");
+        colorSensor.enableLed(false); //make sure this method works as it's supposed to
+       // gyroSensor = hardwareMap.gyroSensor.get("gSensor");
     }
 
     public void initialize()
@@ -264,15 +279,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 telemetry.addData("3", "LBM: " + leftBackMotor.getCurrentPosition());
                 telemetry.addData("4", "RBM: " + rightBackMotor.getCurrentPosition());
 
-                telemetry.addData("5", "Red: " + colorSensor.red());
-                telemetry.addData("6", "Green: " + colorSensor.green());
-                telemetry.addData("7", "Blue: " + colorSensor.blue());
+                telemetry.addData("5", "R = " + colorSensor.red() + ", G = " + colorSensor.green() + ", B = " + colorSensor.blue());
+                telemetry.addData("6", "Gyro: " + getGyroDirection());
+                telemetry.addData("7", "Beacon: " + getRescueBeaconColor());
 
-                /*
-                telemetry.addData("5", "Swivel: " + swivelServo.getPosition());
-                telemetry.addData("6", "Arm: " + armServo.getPosition());
-                telemetry.addData("7", "Tilt: " + doorServo.getPosition());
-                */
                 telemetry.addData("8", "Time Elapsed:" + gameTimer.time());
             }
         }
@@ -366,6 +376,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public double getGyroDirection () //placeholder
     {
+        //return gyroSensor.getRotation();
         return 1.0;
     }
 
@@ -461,31 +472,37 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         driveMotorInitValues[motorToNumber(dcm)] = dcm.getCurrentPosition();
     }
 
-    public final boolean driveEncodersHaveReached(int encoderCount) //need to modify this, or just eliminate it and put the condidition stuff in the main move method.
+    public boolean hasEncoderReached (DcMotor dcm, int encoderCount) //assumes that encoders start at 0 and are not moving to zero.
     {
-        if (Math.abs((getEncoderValue(leftFrontMotor) + getEncoderValue(rightFrontMotor))/ 2.0) > Math.abs(encoderCount))
+        if (motorToNumber(dcm) == -1) return false;
+
+        if (encoderCount > 0)
         {
-            return true;
+            if (getEncoderValue(dcm) < encoderCount) return false;
+            else return true;
         }
 
-        else
+        else if (encoderCount < 0)
         {
-            return false;
+            if (getEncoderValue(dcm) > encoderCount) return false;
+            else return true;
+        }
+
+        else //encoderCount is 0
+        {
+            return (getEncoderValue(dcm) == 0);
         }
     }
 
-    public final boolean turnEncodersHaveReached(int count)
+    public final boolean driveEncodersHaveReached(int encoderCount) //need to modify this, or just eliminate it and put the condidition stuff in the main move method.
     {
-        if (Math.abs((getEncoderValue(leftFrontMotor))/* - getEncoderValue(rightFrontMotor))/ 2.0*/) > Math.abs(count))
-        {
-            //writeToLog("abs of encoder value = " + Math.abs(getEncoderValue(leftFrontMotor)) + " abs of count = " + Math.abs(count));
-            return true;
-        }
+        return (hasEncoderReached(leftFrontMotor, encoderCount) && hasEncoderReached(rightFrontMotor, encoderCount));
+    }
 
-        else
-        {
-            return false;
-        }
+
+    public final boolean turnEncodersHaveReached(int encoderCount)
+    {
+        return (hasEncoderReached(leftFrontMotor, encoderCount) && hasEncoderReached(rightFrontMotor, -encoderCount)); //make sure the minus sign on rightFrontMotor works.
     }
 
     public String getModeText (double mode)
@@ -531,17 +548,24 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         //Main method body:
 
+        if (power * distance < 0)
+        {
+            power = -power;
+        }
+
         int encoderCount = distanceToEncoderCount(distance);
         writeToLog("MOVING: Distance = " + distance + ", Encoder Count = " + encoderCount + ", Mode = " + getModeText(mode) + ", Power = " + power);
+        writeToLog("MOVING: UnReset encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
         double initialDirection = getGyroDirection();
 
         double powerChange = 0;
         double updateTime = ((mode == ENCODER) ? ENCODER_SYNC_UPDATE_TIME : GYRO_SYNC_UPDATE_TIME);
 
         resetDriveEncoders();
+        writeToLog("MOVING: Initialized encoder values (should be 0) are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
         setDrivePower(power);
 
-        while (opModeIsActive() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works
+        while (opModeIsActive() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works, change back to driveEncodersHaveReached if it works
         {
             if (mode != NORMAL)
             {
@@ -575,6 +599,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         }
 
         stopDrivetrain();
+        writeToLog("MOVING: Final encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
     }
 
     public void moveSimple (int count)
@@ -596,13 +621,35 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     //ROTATION:
 
-    public final void setTurnPower (double power)
+    public final void setTurnPower (double power) //problm with this?
     {
         setLeftDrivePower(power);
         setRightDrivePower(-power);
     }
 
     public final void waitForGyroRotation (double degrees)
+    {
+        //convert degrees to proper value for this method
+        double init = getGyroDirection();
+        double target = init + degrees;
+        if (degrees < 0)
+        {
+            while (getGyroDirection() > target)
+            {
+
+            }
+        }
+
+        else
+        {
+            while (getGyroDirection() < target)
+            {
+
+            }
+        }
+    }
+
+    public final void waitForAbsoluteGyroRotation (double degrees)
     {
         //finish later
     }
@@ -621,6 +668,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final void rotateEncoder (double distance, double power) //add thing to make negative distance = negative power.
     {
+        if (power * distance < 0)
+        {
+            power = -power;
+        }
+
         resetDriveEncoders();
         setTurnPower(power);
         while (opModeIsActive() && !turnEncodersHaveReached(distanceToEncoderCount(distance))) //change back to runConditions if neecessary
@@ -644,19 +696,47 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     //ATTACHMENTS:
 
-    public static final boolean COLLECT = false;
-    public static final boolean DISPENSE = true;
-
-    private boolean armPosition = COLLECT;
-
-    public final void moveArm ()
+    public double swivelDegreesToServoCounts (double degrees)
     {
-        armPosition = !armPosition;
+        return ((degrees / 360.0)*(SWIVEL_360));
+    }
 
-        if (armPosition == COLLECT) {
+    public double swivelDegreesToServoPosition (double degrees) //degrees measured from starting position
+    {
+        return (SWIVEL_INIT - swivelDegreesToServoCounts(degrees));
+    }
 
-        } else if (armPosition == DISPENSE) {
+    public void setLiftPower (double power)
+    {
+        setMotorPower(liftMotor1, power);
+        setMotorPower(liftMotor2, power);
+    }
 
+    public static final int COLLECT = 0;
+    public static final int DISPENSE_RED = 1;
+    public static final int DISPENSE_BLUE = 2;
+
+    private int armPosition = COLLECT;
+
+    public final void moveArm (int pos)
+    {
+        if (pos == COLLECT)
+        {
+            armServo.setPosition(1);
+            swivelServo.setPosition(SWIVEL_INIT);
+
+        }
+
+        else if (pos == DISPENSE_RED)
+        {
+            armServo.setPosition(1);
+            swivelServo.setPosition(swivelDegreesToServoPosition(125));
+        }
+
+        else if (pos == DISPENSE_BLUE)
+        {
+            armServo.setPosition(1);
+            swivelServo.setPosition(swivelDegreesToServoPosition(215));
         }
     }
 
@@ -680,5 +760,34 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public final void moveDoor()
     {
         doorServo.setPosition(doorServo.getPosition() == 0.0 ? 1.0 : 0.0); //set door to whatever position it wasn't in before.
+    }
+
+    private Boolean getRescueBeaconColor () //experimental for the time being
+    {
+        double red = colorSensor.red();
+        double blue = colorSensor.blue();
+        double green = colorSensor.green();
+
+        if (green > red && green > blue) // indeterminate if there is too much green
+        {
+            return null;
+        }
+
+        double rbRatio = red / blue;
+        double requiredRatio = 1.5;
+        if (rbRatio > requiredRatio)
+        {
+            return RED;
+        }
+
+        else if (rbRatio < (1.0 / requiredRatio))
+        {
+            return BLUE;
+        }
+
+        else
+        {
+            return null;
+        }
     }
 }
