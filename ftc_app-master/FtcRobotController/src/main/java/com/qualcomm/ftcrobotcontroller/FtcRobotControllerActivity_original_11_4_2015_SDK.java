@@ -29,8 +29,6 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
-//This is Team 5220's version!
-
 package com.qualcomm.ftcrobotcontroller;
 
 import android.app.ActionBar;
@@ -74,7 +72,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
 
-public class FtcRobotControllerActivity extends Activity {
+public class FtcRobotControllerActivity_original_11_4_2015_SDK extends Activity {
 
   private static final int REQUEST_CONFIG_WIFI_CHANNEL = 1;
   private static final boolean USE_DEVICE_EMULATION = false;
@@ -293,7 +291,7 @@ public class FtcRobotControllerActivity extends Activity {
     }
     if (request == LaunchActivityConstantsList.FTC_ROBOT_CONTROLLER_ACTIVITY_CONFIGURE_ROBOT) {
       if (result == RESULT_OK) {
-        Serializable extra = intent.getSerializableExtra(FtcRobotControllerActivity.CONFIGURE_FILENAME);
+        Serializable extra = intent.getSerializableExtra(FtcRobotControllerActivity_original_11_4_2015_SDK.CONFIGURE_FILENAME);
         if (extra != null) {
           utility.saveToPreferences(extra.toString(), R.string.pref_hardware_config_filename);
           utility.updateHeader(Utility.NO_FILE, R.string.pref_hardware_config_filename, R.id.active_filename, R.id.included_header);

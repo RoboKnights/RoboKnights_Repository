@@ -33,14 +33,33 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<resources>
-  <color name="light_red_background">#790E15</color>
-  <color name="dark_red_background">#3F0206</color>
-  <color name="medium_red_background">#448CF2</color>
-  <color name="very_bright_red">#bf0510</color>
-  <color name="bright_red">#A6040E</color>
-  <color name="bright_red_text">#ff0a19</color>
-  <color name="white">#FFFFFF</color>
-  <color name="black">#000000</color>
-  <color name="transparent_color">#00000000</color>
-</resources>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/header"
+    android:layout_alignParentTop="true"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:background="@color/medium_red_background"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Active Configuration File:"
+        android:textColor="@color/white"
+        android:layout_weight="1"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/active_filename"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+</LinearLayout>

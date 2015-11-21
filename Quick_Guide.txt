@@ -1,4 +1,4 @@
-The following is a quick guide to using our programs (which will be updated as the program changes).
+The following is a quick guide to using our programs (which will be updated as the programs change).
 
 ----------------------------------------------------------------------------------------------------
 
@@ -17,6 +17,7 @@ A Button: Lower hooks using measuring tape
 Y Button: Raise hooks using measuring tape
 Left Trigger: Rotate hook lifting apparatus upwards
 Left Bumper: Rotate hook lifting apparatus downwards
+Right Analog Stick Up/Down: Pull with robot lifting motors up/down
 
 Joystick 2:
 

@@ -42,6 +42,8 @@ import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.util.*;
 //hello!
 
+//Currently using FTC SDK released 11-4-2015
+
 //add program off switch for using any one particular motor
 
 /* TODO (in priority order from highest to lowest):
