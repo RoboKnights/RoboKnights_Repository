@@ -21,8 +21,10 @@ Right Analog Stick Up/Down: Pull with robot lifting motors up/down
 
 Joystick 2:
 
-Currently no controls on joystick 2.
-
+A Button: Move arm to collection position
+X Button: Move arm to dispensing position for BLUE
+B Button: Move arm to dispensing position for RED
+Top Hat Right/Left: Raise/Lower hooks using measuring tape
 ----------------------------------------------------------------------------------------------------
 
 AUTONOMOUS (not functional yet):

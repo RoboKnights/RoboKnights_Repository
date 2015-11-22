@@ -22,9 +22,10 @@
     </MotorController>
     <DeviceInterfaceModule name="Device Interface Module 6" serialNumber="AL00VFCJ">
         <ColorSensor name="cSensor1" port="0" />
+        <Gyro name="gSensor" port="1" />
     </DeviceInterfaceModule>
     <ServoController name="Servo Controller 7" serialNumber="AL00XM4K">
         <Servo name="aServo" port="1" />
-        <Servo name="dServo" port="2" />
+        <Servo name="dServo" port="3" />
     </ServoController>
 </Robot>

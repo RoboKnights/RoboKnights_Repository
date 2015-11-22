@@ -41,7 +41,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private static final double SLOW_POWER = 0.15;
 
 
-    private static final double SWIVEL_INCREMENT = 0.005;
+    private static final double SWIVEL_INCREMENT = 0.005; //changed from 0.005
 
     private static final double SWIVEL_INCREMENT_TIME = 60; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
     private static final double SWIVEL_INERTIA_CORRECTION_MULTIPLIER = 0.5;
@@ -249,21 +249,21 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 }
                 */
                 topHatXTime = null;
-            }
 
-            if (gamepad2.dpad_left)
-            {
-                moveArm(DISPENSE_RED);
-            }
+                if (gamepad2.a)
+                {
+                    moveArm(COLLECT);
+                }
 
-            else if (gamepad2.dpad_right)
-            {
-                moveArm(DISPENSE_BLUE);
-            }
+                else if (gamepad2.b)
+                {
+                    moveArm(DISPENSE_RED);
+                }
 
-            else if (gamepad2.dpad_down)
-            {
-                moveArm(COLLECT);
+                else if (gamepad2.x)
+                {
+                    moveArm(DISPENSE_BLUE);
+                }
             }
 
             //ARM CONTROL:
@@ -311,12 +311,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //HOOK EXTENSION CONTROL:
 
-            if (gamepad1.y) //up
+            if (gamepad1.y || gamepad2.dpad_right) //up
             {
                 hookMotor.setPower(1);
             }
 
-            else if (gamepad1.a)
+            else if (gamepad1.a || gamepad2.dpad_left)
             {
                 hookMotor.setPower(-1);
             }

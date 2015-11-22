@@ -219,12 +219,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void test()
     {
-        move (24); // only works if absolute encoder values are negative.
-        sleep(1000);
-        rotateEncoder(12);
-        sleep(1000);
-        move (12);
-        stopDrivetrain();
+        rotate(180);
+        rotate(-180);
+        rotate(180);
+        rotate(-180);
+        rotate(180);
+        rotate(-180);
     }
 
 
@@ -248,7 +248,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             rotateEncoder(6);
             move (-33.94);
             rotateEncoder(12);
-            moveTime(30000, 99); //drive at full power up the mountain until ProgramKiller kills the program at the 30 second mark.
+            moveTime(30000, 0.99); //drive at full power up the mountain until ProgramKiller kills the program at the 30 second mark.
         }
 
         else if (color == BLUE)
@@ -256,7 +256,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             move (24); //12 = one foot, 24 = one floor tile
             // rotate(-45);
             rotateEncoder(6);
-            move(67.88);
+            move(48); //was 67.88
             //rotate(45);
             rotateEncoder(6);
             //detect first side
@@ -269,7 +269,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             rotateEncoder(-6);
             move (-33.94);
             rotateEncoder(-12);
-            moveTime(30000, 99); //drive at full power up the mountain until ProgramKiller kills the program at the 30 second mark.
+            moveTime(30000, 0.99); //drive at full power up the mountain until ProgramKiller kills the program at the 30 second mark.
         }
     }
 
@@ -277,8 +277,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
     {
         //new ProgramKiller().start(); //PROGRAM KILLER SCREWS UP AUTONOMOUS.
         new DebuggerDisplayLoop().start();
-        //test();
-        autonomous();
+        test();
+        ///autonomous();
     }
 
 

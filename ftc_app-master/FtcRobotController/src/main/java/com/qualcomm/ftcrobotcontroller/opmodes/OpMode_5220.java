@@ -88,7 +88,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
 
     protected static final double SWIVEL_INIT = 0.8;
-    protected static final double SWIVEL_360 = 0.242;
+    protected static final double SWIVEL_180 = 0.23;
+    protected static final double SWIVEL_360 = SWIVEL_180 * 2;
 
     //CONFIGURABLE CONSTANTS:
 
@@ -185,13 +186,15 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         colorSensor = hardwareMap.colorSensor.get("cSensor1");
         colorSensor.enableLed(false); //make sure this method works as it's supposed to
-       // gyroSensor = hardwareMap.gyroSensor.get("gSensor");
+        gyroSensor = hardwareMap.gyroSensor.get("gSensor");
     }
 
     public void initialize()
     {
         //swivelServoInit = swivelServo.getPosition();
        // setCustomSkin();
+        gyroSensor.calibrate();
+        gyroSensor.resetZAxisIntegrator();
         phase = INIT;
     }
 
@@ -282,8 +285,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 telemetry.addData("4", "RBM: " + rightBackMotor.getCurrentPosition());
 
                 telemetry.addData("5", "R = " + colorSensor.red() + ", G = " + colorSensor.green() + ", B = " + colorSensor.blue());
-                telemetry.addData("6", "Gyro: " + getGyroDirection());
-                telemetry.addData("7", "Beacon: " + getRescueBeaconColor());
+                telemetry.addData("7", "Gyro H: " + getGyroDirection()
+                );
+                telemetry.addData("6", "Swivel: " + swivelServo.getPosition());
+                //telemetry.addData("7", "Beacon: " + getRescueBeaconColor());
 
                 telemetry.addData("8", "Time Elapsed:" + gameTimer.time());
             }
@@ -379,7 +384,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public double getGyroDirection () //placeholder
     {
         //return gyroSensor.getRotation();
-        return 1.0;
+        return gyroSensor.getHeading();
     }
 
     public void update_telemetry() //fix this to make it actually useful later. or maybe let is override
@@ -629,14 +634,16 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         setRightDrivePower(-power);
     }
 
-    public final void waitForGyroRotation (double degrees)
+    public final void waitForGyroRotation (double degrees) //degrees must be less than 355
     {
         //convert degrees to proper value for this method
-        double init = getGyroDirection();
-        double target = init + degrees;
+        gyroSensor.calibrate();
+        while (gyroSensor.isCalibrating()) {};
+        gyroSensor.resetZAxisIntegrator();
+        sleep(500);
         if (degrees < 0)
         {
-            while (getGyroDirection() > target)
+            while (getGyroDirection() > (360 - degrees) || getGyroDirection() < 5)
             {
 
             }
@@ -644,7 +651,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         else
         {
-            while (getGyroDirection() < target)
+            while (getGyroDirection() < degrees || getGyroDirection() > 355)
             {
 
             }
@@ -658,6 +665,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final void rotate (double degrees, double power) //gyro rotation, add thing to make negative degrees = negative power.
     {
+        if (power * degrees < 0) power = -power;
         setTurnPower(power);
         waitForGyroRotation (degrees);
         stopDrivetrain();
