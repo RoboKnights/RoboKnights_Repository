@@ -35,6 +35,7 @@ import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
 
+//MAKE THING SO THAT MOVING THE ANALOG STICK TO A ROTATIONAL POSITION (and pressing a button) WILL ROTATIONALLY INSTANTLY MOVE THE ARM TO THAT LOCATION. USE TRIG TO CONVERT FROM X Y TO R THETA.
 public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a long comment.
 {
     private static final double JOYSTICK_THRESHOLD = 0.08; //below this joysticks won't cause movement.
@@ -51,6 +52,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private static final double ARM_INCREMENT_TIME = 30; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
 
     private static final double HOOK_TILT_INCREMENT = 0.025;
+
+    private static final double POLAR_CONTROL_R_THRESHOLD = 0.8; //max R value should be about 1
 
     private double g1Stick1Xinit;
     private double g1Stick1Yinit;
@@ -73,6 +76,51 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     public ProgramType getProgramType ()
     {
         return ProgramType.TELEOP;
+    }
+
+    public double[] cartesianToPolar (double x, double y) //returns array with polar coordinates, theta between 0 and 2 pi.
+    {
+        double r = Math.sqrt((x * x) + (y * y));
+        double theta = Math.atan(y / x);
+        if (x < 0) //make sure this works
+        {
+            theta = theta + Math.PI;
+        }
+        theta = theta % (2 * Math.PI); //if this doesn't work for replacing negative values, then use the if block below
+        /*
+        if (theta < 0)
+        {
+            theta = theta + (2 * Math.PI);
+        }
+        */
+        double[] toReturn = new double[2];
+
+        toReturn[0] = r;
+        toReturn[1] = theta;
+        return toReturn;
+    }
+
+    public boolean cartesianToPolar (double[] d) //changes two value array from x and y to r and theta, return true if it succeeds in doing so
+    {
+        if (d.length != 2) return false;
+        double[] polarArray = cartesianToPolar(d[0], d[1]);
+        d[0] = polarArray[0];
+        d[1] = polarArray[1];
+        return true;
+    }
+
+    public double radiansToDegrees (double radians)
+    {
+        double circleFraction = radians / (2.0 * Math.PI);
+        double degrees = circleFraction * 360.0;
+        return degrees;
+    }
+
+    public double degreesToSwivelPosition (double degrees) //degrees on analog stick are measured in traditional way, with zero starting in the first quadrant
+    {
+        double swivelPositionAtZeroDegrees = SWIVEL_INIT - (0.75 * SWIVEL_360);
+        double swivelPosition = swivelPositionAtZeroDegrees + ((degrees / 360.0) * SWIVEL_360);
+        return swivelPosition;
     }
 
     public void initialize ()
@@ -248,6 +296,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                     swivelMovementStart = swivelServo.getPosition();
                 }
                 */
+
                 topHatXTime = null;
 
                 if (gamepad2.a)
@@ -263,6 +312,20 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 else if (gamepad2.x)
                 {
                     moveArm(DISPENSE_BLUE);
+                }
+
+                else //comment this out if it doesn't work or messes up everything.
+                {
+                    double[] gamepad2LeftStickPolar = cartesianToPolar(gamepad2.left_stick_x, gamepad2.left_stick_y);
+                    double r = gamepad2LeftStickPolar[0];
+                    double theta = gamepad2LeftStickPolar[1];
+
+                    if (r > POLAR_CONTROL_R_THRESHOLD)
+                    {
+                        double degrees = radiansToDegrees(theta);
+                        double swivelPosition = degreesToSwivelPosition(degrees);
+                        swivelServo.setPosition(swivelPosition);
+                    }
                 }
             }
 
