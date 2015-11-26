@@ -80,8 +80,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         private String[] telemetryLines = new String[NUM_SETTINGS];
 
+
         public void run ()
         {
+            for (int i = 0; i < telemetryLines.length; i++) telemetryLines[i] = "";
             telemetry.addData("1", "AUTONOMOUS CONFIGURATION:");
 
             boolean prevL = false;
@@ -92,8 +94,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
             {
                 //make sure this algorithm works properly.
 
-                boolean l = touchSensorValue(0);
-                boolean r = touchSensorValue(1);
+                boolean l = touchSensor1.isPressed();
+                boolean r = touchSensor2.isPressed();
 
                 if (bothPressed)
                 {
@@ -214,17 +216,16 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void initialize () //override
     {
         super.initialize(); //do everything in the original, common initialization.
-       // new ConfigLoop().start(); //uncomment once we figure out how to add the touch sensors for config
+        new ConfigLoop().start(); //uncomment once we figure out how to add the touch sensors for config
     }
 
     public void test()
     {
-        rotate(180);
-        rotate(-180);
-        rotate(180);
-        rotate(-180);
-        rotate(180);
-        rotate(-180);
+        move (-128);
+        rotateEncoder(9);
+        move (-18);
+        flingClimbers();
+        move (70);
     }
 
 
@@ -277,6 +278,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     {
         //new ProgramKiller().start(); //PROGRAM KILLER SCREWS UP AUTONOMOUS.
         new DebuggerDisplayLoop().start();
+        sleep (startWaitTime);
         test();
         ///autonomous();
     }

@@ -51,7 +51,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private static final double ARM_INCREMENT = 0.04;
     private static final double ARM_INCREMENT_TIME = 30; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
 
-    private static final double HOOK_TILT_INCREMENT = 0.025;
+
+    private static final double HOOK_TILT_INCREMENT = 0.072;
 
     private static final double POLAR_CONTROL_R_THRESHOLD = 0.8; //max R value should be about 1
 

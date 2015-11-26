@@ -1,31 +1,34 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <Robot>
-    <MotorController name="Motor Controller 1" serialNumber="AL00UVMI">
-        <Motor name="lf" port="1" />
-        <Motor name="rf" port="2" />
+    <MotorController name="Motor Controller 3" serialNumber="AL00XQ8T">
+        <Motor name="sweeper" port="1" />
+        <Motor name="hook" port="2" />
     </MotorController>
     <MotorController name="Motor Controller 2" serialNumber="AL00XUAH">
         <Motor name="lb" port="1" />
         <Motor name="rb" port="2" />
     </MotorController>
-    <MotorController name="Motor Controller 3" serialNumber="AL00XQ8T">
-        <Motor name="sweeper" port="1" />
-        <Motor name="hook" port="2" />
+    <MotorController name="Motor Controller 1" serialNumber="AL00UVMI">
+        <Motor name="lf" port="1" />
+        <Motor name="rf" port="2" />
+    </MotorController>
+    <DeviceInterfaceModule name="Device Interface Module 6" serialNumber="AL00VFCJ">
+        <ColorSensor name="cSensor1" port="0" />
+        <Gyro name="gSensor" port="1" />
+        <TouchSensor name="tSensor1" port="0" />
+        <TouchSensor name="tSensor2" port="1" />
+    </DeviceInterfaceModule>
+    <MotorController name="Motor Controller 5" serialNumber="AL00UVMQ">
+        <Motor name="lm1" port="1" />
+        <Motor name="lm2" port="2" />
     </MotorController>
     <ServoController name="Servo Controller 4" serialNumber="AI02RN3S">
         <Servo name="sServo" port="1" />
         <Servo name="hServo" port="2" />
     </ServoController>
-    <MotorController name="Motor Controller 5" serialNumber="AL00UVMQ">
-        <Motor name="lm1" port="1" />
-        <Motor name="lm2" port="2" />
-    </MotorController>
-    <DeviceInterfaceModule name="Device Interface Module 6" serialNumber="AL00VFCJ">
-        <ColorSensor name="cSensor1" port="0" />
-        <Gyro name="gSensor" port="1" />
-    </DeviceInterfaceModule>
     <ServoController name="Servo Controller 7" serialNumber="AL00XM4K">
         <Servo name="aServo" port="1" />
+        <Servo name="cServo" port="2" />
         <Servo name="dServo" port="3" />
     </ServoController>
 </Robot>

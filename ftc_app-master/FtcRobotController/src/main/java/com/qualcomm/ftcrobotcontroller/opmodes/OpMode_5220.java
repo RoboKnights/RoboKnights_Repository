@@ -133,12 +133,15 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected Servo armServo;
     protected Servo doorServo;
     protected Servo hookTiltServo;
+    protected Servo climberServo;
 
     protected double swivelServoInit;
 
     //SENSORS:
     protected ColorSensor colorSensor;
     protected GyroSensor gyroSensor;
+    protected TouchSensor touchSensor1;
+    protected TouchSensor touchSensor2;
 
     //OTHER GLOBAL VARIABLES:
 
@@ -183,16 +186,20 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         armServo = hardwareMap.servo.get("aServo");
         doorServo = hardwareMap.servo.get("dServo");
         hookTiltServo = hardwareMap.servo.get("hServo");
+        climberServo = hardwareMap.servo.get("cServo");
 
         colorSensor = hardwareMap.colorSensor.get("cSensor1");
         colorSensor.enableLed(false); //make sure this method works as it's supposed to
         gyroSensor = hardwareMap.gyroSensor.get("gSensor");
+        touchSensor1 = hardwareMap.touchSensor.get("tSensor1");
+        touchSensor2 = hardwareMap.touchSensor.get("tSensor2");
     }
 
     public void initialize()
     {
         //swivelServoInit = swivelServo.getPosition();
        // setCustomSkin();
+        climberServo.setPosition(0);
         gyroSensor.calibrate();
         gyroSensor.resetZAxisIntegrator();
         phase = INIT;
@@ -772,7 +779,16 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         doorServo.setPosition(doorServo.getPosition() == 0.0 ? 1.0 : 0.0); //set door to whatever position it wasn't in before.
     }
 
-    private Boolean getRescueBeaconColor () //experimental for the time being
+    public void flingClimbers ()
+    {
+        sleep (500);
+        climberServo.setPosition(1);
+        sleep (2000);
+        climberServo.setPosition(0);
+
+    }
+
+    public Boolean getRescueBeaconColor () //experimental for the time being
     {
         double red = colorSensor.red();
         double blue = colorSensor.blue();
