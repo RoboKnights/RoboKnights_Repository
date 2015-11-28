@@ -74,6 +74,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     protected static final boolean BLUE = true;
     protected static final boolean RED = false;
+    protected static final boolean RIGHT = true;
+    protected static final boolean LEFT = false;
 
     protected static enum ProgramType {UNDECIDED, AUTONOMOUS, TELEOP};
     protected static ProgramType programType = ProgramType.UNDECIDED;
@@ -199,7 +201,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         //swivelServoInit = swivelServo.getPosition();
        // setCustomSkin();
-        climberServo.setPosition(0);
+        climberServo.setPosition(1);
         gyroSensor.calibrate();
         gyroSensor.resetZAxisIntegrator();
         phase = INIT;
@@ -670,6 +672,31 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         //finish later
     }
 
+    public final void swingTurn (double distance, boolean side, double power)
+    {
+        if (power * distance < 0)
+        {
+            power = -power;
+        }
+
+        resetDriveEncoders();
+        if (side == RIGHT) setRightDrivePower(power);
+        else setLeftDrivePower(power);
+
+        int encoderCount = distanceToEncoderCount(distance);
+
+        while (opModeIsActive() && (side == RIGHT ? !hasEncoderReached(rightFrontMotor, encoderCount) : !hasEncoderReached(leftFrontMotor, encoderCount))) //change back to runConditions if neecessary
+        {
+
+        }
+        stopDrivetrain();
+    }
+
+    public final void swingTurn (double distance, boolean side)
+    {
+
+    }
+
     public final void rotate (double degrees, double power) //gyro rotation, add thing to make negative degrees = negative power.
     {
         if (power * degrees < 0) power = -power;
@@ -782,9 +809,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public void flingClimbers ()
     {
         sleep (500);
-        climberServo.setPosition(1);
-        sleep (2000);
         climberServo.setPosition(0);
+        sleep (2000);
+        climberServo.setPosition(1);
 
     }
 

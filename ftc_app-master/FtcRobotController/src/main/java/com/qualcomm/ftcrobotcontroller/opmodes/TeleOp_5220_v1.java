@@ -82,12 +82,15 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     public double[] cartesianToPolar (double x, double y) //returns array with polar coordinates, theta between 0 and 2 pi.
     {
         double r = Math.sqrt((x * x) + (y * y));
-        double theta = Math.atan(y / x);
+        double theta = Math.atan2(x, y);
+        /*
         if (x < 0) //make sure this works
         {
             theta = theta + Math.PI;
         }
-        theta = theta % (2 * Math.PI); //if this doesn't work for replacing negative values, then use the if block below
+        */
+        theta = (theta + (2 * Math.PI)) % (2 * Math.PI);
+        //record values here
         /*
         if (theta < 0)
         {
@@ -121,6 +124,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     {
         double swivelPositionAtZeroDegrees = SWIVEL_INIT - (0.75 * SWIVEL_360);
         double swivelPosition = swivelPositionAtZeroDegrees + ((degrees / 360.0) * SWIVEL_360);
+        swivelPosition = swivelPosition - (SWIVEL_360 / 4);
         return swivelPosition;
     }
 
@@ -147,6 +151,10 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         boolean prevTopHatDown1 = false;
         boolean prevTopHatLeft1 = false;
         boolean prevTopHatRight1 = false;
+        boolean prevTopHatUp2 = false; //maybe change these initialization if they mess something up
+        boolean prevTopHatDown2 = false;
+        boolean prevTopHatLeft2 = false;
+        boolean prevTopHatRight2 = false;
         boolean prevLB = false;
         boolean prevLT = false;
         boolean prevBack = false;
@@ -332,6 +340,11 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //ARM CONTROL:
 
+            if (gamepad2.y)
+            {
+                armServo.setPosition(1);
+            }
+
             if ((gamepad1.dpad_up) && (!prevTopHatUp1 || (topHatYTime != null && topHatYTime.time() > ARM_INCREMENT_TIME)))
             {
                 double newPosition = armServo.getPosition() + ARM_INCREMENT;
@@ -359,14 +372,33 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             {
                 if (gamepad1.left_bumper)
                 {
-                    double newPosition = hookTiltServo.getPosition() + HOOK_TILT_INCREMENT;
-                    hookTiltServo.setPosition(Math.min(newPosition, 1.0));
+                    double newPosition = hookTiltServo.getPosition() - HOOK_TILT_INCREMENT;
+                    hookTiltServo.setPosition(Math.max(newPosition, 0.0));
+
                 }
             }
 
             else if ((gamepad1.left_trigger > 0.7) != prevLT)
             {
                 if (gamepad1.left_trigger > 0.7)
+                {
+                    double newPosition = hookTiltServo.getPosition() + HOOK_TILT_INCREMENT;
+                    hookTiltServo.setPosition(Math.min(newPosition, 1.0));
+                }
+            }
+
+            else if (gamepad2.dpad_down != prevTopHatDown2)
+            {
+                if (gamepad2.dpad_down)
+                {
+                    double newPosition = hookTiltServo.getPosition() + HOOK_TILT_INCREMENT;
+                    hookTiltServo.setPosition(Math.min(newPosition, 1.0));
+                }
+            }
+
+            else if (gamepad2.dpad_up != prevTopHatUp2)
+            {
+                if (gamepad2.dpad_up)
                 {
                     double newPosition = hookTiltServo.getPosition() - HOOK_TILT_INCREMENT;
                     hookTiltServo.setPosition(Math.max(newPosition, 0.0));
@@ -392,12 +424,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //LIFT MOTOR CONTROL:
 
-            if (gamepad1.right_stick_y > 0.7)
+            if (gamepad1.right_stick_y > 0.7 || gamepad2.right_stick_y > 0.7)
             {
                 setLiftPower(1);
             }
 
-            else if (gamepad1.right_stick_y < -0.7)
+            else if (gamepad1.right_stick_y < -0.7 || gamepad2.right_stick_y < -0.7)
             {
                 setLiftPower(-1);
             }
@@ -413,6 +445,10 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             prevTopHatDown1 = gamepad1.dpad_down;
             prevTopHatRight1 = gamepad1.dpad_right;
             prevTopHatLeft1 = gamepad1.dpad_left;
+            prevTopHatUp2 = gamepad2.dpad_up;
+            prevTopHatDown2 = gamepad2.dpad_down;
+            prevTopHatRight2 = gamepad2.dpad_right;
+            prevTopHatLeft2 = gamepad2.dpad_left;
             prevLB = gamepad1.left_bumper;
             prevLT = gamepad1.left_trigger > 0.7;
             prevBack = gamepad1.back;

@@ -25,6 +25,9 @@ A Button: Move arm to collection position
 X Button: Move arm to dispensing position for BLUE
 B Button: Move arm to dispensing position for RED
 Top Hat Right/Left: Raise/Lower hooks using measuring tape
+Top Hat Up/Down: Tilt Hooks using measuring taoe
+Right Analog Stick Up/Down: Lift Robot
+Left Analog Stick: Polar Coordinate Arm Control
 ----------------------------------------------------------------------------------------------------
 
 AUTONOMOUS (not functional yet):

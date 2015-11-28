@@ -85,6 +85,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             for (int i = 0; i < telemetryLines.length; i++) telemetryLines[i] = "";
             telemetry.addData("1", "AUTONOMOUS CONFIGURATION:");
+            telemetryLines[COLOR] = ("Color: " + (color == RED ? "RED" : "BLUE")); //maybe add starter asterisk here. Not sure if it is neccessary.
+            telemetryLines[WAIT] = ("Wait Time(in seconds): " + startWaitTime /*+ " seconds"*/);
+            telemetryLines[DETECT] = ("Smart Detection: " + (smartDetectOn ? "ON" : "OFF"));
+            writeLinesToTelemetry();
 
             boolean prevL = false;
             boolean prevR = false;
@@ -173,7 +177,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                     startWaitTime = 0;
                 }
 
-                telemetryLines[WAIT] = ("Wait Time: " + startWaitTime /*+ " seconds"*/);
+                telemetryLines[WAIT] = ("Wait Time(in seconds): " + startWaitTime /*+ " seconds"*/);
             }
 
             else if (setting == DETECT)
@@ -221,11 +225,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void test()
     {
-        move (-128);
-        rotateEncoder(9);
-        move (-18);
+        move (128);
+        hookTiltServo.setPosition(1);
+        rotateEncoder(5);
+        move (8);
         flingClimbers();
-        move (70);
+        move (-72);
     }
 
 
@@ -278,7 +283,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     {
         //new ProgramKiller().start(); //PROGRAM KILLER SCREWS UP AUTONOMOUS.
         new DebuggerDisplayLoop().start();
-        sleep (startWaitTime);
+        sleep (startWaitTime * 1000);
         test();
         ///autonomous();
     }
