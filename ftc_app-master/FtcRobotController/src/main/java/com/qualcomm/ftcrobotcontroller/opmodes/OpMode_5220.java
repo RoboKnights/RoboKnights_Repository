@@ -85,7 +85,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double GYRO = 4;
 
     protected static final double WHEEL_DIAMETER = 6.0; //in inches
-    protected static final double GEAR_RATIO = 2.0 / 3.0;
+    protected static final double GEAR_RATIO = 1.0 / 3.0;
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
 
@@ -108,6 +108,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double GYRO_SYNC_PROPORTIONALITY_CONSTANT = 0.02; //this times 100 is the motor power difference per degree off.
     protected static final double ENCODER_SYNC_UPDATE_TIME = 20; //in milliseconds for convenience
     protected static final double GYRO_SYNC_UPDATE_TIME = 20; //in milliseconds for convenience
+
+    protected static final double CLIMBER_FLING_TIME = 3.0;
 
     //MOTORS AND SERVOS:
 
@@ -136,6 +138,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected Servo doorServo;
     protected Servo hookTiltServo;
     protected Servo climberServo;
+    protected Servo triggerServo1;
+    protected Servo triggerServo2;
 
     protected double swivelServoInit;
 
@@ -189,6 +193,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         doorServo = hardwareMap.servo.get("dServo");
         hookTiltServo = hardwareMap.servo.get("hServo");
         climberServo = hardwareMap.servo.get("cServo");
+        triggerServo1 = hardwareMap.servo.get("tServo1");
+        triggerServo2 = hardwareMap.servo.get("tServo2");
 
         colorSensor = hardwareMap.colorSensor.get("cSensor1");
         colorSensor.enableLed(false); //make sure this method works as it's supposed to
@@ -201,7 +207,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         //swivelServoInit = swivelServo.getPosition();
        // setCustomSkin();
+        moveDoor(CLOSE);
         climberServo.setPosition(1);
+        triggerServo1.setPosition(1);
+        triggerServo2.setPosition(0);
         gyroSensor.calibrate();
         gyroSensor.resetZAxisIntegrator();
         phase = INIT;
@@ -312,6 +321,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         text = text + " " + toWrite + " ";
         for (int i = 0; i < 54; i++) text = text + " ";
         for (int i = 0; i < 54; i++) text = text + "_";
+        DbgLog.error(text);
         DbgLog.msg(text);
     }
 
@@ -809,7 +819,14 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public void flingClimbers ()
     {
         sleep (500);
-        climberServo.setPosition(0);
+        Stopwatch climberTimer = new Stopwatch();
+        double timeInMillis = CLIMBER_FLING_TIME * 1000.0;
+        while (climberTimer.time() < timeInMillis)
+        {
+            double newPosition = 1 - (climberTimer.time() / timeInMillis);
+            if (newPosition < 0) newPosition = 0;
+            climberServo.setPosition(newPosition);
+        }
         sleep (2000);
         climberServo.setPosition(1);
 

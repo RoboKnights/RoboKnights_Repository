@@ -225,17 +225,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void test()
     {
-        move (128);
-        hookTiltServo.setPosition(1);
-        rotateEncoder(5);
-        move (8);
-        flingClimbers();
-        move (-72);
+
     }
 
 
     public void autonomous ()
-    {
+    {/*
         if (color == RED)
         {
             move (24); //12 = one foot, 24 = one floor tile
@@ -277,15 +272,48 @@ public class Autonomous_5220_v1 extends OpMode_5220
             rotateEncoder(-12);
             moveTime(30000, 0.99); //drive at full power up the mountain until ProgramKiller kills the program at the 30 second mark.
         }
+        */
+
+        if (color == BLUE)
+        {
+            move(70);
+            hookTiltServo.setPosition(1);
+            sleep(700);
+            rotateEncoder(6.37);
+            sleep(700);
+            move(3);
+            sleep(400);
+            flingClimbers();
+            sleep(700);
+            move(-3);
+            sleep(700);
+            rotateEncoder(-6.42);
+            sleep(700);
+            move(-41.5);
+            sleep(700);
+            rotateEncoder(-13.0);
+            armServo.setPosition(1);
+            sleep (1500);
+            swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
+            sleep(1200);
+            move(-51.6);
+
+
+        }
+
+        else if (color == RED)
+        {
+
+        }
     }
 
     public void main ()
     {
         //new ProgramKiller().start(); //PROGRAM KILLER SCREWS UP AUTONOMOUS.
         new DebuggerDisplayLoop().start();
-        sleep (startWaitTime * 1000);
-        test();
-        ///autonomous();
+        sleep(startWaitTime * 1000);
+       // test();
+        autonomous();
     }
 
 

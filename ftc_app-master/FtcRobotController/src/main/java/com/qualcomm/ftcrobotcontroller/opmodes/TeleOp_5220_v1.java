@@ -158,6 +158,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         boolean prevLB = false;
         boolean prevLT = false;
         boolean prevBack = false;
+        boolean prevY2 = false;
 
         while (runConditions())
         {
@@ -340,9 +341,14 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //ARM CONTROL:
 
-            if (gamepad2.y)
+            if (gamepad2.right_bumper)
             {
                 armServo.setPosition(1);
+            }
+
+            if (gamepad2.right_trigger > 0.7)
+            {
+                armServo.setPosition(0);
             }
 
             if ((gamepad1.dpad_up) && (!prevTopHatUp1 || (topHatYTime != null && topHatYTime.time() > ARM_INCREMENT_TIME)))
@@ -439,6 +445,17 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 setLiftPower(0);
             }
 
+            //CLIMBER TRIGGERER CONTROL
+
+            if (gamepad2.y != prevY2) //tServo 1 is port 3, the one on the left, looking at the robot with the sweeper at the front and hook extension on the back.
+            {
+                if (gamepad2.y)
+                {
+                    triggerServo1.setPosition(triggerServo1.getPosition() == 1 ? 0.232 : 1);
+                    triggerServo2.setPosition(triggerServo2.getPosition() == 0 ? 0.75 : 0);
+                }
+            }
+
             //Previous value settings:
 
             prevTopHatUp1 = gamepad1.dpad_up;
@@ -452,6 +469,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             prevLB = gamepad1.left_bumper;
             prevLT = gamepad1.left_trigger > 0.7;
             prevBack = gamepad1.back;
+            prevY2 = gamepad2.y;
         }
     }
 

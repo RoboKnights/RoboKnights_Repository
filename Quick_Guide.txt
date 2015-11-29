@@ -28,9 +28,12 @@ Top Hat Right/Left: Raise/Lower hooks using measuring tape
 Top Hat Up/Down: Tilt Hooks using measuring taoe
 Right Analog Stick Up/Down: Lift Robot
 Left Analog Stick: Polar Coordinate Arm Control
+Y Button: Extend/Retract Climber Trigger Arms
+Right Bumper: Raise arm to highest position
+Right Trigger: Lower arm to lowest position
 ----------------------------------------------------------------------------------------------------
 
-AUTONOMOUS (not functional yet):
+AUTONOMOUS:
 
 There are several options to configure. The configuration of these options should show in telemetry.
 Press and release the left touch sensor to decrement the selected setting, and the right touch sensor to increment the selected setting.
