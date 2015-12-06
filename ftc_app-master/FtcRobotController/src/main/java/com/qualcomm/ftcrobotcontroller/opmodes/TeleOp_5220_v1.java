@@ -39,10 +39,10 @@ import com.qualcomm.robotcore.util.*;
 public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a long comment.
 {
     private static final double JOYSTICK_THRESHOLD = 0.08; //below this joysticks won't cause movement.
-    private static final double SLOW_POWER = 0.15;
+    private static final double SLOW_POWER = 0.12;
 
 
-    private static final double SWIVEL_INCREMENT = 0.005; //changed from 0.005
+    private static final double SWIVEL_INCREMENT = 0.00658; //changed from 0.005
 
     private static final double SWIVEL_INCREMENT_TIME = 60; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
     private static final double SWIVEL_INERTIA_CORRECTION_MULTIPLIER = 0.5;
@@ -60,6 +60,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private double g1Stick1Yinit;
 
     private boolean reverseDriveOn = false;
+    private boolean slowDriveOn = false;
 
 
     /*
@@ -125,6 +126,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         double swivelPositionAtZeroDegrees = SWIVEL_INIT - (0.75 * SWIVEL_360);
         double swivelPosition = swivelPositionAtZeroDegrees + ((degrees / 360.0) * SWIVEL_360);
         swivelPosition = swivelPosition - (SWIVEL_360 / 4);
+        swivelPosition = swivelPosition + ((SWIVEL_360 / 360.0) * 13.5); //brute force fix, eliminate if possible later.
         return swivelPosition;
     }
 
@@ -133,7 +135,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         super.initialize();
         swivelServo.setPosition(SWIVEL_INIT); //full range is 6.25 rotation, approximately. 1 is collection position. CHANGE THIS TO 0.9 OR 0.8 SOON TO ALLOW LEEWAY AND FAST RETURN TO COLLECTION POSITION.
         armServo.setPosition(0.14);
-        hookTiltServo.setPosition(1);
+        hookTiltServo.setPosition(1.0);
         moveDoor(CLOSE);
         g1Stick1Xinit = gamepad1.left_stick_x;
         g1Stick1Yinit = gamepad1.left_stick_y;
@@ -159,6 +161,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         boolean prevLT = false;
         boolean prevBack = false;
         boolean prevY2 = false;
+        boolean prevLB2 = false;
+        boolean prevLT2 = false;
 
         while (runConditions())
         {
@@ -179,7 +183,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             right = Range.clip(right, -2, 2);
             left = Range.clip(left, -2, 2);
 
-            if (gamepad1.left_stick_button)
+            if (false) //change to button later.
             {
                 if (right > SLOW_POWER)
                 {
@@ -236,6 +240,21 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 left = 0;
             }
 
+            if (left == 0 && right == 0)
+            {
+                if (gamepad1.left_bumper)
+                {
+                    left = -SLOW_POWER;
+                    right = -SLOW_POWER;
+                }
+
+                else if (gamepad1.left_trigger > 0.7)
+                {
+                    left = SLOW_POWER;
+                    right = SLOW_POWER;
+                }
+            }
+
             setLeftDrivePower(left);
             setRightDrivePower(right);
 
@@ -244,12 +263,18 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 g1Stick1Xinit = gamepad1.left_stick_x;
                 g1Stick1Yinit = gamepad1.left_stick_y;
             }
-
+/*
             if (gamepad1.back != prevBack && !gamepad1.back) //acts on button release
             {
                 reverseDriveOn = !reverseDriveOn;
             }
-
+*/
+/*
+            if (gamepad1.left_bumper != prevLB && gamepad1.left_bumper) //acts on button press
+            {
+                reverseDriveOn = !reverseDriveOn;
+            }
+*/
             //SWEEPER CONTROL:
 
             double sweeperPower = 0;
@@ -324,6 +349,11 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                     moveArm(DISPENSE_BLUE);
                 }
 
+                else if (gamepad2.y)
+                {
+                    moveArm(STRAIGHT);
+                }
+
                 else //comment this out if it doesn't work or messes up everything.
                 {
                     double[] gamepad2LeftStickPolar = cartesianToPolar(gamepad2.left_stick_x, gamepad2.left_stick_y);
@@ -373,7 +403,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             }
 
             //HOOK TILT CONTROL:
-
+/*
             if (gamepad1.left_bumper != prevLB)
             {
                 if (gamepad1.left_bumper)
@@ -392,8 +422,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                     hookTiltServo.setPosition(Math.min(newPosition, 1.0));
                 }
             }
-
-            else if (gamepad2.dpad_down != prevTopHatDown2)
+*/
+            if (gamepad2.dpad_down != prevTopHatDown2)
             {
                 if (gamepad2.dpad_down)
                 {
@@ -430,12 +460,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //LIFT MOTOR CONTROL:
 
-            if (gamepad1.right_stick_y > 0.7 || gamepad2.right_stick_y > 0.7)
+            if (gamepad2.right_stick_y > 0.7)
             {
                 setLiftPower(1);
             }
 
-            else if (gamepad1.right_stick_y < -0.7 || gamepad2.right_stick_y < -0.7)
+            else if (gamepad2.right_stick_y < -0.7)
             {
                 setLiftPower(-1);
             }
@@ -446,7 +476,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             }
 
             //CLIMBER TRIGGERER CONTROL
-
+/*
             if (gamepad2.y != prevY2) //tServo 1 is port 3, the one on the left, looking at the robot with the sweeper at the front and hook extension on the back.
             {
                 if (gamepad2.y)
@@ -455,6 +485,32 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                     triggerServo2.setPosition(triggerServo2.getPosition() == 0 ? 0.75 : 0);
                 }
             }
+*/
+            if (gamepad2.left_bumper != prevLB2) //tServo 1 is port 3, the one on the left, looking at the robot with the sweeper at the front and hook extension on the back.
+            {
+                if (gamepad2.left_bumper)
+                {
+                    triggerServo2.setPosition(triggerServo2.getPosition() == 0 ? 0.75 : 0);
+                }
+            }
+
+            if (gamepad2.left_trigger > 0.7 != prevLT2) //tServo 1 is port 3, the one on the left, looking at the robot with the sweeper at the front and hook extension on the back.
+            {
+                if (gamepad2.left_trigger > 0.7)
+                {
+                    triggerServo1.setPosition(triggerServo1.getPosition() == 1 ? 0.232 : 1);
+                }
+            }
+
+            //climber fling control
+
+            double flingValue = gamepad1.right_stick_y;
+            flingValue = Math.abs(flingValue);
+            flingValue = 1.0 - flingValue;
+            flingValue = Math.min(1.0, flingValue);
+            flingValue = Math.max(0.0, flingValue);
+
+            climberServo.setPosition(flingValue);
 
             //Previous value settings:
 
@@ -470,6 +526,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             prevLT = gamepad1.left_trigger > 0.7;
             prevBack = gamepad1.back;
             prevY2 = gamepad2.y;
+            prevLB2 = gamepad2.left_bumper;
+            prevLT2 = gamepad2.left_trigger > 0.7;
         }
     }
 

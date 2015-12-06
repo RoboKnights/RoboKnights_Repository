@@ -15,8 +15,8 @@ Top Hat Right/Left: Swivel arm (including debris tube) left/right
 B Button: Open door on debris tube, the door will stay open while the button is held down, and then revert to being closed.
 A Button: Lower hooks using measuring tape
 Y Button: Raise hooks using measuring tape
-Left Trigger: Rotate hook lifting apparatus upwards
-Left Bumper: Rotate hook lifting apparatus downwards
+Left Trigger: Make Driving Really Slow (must be held down)
+Left Bumper: Toggle Betweens Forwards and Backward Drive
 Right Analog Stick Up/Down: Pull with robot lifting motors up/down
 
 Joystick 2:
@@ -24,11 +24,12 @@ Joystick 2:
 A Button: Move arm to collection position
 X Button: Move arm to dispensing position for BLUE
 B Button: Move arm to dispensing position for RED
+Y Button: Move arm to straight position (for driving up the ramp)
 Top Hat Right/Left: Raise/Lower hooks using measuring tape
 Top Hat Up/Down: Tilt Hooks using measuring taoe
 Right Analog Stick Up/Down: Lift Robot
 Left Analog Stick: Polar Coordinate Arm Control
-Y Button: Extend/Retract Climber Trigger Arms
+Left Bumper and Left Trigger: Extend/Retract Climber Trigger Arms
 Right Bumper: Raise arm to highest position
 Right Trigger: Lower arm to lowest position
 ----------------------------------------------------------------------------------------------------

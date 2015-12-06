@@ -38,13 +38,29 @@ import com.qualcomm.robotcore.util.*;
 
 import java.util.ArrayList;
 
+/*
+
+TODO:
+
+Add option to (try to) dump blocks in low goal before climbing ramp on our side
+Add option to try to drive to other side of field (make sure its allowed), climb up the ramp of our color there, and position for scoring in the medium goal. probably terminate if gyro reads too much directional change.
+Add ultrasonic sensor when we add rescue beacon detection?
+*/
+
+
 public class Autonomous_5220_v1 extends OpMode_5220
 {
+    public static final int LOW_GOAL_AND_COLLECT_ON_SAME_SIDE = 0;
+    public static final int LOW_GOAL_AND_COLLECT_ON_OTHER_SIDE = 1;
+    public static final int RAMP = 2;
+    public static final int DEFENSE = 3;
+    public static final int NUM_PATHS = 4;
 
 
     private boolean color = BLUE; //RED by default, of course it'll change when neccessary
+    private int path = 0;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
-    private boolean smartDetectOn = false;
+    private boolean sweeperOn = true;
 
     public ProgramType getProgramType ()
     {
@@ -72,9 +88,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         private static final int COLOR = 0; //these are also their telemetry lines when added to 1.
         private static final int WAIT = 1;
-        private static final int DETECT = 2;
+        private static final int SWEEP = 2;
+        private static final int PATH = 3;
 
-        private static final int NUM_SETTINGS = 3;
+        private static final int NUM_SETTINGS = 4;
 
         private int currentSetting = 0;
 
@@ -86,8 +103,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
             for (int i = 0; i < telemetryLines.length; i++) telemetryLines[i] = "";
             telemetry.addData("1", "AUTONOMOUS CONFIGURATION:");
             telemetryLines[COLOR] = ("Color: " + (color == RED ? "RED" : "BLUE")); //maybe add starter asterisk here. Not sure if it is neccessary.
-            telemetryLines[WAIT] = ("Wait Time(in seconds): " + startWaitTime /*+ " seconds"*/);
-            telemetryLines[DETECT] = ("Smart Detection: " + (smartDetectOn ? "ON" : "OFF"));
+            telemetryLines[WAIT] = ("Wait Time (in seconds): " + startWaitTime /*+ " seconds"*/);
+            telemetryLines[SWEEP] = ("Sweeper: " + (sweeperOn ? "ON" : "OFF"));
+            telemetryLines[PATH] = ("Path: " + pathToString(path));
             writeLinesToTelemetry();
 
             boolean prevL = false;
@@ -97,9 +115,18 @@ public class Autonomous_5220_v1 extends OpMode_5220
             while (phase < RUNNING) //ends when program is actually started. note to userL try to leave at least half a second in between config and running :D
             {
                 //make sure this algorithm works properly.
+                boolean l;
+                boolean r;
 
-                boolean l = touchSensor1.isPressed();
-                boolean r = touchSensor2.isPressed();
+                l = touchSensor1.isPressed();
+                r = touchSensor2.isPressed();
+
+                if (!l && !r)
+                {
+                    l = gamepad1.left_bumper;
+                    r = gamepad1.right_bumper;
+                }
+
 
                 if (bothPressed)
                 {
@@ -180,11 +207,17 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 telemetryLines[WAIT] = ("Wait Time(in seconds): " + startWaitTime /*+ " seconds"*/);
             }
 
-            else if (setting == DETECT)
+            else if (setting == SWEEP)
             {
-                smartDetectOn = !smartDetectOn;
+                sweeperOn = !sweeperOn;
 
-                telemetryLines[DETECT] = ("Smart Detection: " + (smartDetectOn ? "ON" : "OFF"));
+                telemetryLines[SWEEP] = ("Sweeper: " + (sweeperOn ? "ON" : "OFF"));
+            }
+
+            else if (setting == PATH) //FINISH
+            {
+                path = (path + direction) % NUM_PATHS;
+                telemetryLines[PATH] = ("Path: " + pathToString(path));
             }
 
             if (telemetryLines[currentSetting].charAt(0) != '*') //change to string equals comparison if this doesn't work
@@ -207,6 +240,18 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             String[] telemetryLines = new String [NUM_SETTINGS + 1]; //row zero is "Configuration", the rest are for settings. each setting's number is it's telemetry line.
 
+        }
+
+        private String pathToString (int path)
+        {
+            switch (path)
+            {
+                case LOW_GOAL_AND_COLLECT_ON_SAME_SIDE: return "LOW_GOAL_AND_COLLECT_ON_SAME_SIDE";
+                case LOW_GOAL_AND_COLLECT_ON_OTHER_SIDE: return "LOW_GOAL_AND_COLLECT_ON_OTHER_SIDE";
+                case RAMP: return "RAMP";
+                case DEFENSE: return "DEFENSE";
+                default: return "Error: Invalid Path Number.";
+            }
         }
     }
 
@@ -276,33 +321,136 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         if (color == BLUE)
         {
+            if (sweeperOn) setMotorPower(sweeperMotor, 1);
             move(70);
+            if (sweeperOn) setMotorPower(sweeperMotor, 0);
+            sleep(250);
             hookTiltServo.setPosition(1);
-            sleep(700);
-            rotateEncoder(6.37);
-            sleep(700);
-            move(3);
-            sleep(400);
+            sleep(600);
+            rotateEncoder(5.32); //was 3.62
+            sleep(350);
+            move(4.35);
+            sleep(350);
             flingClimbers();
-            sleep(700);
+            sleep(350);
             move(-3);
-            sleep(700);
-            rotateEncoder(-6.42);
-            sleep(700);
-            move(-41.5);
-            sleep(700);
-            rotateEncoder(-13.0);
-            armServo.setPosition(1);
-            sleep (1500);
-            swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
-            sleep(1200);
-            move(-51.6);
+            sleep(350);
+            rotateEncoder(-5.5);
+            sleep(300);
 
+            if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
+            {
+                if (sweeperOn) setMotorPower(sweeperMotor, -1);
+                move(-31.5); //was 41.5
+                if (sweeperOn) setMotorPower(sweeperMotor, 0);
+                sleep(400);
+                rotateEncoder(-13.0);
+                /*
+                armServo.setPosition(1);
+                sleep(2500);
+                swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
+                sleep(2500);
+                move(-8);//was 51.6
+                */
+                /*
+                sleep(1000);
+                armServo.setPosition(0.68);
+                sleep(1000);
+                moveDoor(OPEN);
+                sleep(3000);
+                moveDoor(CLOSE);
+                armServo.setPosition(1);
+                sleep(700);
+                move(15);
+                swivelServo.setPosition(SWIVEL_INIT);
+                setDrivePower(0.7);
+                sleep(2000);
+                armServo.setPosition(0.14);
+                setDrivePower(0);
+                sleep(1000);
+                */
+            }
 
+            else if (path == RAMP)
+            {
+                if (sweeperOn) setMotorPower(sweeperMotor, -1);
+                move(-21.5); //was 41.5
+                if (sweeperOn) setMotorPower(sweeperMotor, 0);
+                sleep(700);
+                rotateEncoder(-13.0);
+                armServo.setPosition(1);
+                sleep(1500);
+                swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
+                sleep(1200);
+                move(-51.6);//was 51.6
+            }
         }
 
         else if (color == RED)
         {
+            if (sweeperOn) setMotorPower(sweeperMotor, 1);
+            move(64);
+            if (sweeperOn) setMotorPower(sweeperMotor, 0);
+            sleep(250);
+            hookTiltServo.setPosition(1);
+            sleep(600);
+            rotateEncoder(-3.79); //was 4.32
+            sleep(350);
+            move(1.2);
+            sleep(350);
+            flingClimbers();
+            sleep(350);
+            move(-3);
+            sleep(450);
+            rotateEncoder(3.5);
+            sleep(400);
+
+            if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
+            {
+                if (sweeperOn) setMotorPower(sweeperMotor, -1);
+                move(-31.5); //was 41.5
+                if (sweeperOn) setMotorPower(sweeperMotor, 0);
+                sleep(400);
+                rotateEncoder(13.0);
+                /*
+                armServo.setPosition(1);
+                sleep(2500);
+                swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
+                sleep(2500);
+                move(-8);//was 51.6
+                */
+                /*
+                sleep(1000);
+                armServo.setPosition(0.68);
+                sleep(1000);
+                moveDoor(OPEN);
+                sleep(3000);
+                moveDoor(CLOSE);
+                armServo.setPosition(1);
+                sleep(700);
+                move(15);
+                swivelServo.setPosition(SWIVEL_INIT);
+                setDrivePower(0.7);
+                sleep(2000);
+                armServo.setPosition(0.14);
+                setDrivePower(0);
+                sleep(1000);
+                */
+            }
+
+            else if (path == RAMP)
+            {
+                if (sweeperOn) setMotorPower(sweeperMotor, -1);
+                move(-21.5); //was 41.5
+                if (sweeperOn) setMotorPower(sweeperMotor, 0);
+                sleep(700);
+                rotateEncoder(-13.0);
+                armServo.setPosition(1);
+                sleep(1500);
+                swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
+                sleep(1200);
+                move(-51.6);//was 51.6
+            }
 
         }
     }

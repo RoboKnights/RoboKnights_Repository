@@ -48,17 +48,14 @@ import com.qualcomm.robotcore.util.*;
 
 /* TODO (in priority order from highest to lowest):
 
-Get the encoder checks and everything in move and rotate to work.
-
-Get the color sensor mounted and tested.
-
-Either get the touch sensors on, or figure out some alternative to ConfigLoop without touch sensors.
 
 Fine tune autonomous program
 
-add lift motors to TeleOp
-
 Get the TeleOp direction switch button and slow driving to work
+
+DEFINITELY add joystick control to autonomous config loop (decide program priority between that and touch sensors later). Simplest way will be using left and right bumpers. Other ways are possible.
+
+Add a way to display autonomous config options on the robot controller phone?
 
  */
 
@@ -375,7 +372,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         double wheelRotations = distance / WHEEL_CIRCUMFERENCE;
         double motorRotations = wheelRotations / GEAR_RATIO;
         long encoderCounts = Math.round(motorRotations * ENCODER_COUNTS_PER_ROTATION);
-        return (int) encoderCounts; //typecast is okay because the encoder count should will NEVER exceed Integer.MAX (2^31 - 1)
+        return (int) encoderCounts;
     }
 
     public void sleep(int millis) //change back to old way if the new way doesn't work
@@ -626,6 +623,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         stopDrivetrain();
         writeToLog("MOVING: Final encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
+        sleep(200); //maybe reduce this if it wastes too much time to have this safety interval.
     }
 
     public void moveSimple (int count)
@@ -769,6 +767,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public static final int COLLECT = 0;
     public static final int DISPENSE_RED = 1;
     public static final int DISPENSE_BLUE = 2;
+    public static final int STRAIGHT = 3;
 
     private int armPosition = COLLECT;
 
@@ -791,6 +790,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         {
             armServo.setPosition(1);
             swivelServo.setPosition(swivelDegreesToServoPosition(215));
+        }
+
+        else if (pos == STRAIGHT)
+        {
+            armServo.setPosition(1);
+            swivelServo.setPosition(swivelDegreesToServoPosition(162));
         }
     }
 
