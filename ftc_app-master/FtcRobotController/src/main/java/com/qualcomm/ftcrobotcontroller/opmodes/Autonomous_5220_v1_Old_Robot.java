@@ -41,7 +41,7 @@ Add ultrasonic sensor when we add rescue beacon detection?
 */
 
 
-public class Autonomous_5220_v1_Old_Robot extends OpMode_5220
+public class Autonomous_5220_v1_Old_Robot extends OpMode_5220_Old_Robot
 {
     public static final int LOW_GOAL_AND_COLLECT_ON_SAME_SIDE = 0;
     public static final int LOW_GOAL_AND_COLLECT_ON_OTHER_SIDE = 1;

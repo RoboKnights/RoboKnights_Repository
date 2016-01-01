@@ -36,7 +36,7 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.util.Range;
 
 //MAKE THING SO THAT MOVING THE ANALOG STICK TO A ROTATIONAL POSITION (and pressing a button) WILL ROTATIONALLY INSTANTLY MOVE THE ARM TO THAT LOCATION. USE TRIG TO CONVERT FROM X Y TO R THETA.
-public class TeleOp_5220_v1_Old_Robot extends OpMode_5220 //this is a comment. It is a long comment.
+public class TeleOp_5220_v1_Old_Robot extends OpMode_5220_Old_Robot //this is a comment. It is a long comment.
 {
     private static final double JOYSTICK_THRESHOLD = 0.08; //below this joysticks won't cause movement.
     private static final double SLOW_POWER = 0.12;

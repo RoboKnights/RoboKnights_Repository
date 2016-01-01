@@ -325,13 +325,13 @@ public class Autonomous_5220_v1 extends OpMode_5220
             move(70);
             if (sweeperOn) setMotorPower(sweeperMotor, 0);
             sleep(250);
-            hookTiltServo.setPosition(1);
+           // hookTiltServo.setPosition(1);
             sleep(600);
             rotateEncoder(5.32); //was 3.62
             sleep(350);
             move(4.35);
             sleep(350);
-            flingClimbers();
+            //flingClimbers();
             sleep(350);
             move(-3);
             sleep(350);
@@ -378,7 +378,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
                 sleep(700);
                 rotateEncoder(-13.0);
-                armServo.setPosition(1);
+                //armServo.setPosition(1);
                 sleep(1500);
                 swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
                 sleep(1200);
@@ -392,13 +392,13 @@ public class Autonomous_5220_v1 extends OpMode_5220
             move(64);
             if (sweeperOn) setMotorPower(sweeperMotor, 0);
             sleep(250);
-            hookTiltServo.setPosition(1);
+           // hookTiltServo.setPosition(1);
             sleep(600);
             rotateEncoder(-3.79); //was 4.32
             sleep(350);
             move(1.2);
             sleep(350);
-            flingClimbers();
+            //flingClimbers();
             sleep(350);
             move(-3);
             sleep(450);
@@ -445,7 +445,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
                 sleep(700);
                 rotateEncoder(-13.0);
-                armServo.setPosition(1);
+                //armServo.setPosition(1);
                 sleep(1500);
                 swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
                 sleep(1200);

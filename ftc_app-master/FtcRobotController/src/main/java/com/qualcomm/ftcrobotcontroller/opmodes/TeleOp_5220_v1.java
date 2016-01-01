@@ -36,6 +36,11 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
 
 //MAKE THING SO THAT MOVING THE ANALOG STICK TO A ROTATIONAL POSITION (and pressing a button) WILL ROTATIONALLY INSTANTLY MOVE THE ARM TO THAT LOCATION. USE TRIG TO CONVERT FROM X Y TO R THETA.
+
+// change dumper up/down to top hat up/down (instead of x and b)
+//change the wall control to be both alvin and eric, same buttons
+//add slow drive control
+
 public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a long comment.
 {
     private static final double JOYSTICK_THRESHOLD = 0.08; //below this joysticks won't cause movement.
@@ -46,6 +51,9 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
     private static final double SWIVEL_INCREMENT_TIME = 60; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
     private static final double SWIVEL_INERTIA_CORRECTION_MULTIPLIER = 0.5;
+
+    private static final double DUMPER_INCREMENT = 0.025; //changed from 0.005
+    private static final double DUMPER_INCREMENT_TIME = 60; //in millis, every incrmeent time, it goes 0.01 counts. about 24 increments to go 180 then.
 
 
     private static final double ARM_INCREMENT = 0.04;
@@ -134,9 +142,6 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     {
         super.initialize();
         swivelServo.setPosition(SWIVEL_INIT); //full range is 6.25 rotation, approximately. 1 is collection position. CHANGE THIS TO 0.9 OR 0.8 SOON TO ALLOW LEEWAY AND FAST RETURN TO COLLECTION POSITION.
-        armServo.setPosition(0.14);
-        hookTiltServo.setPosition(1.0);
-        moveDoor(CLOSE);
         g1Stick1Xinit = gamepad1.left_stick_x;
         g1Stick1Yinit = gamepad1.left_stick_y;
     }
@@ -145,6 +150,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     {
         Stopwatch topHatXTime = null;
         Stopwatch topHatYTime = null;
+        Stopwatch dumperTime = null;
         Stopwatch hookTiltTime = null;
 
         double swivelMovementStart = 0.0;
@@ -157,6 +163,9 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         boolean prevTopHatDown2 = false;
         boolean prevTopHatLeft2 = false;
         boolean prevTopHatRight2 = false;
+        boolean prevX1 = false;
+        boolean prevRSB1 = false;
+        boolean prevB1 = false;
         boolean prevLB = false;
         boolean prevLT = false;
         boolean prevBack = false;
@@ -241,7 +250,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             }
 
             if (left == 0 && right == 0)
-            {
+            {/*
                 if (gamepad1.left_bumper)
                 {
                     left = -SLOW_POWER;
@@ -253,6 +262,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                     left = SLOW_POWER;
                     right = SLOW_POWER;
                 }
+                */
             }
 
             setLeftDrivePower(left);
@@ -269,12 +279,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 reverseDriveOn = !reverseDriveOn;
             }
 */
-/*
-            if (gamepad1.left_bumper != prevLB && gamepad1.left_bumper) //acts on button press
+
+            if (gamepad1.right_stick_button != prevRSB1 && gamepad1.right_stick_button) //acts on button press
             {
                 reverseDriveOn = !reverseDriveOn;
             }
-*/
+
             //SWEEPER CONTROL:
 
             double sweeperPower = 0;
@@ -291,16 +301,30 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             setMotorPower(sweeperMotor, sweeperPower);
 
-            //DOOR CONTROL:
+            //DUMPER CONTROL:
 
-            moveDoor(gamepad1.b ? OPEN : CLOSE);
+            //moveDumper(gamepad1.b ? UP : DOWN);
+
+            if (gamepad1.left_bumper || gamepad2.left_bumper)
+            {
+                moveWall(UP);
+            }
+            else if (gamepad1.left_trigger > 0.7 || gamepad2.left_trigger > 0.7) {
+                moveWall(DOWN);
+            }
+
+            //MOUNTAIN HOOK CONTROL
+
+
+
+
 
             //ADD SOME WAY TO DISABLE P1 ARM CONTROL WHILE P2 IS RUNNING AN ARM MOTION SUBROUTINE.
             //SWIVEL CONTROL:
 
 
 
-            if ((gamepad1.dpad_left) && (!prevTopHatLeft1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
+            if ((gamepad1.dpad_right) && (!prevTopHatRight1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
             {
                 double newPosition = swivelServo.getPosition() + SWIVEL_INCREMENT;
                 if (newPosition > 1) newPosition = 1;
@@ -308,7 +332,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 topHatXTime = new Stopwatch();
             }
 
-            if ((gamepad1.dpad_right) && (!prevTopHatRight1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
+            if ((gamepad1.dpad_left) && (!prevTopHatLeft1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
             {
                 double newPosition = swivelServo.getPosition() - SWIVEL_INCREMENT;
                 if (newPosition < 0) newPosition = 0;
@@ -318,148 +342,58 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             if (!gamepad1.dpad_left && !gamepad1.dpad_right)
             {
-                /* INERTIA CORRECTION
-                if (topHatXTime != null)
-                {
-                    double swivelChange = swivelServo.getPosition() - swivelMovementStart;
-                    if (swivelChange < -0.004)// out from collection
-                    {
-                        swivelServo.setPosition(swivelMovementStart + (swivelChange * SWIVEL_INERTIA_CORRECTION_MULTIPLIER));
-                    }
-
-                    topHatXTime = null;
-                    swivelMovementStart = swivelServo.getPosition();
-                }
-                */
-
                 topHatXTime = null;
-
-                if (gamepad2.a)
-                {
-                    moveArm(COLLECT);
-                }
-
-                else if (gamepad2.b)
-                {
-                    moveArm(DISPENSE_RED);
-                }
-
-                else if (gamepad2.x)
-                {
-                    moveArm(DISPENSE_BLUE);
-                }
-
-                else if (gamepad2.y)
-                {
-                    moveArm(STRAIGHT);
-                }
-
-                else //comment this out if it doesn't work or messes up everything.
-                {
-                    double[] gamepad2LeftStickPolar = cartesianToPolar(gamepad2.left_stick_x, gamepad2.left_stick_y);
-                    double r = gamepad2LeftStickPolar[0];
-                    double theta = gamepad2LeftStickPolar[1];
-
-                    if (r > POLAR_CONTROL_R_THRESHOLD)
-                    {
-                        double degrees = radiansToDegrees(theta);
-                        double swivelPosition = degreesToSwivelPosition(degrees);
-                        swivelServo.setPosition(swivelPosition);
-                    }
-                }
             }
 
-            //ARM CONTROL:
+            //DUMPER CONTROL:
 
-            if (gamepad2.right_bumper)
+            if ((gamepad1.dpad_up) && (!prevTopHatUp1 || (dumperTime != null && dumperTime.time() > DUMPER_INCREMENT_TIME)))
             {
-                armServo.setPosition(1);
-            }
-
-            if (gamepad2.right_trigger > 0.7)
-            {
-                armServo.setPosition(0);
-            }
-
-            if ((gamepad1.dpad_up) && (!prevTopHatUp1 || (topHatYTime != null && topHatYTime.time() > ARM_INCREMENT_TIME)))
-            {
-                double newPosition = armServo.getPosition() + ARM_INCREMENT;
+                double newPosition = leftDumpServo.getPosition() + DUMPER_INCREMENT;
                 if (newPosition > 1) newPosition = 1;
-                armServo.setPosition(newPosition);
-                topHatYTime = new Stopwatch();
+                leftDumpServo.setPosition(newPosition);
+                rightDumpServo.setPosition(1.0 - newPosition);
+
+                dumperTime = new Stopwatch();
             }
 
-            if ((gamepad1.dpad_down) && (!prevTopHatDown1 || (topHatYTime != null && topHatYTime.time() > ARM_INCREMENT_TIME)))
+            if ((gamepad1.dpad_down) && (!prevTopHatDown1 || (dumperTime != null && dumperTime.time() > DUMPER_INCREMENT_TIME)))
             {
-                double newPosition = armServo.getPosition() - ARM_INCREMENT;
+                double newPosition = leftDumpServo.getPosition() - DUMPER_INCREMENT;
                 if (newPosition < 0) newPosition = 0;
-                armServo.setPosition(newPosition);
-                topHatYTime = new Stopwatch();
+                leftDumpServo.setPosition(newPosition);
+                rightDumpServo.setPosition(1.0 - newPosition);
+
+                dumperTime = new Stopwatch();
             }
 
             if (!gamepad1.dpad_down && !gamepad1.dpad_up)
             {
-                topHatYTime = null;
+                dumperTime = null;
             }
+
 
             //HOOK TILT CONTROL:
-/*
-            if (gamepad1.left_bumper != prevLB)
-            {
-                if (gamepad1.left_bumper)
-                {
-                    double newPosition = hookTiltServo.getPosition() - HOOK_TILT_INCREMENT;
-                    hookTiltServo.setPosition(Math.max(newPosition, 0.0));
-
-                }
-            }
-
-            else if ((gamepad1.left_trigger > 0.7) != prevLT)
-            {
-                if (gamepad1.left_trigger > 0.7)
-                {
-                    double newPosition = hookTiltServo.getPosition() + HOOK_TILT_INCREMENT;
-                    hookTiltServo.setPosition(Math.min(newPosition, 1.0));
-                }
-            }
-*/
-            if (gamepad2.dpad_down != prevTopHatDown2)
-            {
-                if (gamepad2.dpad_down)
-                {
-                    double newPosition = hookTiltServo.getPosition() + HOOK_TILT_INCREMENT;
-                    hookTiltServo.setPosition(Math.min(newPosition, 1.0));
-                }
-            }
-
-            else if (gamepad2.dpad_up != prevTopHatUp2)
-            {
-                if (gamepad2.dpad_up)
-                {
-                    double newPosition = hookTiltServo.getPosition() - HOOK_TILT_INCREMENT;
-                    hookTiltServo.setPosition(Math.max(newPosition, 0.0));
-                }
-            }
 
             //HOOK EXTENSION CONTROL:
 
-            if (gamepad1.y || gamepad2.dpad_right) //up
+            if (gamepad1.y) //up
             {
-                hookMotor.setPower(1);
+                slideMotor.setPower(1);
             }
 
-            else if (gamepad1.a || gamepad2.dpad_left)
+            else if (gamepad1.a)
             {
-                hookMotor.setPower(-1);
+                slideMotor.setPower(-1);
             }
 
             else
             {
-                hookMotor.setPower(0);
+                slideMotor.setPower(0);
             }
 
             //LIFT MOTOR CONTROL:
-
+/*
             if (gamepad2.right_stick_y > 0.7)
             {
                 setLiftPower(1);
@@ -474,7 +408,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             {
                 setLiftPower(0);
             }
-
+*/
             //CLIMBER TRIGGERER CONTROL
 /*
             if (gamepad2.y != prevY2) //tServo 1 is port 3, the one on the left, looking at the robot with the sweeper at the front and hook extension on the back.
@@ -485,7 +419,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                     triggerServo2.setPosition(triggerServo2.getPosition() == 0 ? 0.75 : 0);
                 }
             }
-*/
+*//*
             if (gamepad2.left_bumper != prevLB2) //tServo 1 is port 3, the one on the left, looking at the robot with the sweeper at the front and hook extension on the back.
             {
                 if (gamepad2.left_bumper)
@@ -501,9 +435,9 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                     triggerServo1.setPosition(triggerServo1.getPosition() == 1 ? 0.232 : 1);
                 }
             }
-
+*/
             //climber fling control
-
+/*
             double flingValue = gamepad1.right_stick_y;
             flingValue = Math.abs(flingValue);
             flingValue = 1.0 - flingValue;
@@ -511,7 +445,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             flingValue = Math.max(0.0, flingValue);
 
             climberServo.setPosition(flingValue);
-
+*/
             //Previous value settings:
 
             prevTopHatUp1 = gamepad1.dpad_up;
@@ -522,6 +456,9 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             prevTopHatDown2 = gamepad2.dpad_down;
             prevTopHatRight2 = gamepad2.dpad_right;
             prevTopHatLeft2 = gamepad2.dpad_left;
+            prevRSB1 = gamepad1.right_stick_button;
+            prevX1 = gamepad1.x;
+            prevB1 = gamepad1.b;
             prevLB = gamepad1.left_bumper;
             prevLT = gamepad1.left_trigger > 0.7;
             prevBack = gamepad1.back;

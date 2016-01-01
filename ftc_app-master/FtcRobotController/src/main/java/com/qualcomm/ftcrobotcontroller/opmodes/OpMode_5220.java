@@ -112,31 +112,25 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     protected static final String[] motorNames = {}; //Fill this in later.
 
-    protected DcMotorController driveController1; //MAKE SURE THESE THINGS HAVE SAME NAME AS IN PHONE CONFIGURATION
-    protected DcMotorController driveController2;
-    protected DcMotorController armAndSweeperController;
-    protected ServoController armServoController;
-
     protected DcMotor leftFrontMotor;
     protected DcMotor rightFrontMotor;
     protected DcMotor leftBackMotor;
     protected DcMotor rightBackMotor;
     protected DcMotor sweeperMotor;
-    protected DcMotor hookMotor;
+    protected DcMotor slideMotor;
     protected DcMotor liftMotor1;
     protected DcMotor liftMotor2;
-    //protected DcMotor armMotor;
 
     protected DcMotor[] driveMotors = new DcMotor[4];
     protected int[] driveMotorInitValues = new int[4];
 
     protected Servo swivelServo;
-    protected Servo armServo;
-    protected Servo doorServo;
-    protected Servo hookTiltServo;
-    protected Servo climberServo;
-    protected Servo triggerServo1;
-    protected Servo triggerServo2;
+    protected Servo releaseServo;
+   // protected Servo hookServo;
+    protected Servo leftWallServo;
+    protected Servo rightWallServo;
+    protected Servo leftDumpServo;
+    protected Servo rightDumpServo;
 
     protected double swivelServoInit;
 
@@ -156,18 +150,13 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         phase = SETUP;
 
-        driveController1 = hardwareMap.dcMotorController.get("Motor Controller 1");
-        driveController2 = hardwareMap.dcMotorController.get("Motor Controller 2");
-        armAndSweeperController = hardwareMap.dcMotorController.get("Motor Controller 3");
-        armServoController = hardwareMap.servoController.get("Servo Controller 4");
-
         leftFrontMotor = hardwareMap.dcMotor.get("lf");
         rightFrontMotor = hardwareMap.dcMotor.get("rf");
         leftBackMotor = hardwareMap.dcMotor.get("lb");
         rightBackMotor = hardwareMap.dcMotor.get("rb");
 
-        leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-        leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
 
         driveMotors[0] = leftFrontMotor;
         driveMotors[1] = rightFrontMotor;
@@ -178,20 +167,18 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
         sweeperMotor = hardwareMap.dcMotor.get("sweeper");
-        hookMotor = hardwareMap.dcMotor.get("hook");
+        slideMotor = hardwareMap.dcMotor.get("slides");
 
-        hookMotor.setDirection(DcMotor.Direction.REVERSE);
-
-        liftMotor1 = hardwareMap.dcMotor.get("lm1");
-        liftMotor2 = hardwareMap.dcMotor.get("lm2");
+        liftMotor1 = hardwareMap.dcMotor.get("hang1");
+        liftMotor2 = hardwareMap.dcMotor.get("hang2");
 
         swivelServo = hardwareMap.servo.get("sServo");
-        armServo = hardwareMap.servo.get("aServo");
-        doorServo = hardwareMap.servo.get("dServo");
-        hookTiltServo = hardwareMap.servo.get("hServo");
-        climberServo = hardwareMap.servo.get("cServo");
-        triggerServo1 = hardwareMap.servo.get("tServo1");
-        triggerServo2 = hardwareMap.servo.get("tServo2");
+        releaseServo = hardwareMap.servo.get("rServo");
+        //hookServo = hardwareMap.servo.get("hServo");
+        leftWallServo = hardwareMap.servo.get ("lwServo");
+        rightWallServo = hardwareMap.servo.get ("rwServo");
+        leftDumpServo = hardwareMap.servo.get("ldServo");
+        rightDumpServo = hardwareMap.servo.get("rdServo");
 
         colorSensor = hardwareMap.colorSensor.get("cSensor1");
         colorSensor.enableLed(false); //make sure this method works as it's supposed to
@@ -204,10 +191,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         //swivelServoInit = swivelServo.getPosition();
        // setCustomSkin();
-        moveDoor(CLOSE);
-        climberServo.setPosition(1);
-        triggerServo1.setPosition(1);
-        triggerServo2.setPosition(0);
+        moveDumper(DOWN);
         gyroSensor.calibrate();
         gyroSensor.resetZAxisIntegrator();
         phase = INIT;
@@ -229,6 +213,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         phase = RUNNING;
         gameTimer = new Stopwatch();
+        releasePin();
 
         main();
         end();
@@ -748,94 +733,53 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     //ATTACHMENTS:
 
-    public double swivelDegreesToServoCounts (double degrees)
+    public static final boolean UP = true;
+    public static final boolean DOWN = false;
+    public static final double dumperHeight = 0.47;
+
+    public final void moveDumper (boolean position)
     {
-        return ((degrees / 360.0)*(SWIVEL_360));
-    }
-
-    public double swivelDegreesToServoPosition (double degrees) //degrees measured from starting position
-    {
-        return (SWIVEL_INIT - swivelDegreesToServoCounts(degrees));
-    }
-
-    public void setLiftPower (double power)
-    {
-        setMotorPower(liftMotor1, power);
-        setMotorPower(liftMotor2, power);
-    }
-
-    public static final int COLLECT = 0;
-    public static final int DISPENSE_RED = 1;
-    public static final int DISPENSE_BLUE = 2;
-    public static final int STRAIGHT = 3;
-
-    private int armPosition = COLLECT;
-
-    public final void moveArm (int pos)
-    {
-        if (pos == COLLECT)
+        if (position == UP)
         {
-            armServo.setPosition(1);
-            swivelServo.setPosition(SWIVEL_INIT);
-
+            leftDumpServo.setPosition(dumperHeight);
+            rightDumpServo.setPosition(1.0 - dumperHeight);
         }
 
-        else if (pos == DISPENSE_RED)
+        else if (position == DOWN)
         {
-            armServo.setPosition(1);
-            swivelServo.setPosition(swivelDegreesToServoPosition(125));
-        }
-
-        else if (pos == DISPENSE_BLUE)
-        {
-            armServo.setPosition(1);
-            swivelServo.setPosition(swivelDegreesToServoPosition(215));
-        }
-
-        else if (pos == STRAIGHT)
-        {
-            armServo.setPosition(1);
-            swivelServo.setPosition(swivelDegreesToServoPosition(162));
-        }
-    }
-
-    public static final boolean CLOSE = false;
-    public static final boolean OPEN = true;
-
-    public final void moveDoor (boolean position)
-    {
-        if (position == OPEN)
-        {
-            doorServo.setPosition(0.0);
-        }
-
-        else if (position == CLOSE)
-        {
-            doorServo.setPosition(1.0);
+            leftDumpServo.setPosition(0.0);
+            rightDumpServo.setPosition(1.0);
         }
 
     }
 
-    public final void moveDoor()
+    public final void moveDumper()
     {
-        doorServo.setPosition(doorServo.getPosition() == 0.0 ? 1.0 : 0.0); //set door to whatever position it wasn't in before.
+
     }
 
-    public void flingClimbers ()
+    public static final double wallOffset = 0.335;
+
+    public final void moveWall (boolean position)
     {
-        sleep (500);
-        Stopwatch climberTimer = new Stopwatch();
-        double timeInMillis = CLIMBER_FLING_TIME * 1000.0;
-        while (climberTimer.time() < timeInMillis)
+        if (position == UP)
         {
-            double newPosition = 1 - (climberTimer.time() / timeInMillis);
-            if (newPosition < 0) newPosition = 0;
-            climberServo.setPosition(newPosition);
+            leftWallServo.setPosition(0.5 - wallOffset);
+            rightWallServo.setPosition(0.5 + wallOffset);
         }
-        sleep (2000);
-        climberServo.setPosition(1);
 
+        else if (position == DOWN)
+        {
+            leftWallServo.setPosition(0.5);
+            rightWallServo.setPosition(0.5);
+        }
     }
+
+    public final void releasePin()
+    {
+        releaseServo.setPosition(1.0);
+    }
+
 
     public Boolean getRescueBeaconColor () //experimental for the time being
     {
