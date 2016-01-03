@@ -4,9 +4,7 @@ The following is a quick guide to using our programs (which will be updated as t
 
 TELEOP:
 
-***********************************************************************
 
-NEW ROBOT:
 
 Joystick 1:
 
@@ -36,53 +34,18 @@ B Button: Move swivel to blue medium goal position
 X Button: Move swivel to red high goal position
 Y Button: Move swivel to blue high goal position
 
-***********************************************************************
-
-OLD ROBOT:
-
-Joystick 1:
-
-Left Analog Stick Up/Down: Drive forwards and backwards
-Left Analog Stick Right/Left: Rotate in place
-Right Bumper: Turn the sweeper forwards (to collect debris)
-Right Trigger: Turn the sweeper backwards (to unjam the sweeper, when neccessary)
-Top Hat Up/Down: Rotate debris tube up/down
-Top Hat Right/Left: Swivel arm (including debris tube) left/right
-B Button: Open door on debris tube, the door will stay open while the button is held down, and then revert to being closed.
-A Button: Lower hooks using measuring tape
-Y Button: Raise hooks using measuring tape
-Left Trigger: Make Driving Really Slow (must be held down)
-Left Bumper: Toggle Betweens Forwards and Backward Drive
-Right Analog Stick Up/Down: Pull with robot lifting motors up/down
-
-
-Joystick 2:
-
-A Button: Move arm to collection position
-X Button: Move arm to dispensing position for BLUE
-B Button: Move arm to dispensing position for RED
-Y Button: Move arm to straight position (for driving up the ramp)
-Top Hat Right/Left: Raise/Lower hooks using measuring tape
-Top Hat Up/Down: Tilt Hooks using measuring taoe
-Right Analog Stick Up/Down: Lift Robot
-Left Analog Stick: Polar Coordinate Arm Control
-Left Bumper and Left Trigger: Extend/Retract Climber Trigger Arms
-Right Bumper: Raise arm to highest position
-Right Trigger: Lower arm to lowest position
-
-***********************************************************************
-
 ----------------------------------------------------------------------------------------------------
 
 AUTONOMOUS:
 
 There are several options to configure. The configuration of these options should show in telemetry.
 Press and release the left touch sensor to decrement the selected setting, and the right touch sensor to increment the selected setting.
-To move on to the next setting, press both touch sensors and release them.
+To move on to the next setting, press both touch sensors and release them. This process can also be done with the left and right bumpers on gamepad 1
+instead of the left and right touch sensors.
 
-Current Settings: Color, Wait time, and Smart Detection
+Current Settings: Color, Wait time, and Robot Path
 
-Default Settings (respectively): RED, 0, false
+Default Settings (respectively): BLUE, 0, LOW_GOAL_AND_COLLECT_ON_SAME_SIDE
 
 ----------------------------------------------------------------------------------------------------
 
