@@ -44,7 +44,7 @@ import com.qualcomm.robotcore.util.*;
 public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a long comment.
 {
     private static final double JOYSTICK_THRESHOLD = 0.08; //below this joysticks won't cause movement.
-    private static final double SLOW_POWER = 0.12;
+    private static final double SLOW_POWER = 0.10;
 
 
     private static final double SWIVEL_INCREMENT = 0.00658; //changed from 0.005
@@ -141,7 +141,6 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     public void initialize ()
     {
         super.initialize();
-        swivelServo.setPosition(SWIVEL_INIT); //full range is 6.25 rotation, approximately. 1 is collection position. CHANGE THIS TO 0.9 OR 0.8 SOON TO ALLOW LEEWAY AND FAST RETURN TO COLLECTION POSITION.
         g1Stick1Xinit = gamepad1.left_stick_x;
         g1Stick1Yinit = gamepad1.left_stick_y;
     }
@@ -250,19 +249,19 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             }
 
             if (left == 0 && right == 0)
-            {/*
-                if (gamepad1.left_bumper)
+            {
+                if (gamepad1.right_stick_y < -0.4)
                 {
                     left = -SLOW_POWER;
                     right = -SLOW_POWER;
                 }
 
-                else if (gamepad1.left_trigger > 0.7)
+                else if (gamepad1.right_stick_y > 0.4)
                 {
                     left = SLOW_POWER;
                     right = SLOW_POWER;
                 }
-                */
+
             }
 
             setLeftDrivePower(left);
@@ -305,11 +304,11 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //moveDumper(gamepad1.b ? UP : DOWN);
 
-            if (gamepad1.left_bumper || gamepad2.left_bumper)
+            if (gamepad1.left_trigger > 0.7 || gamepad2.left_bumper)
             {
                 moveWall(UP);
             }
-            else if (gamepad1.left_trigger > 0.7 || gamepad2.left_trigger > 0.7) {
+            else if (gamepad1.left_bumper || gamepad2.left_trigger > 0.7) {
                 moveWall(DOWN);
             }
 
@@ -343,6 +342,31 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             if (!gamepad1.dpad_left && !gamepad1.dpad_right)
             {
                 topHatXTime = null;
+
+                if (gamepad2.a)
+                {
+                    moveSwivel(RED_MEDIUM);
+                }
+
+                else if (gamepad2.b)
+                {
+                    moveSwivel(BLUE_MEDIUM);
+                }
+
+                else if (gamepad2.x)
+                {
+                    moveSwivel(RED_HIGH);
+                }
+
+                else if (gamepad2.y)
+                {
+                    moveSwivel(BLUE_HIGH);
+                }
+
+                else if (gamepad2.right_stick_button)
+                {
+                    moveSwivel(COLLECT);
+                }
             }
 
             //DUMPER CONTROL:
@@ -351,8 +375,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             {
                 double newPosition = leftDumpServo.getPosition() + DUMPER_INCREMENT;
                 if (newPosition > 1) newPosition = 1;
-                leftDumpServo.setPosition(newPosition);
-                rightDumpServo.setPosition(1.0 - newPosition);
+                moveDumper(newPosition);
 
                 dumperTime = new Stopwatch();
             }
@@ -360,9 +383,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             if ((gamepad1.dpad_down) && (!prevTopHatDown1 || (dumperTime != null && dumperTime.time() > DUMPER_INCREMENT_TIME)))
             {
                 double newPosition = leftDumpServo.getPosition() - DUMPER_INCREMENT;
-                if (newPosition < 0) newPosition = 0;
-                leftDumpServo.setPosition(newPosition);
-                rightDumpServo.setPosition(1.0 - newPosition);
+                if (newPosition < DOWN - 0.02) newPosition = DOWN;
+                moveDumper(newPosition);
 
                 dumperTime = new Stopwatch();
             }
@@ -377,12 +399,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //HOOK EXTENSION CONTROL:
 
-            if (gamepad1.y) //up
+            if (gamepad1.y || gamepad2.right_bumper) //up
             {
                 slideMotor.setPower(1);
             }
 
-            else if (gamepad1.a)
+            else if (gamepad1.a || gamepad2.right_trigger > 0.7)
             {
                 slideMotor.setPower(-1);
             }

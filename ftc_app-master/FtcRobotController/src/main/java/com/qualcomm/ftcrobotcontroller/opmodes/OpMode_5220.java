@@ -82,11 +82,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double GYRO = 4;
 
     protected static final double WHEEL_DIAMETER = 6.0; //in inches
-    protected static final double GEAR_RATIO = 1.0 / 3.0;
+    protected static final double GEAR_RATIO = 1.0 / 2.0;
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
 
-    protected static final double SWIVEL_INIT = 0.8;
+    protected static final double SWIVEL_INIT = 0.79;
     protected static final double SWIVEL_180 = 0.23;
     protected static final double SWIVEL_360 = SWIVEL_180 * 2;
 
@@ -192,8 +192,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         //swivelServoInit = swivelServo.getPosition();
        // setCustomSkin();
         moveDumper(DOWN);
+        swivelServo.setPosition(SWIVEL_INIT);
+        /*
         gyroSensor.calibrate();
         gyroSensor.resetZAxisIntegrator();
+        */
         phase = INIT;
     }
 
@@ -279,15 +282,14 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         {
             while (opModeIsActive())
             {
-                telemetry.addData("1", "LFM: " + leftFrontMotor.getCurrentPosition());
-                telemetry.addData("2", "RFM: " + rightFrontMotor.getCurrentPosition());
-                telemetry.addData("3", "LBM: " + leftBackMotor.getCurrentPosition());
-                telemetry.addData("4", "RBM: " + rightBackMotor.getCurrentPosition());
+                telemetry.addData("1", "LFM: " + leftFrontMotor.getCurrentPosition() + ", RFM: " + rightFrontMotor.getCurrentPosition());
+                telemetry.addData("2", "LBM: " + leftBackMotor.getCurrentPosition() + ", RBM: " + rightBackMotor.getCurrentPosition());
+                telemetry.addData("3", "Swivel: " + swivelServo.getPosition());
+                telemetry.addData("4", "Dumper: " + leftDumpServo.getPosition());
 
                 telemetry.addData("5", "R = " + colorSensor.red() + ", G = " + colorSensor.green() + ", B = " + colorSensor.blue());
-                telemetry.addData("7", "Gyro H: " + getGyroDirection()
-                );
-                telemetry.addData("6", "Swivel: " + swivelServo.getPosition());
+                telemetry.addData("7", "Gyro H: " + getGyroDirection());
+
                 //telemetry.addData("7", "Beacon: " + getRescueBeaconColor());
 
                 telemetry.addData("8", "Time Elapsed:" + gameTimer.time());
@@ -303,8 +305,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         text = text + " " + toWrite + " ";
         for (int i = 0; i < 54; i++) text = text + " ";
         for (int i = 0; i < 54; i++) text = text + "_";
-        DbgLog.error(text);
+        //DbgLog.error(text);
         DbgLog.msg(text);
+        DbgLog.msg("USER MESSAGE (short): " + toWrite);
+        DbgLog.error("USER MESSAGE (short): " + toWrite);
     }
 
     public void setCustomSkin() //maybe transfer this sort of app modification stuff to ftcrobotcontrolleractivity. It might be more appropriate there.
@@ -564,13 +568,13 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         int encoderCount = distanceToEncoderCount(distance);
         writeToLog("MOVING: Distance = " + distance + ", Encoder Count = " + encoderCount + ", Mode = " + getModeText(mode) + ", Power = " + power);
         writeToLog("MOVING: UnReset encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
-        double initialDirection = getGyroDirection();
+       // double initialDirection = getGyroDirection();
 
         double powerChange = 0;
         double updateTime = ((mode == ENCODER) ? ENCODER_SYNC_UPDATE_TIME : GYRO_SYNC_UPDATE_TIME);
 
         resetDriveEncoders();
-        writeToLog("MOVING: Initialized encoder values (should be 0) are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
+        writeToLog("MOVING: Initialized encoder values (should be 0) are LFM: " + getEncoderValue(leftFrontMotor) + ", RFM = " + getEncoderValue(rightFrontMotor));
         setDrivePower(power);
 
         while (opModeIsActive() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works, change back to driveEncodersHaveReached if it works
@@ -587,7 +591,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
                 else if (mode == GYRO)
                 {
-                    powerChange = (getGyroDirection() - initialDirection) * GYRO_SYNC_PROPORTIONALITY_CONSTANT;
+                   // powerChange = (getGyroDirection() - initialDirection) * GYRO_SYNC_PROPORTIONALITY_CONSTANT;
                 }
 
                 setLeftDrivePower(power - powerChange);
@@ -733,34 +737,30 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     //ATTACHMENTS:
 
-    public static final boolean UP = true;
-    public static final boolean DOWN = false;
+    public static final double UP = 1.0;
+    public static final double DOWN = 0.231;
     public static final double dumperHeight = 0.47;
 
-    public final void moveDumper (boolean position)
+    public final void moveDumper (double d)
     {
-        if (position == UP)
-        {
-            leftDumpServo.setPosition(dumperHeight);
-            rightDumpServo.setPosition(1.0 - dumperHeight);
-        }
-
-        else if (position == DOWN)
-        {
-            leftDumpServo.setPosition(0.0);
-            rightDumpServo.setPosition(1.0);
-        }
-
+        leftDumpServo.setPosition(d);
+        rightDumpServo.setPosition(1.0 - d);
     }
 
-    public final void moveDumper()
-    {
+    public static final double COLLECT = SWIVEL_INIT;
+    public static final double BLUE_HIGH = 0.863;
+    public static final double BLUE_MEDIUM = 0.882;
+    public static final double RED_HIGH = 0.66666;
+    public static final double RED_MEDIUM = 0.635;
 
+    public final void moveSwivel (double position)
+    {
+        swivelServo.setPosition(position);
     }
 
     public static final double wallOffset = 0.335;
 
-    public final void moveWall (boolean position)
+    public final void moveWall (double position)
     {
         if (position == UP)
         {
@@ -780,6 +780,21 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         releaseServo.setPosition(1.0);
     }
 
+    public void flingClimbers ()
+    {
+        sleep (500);
+        Stopwatch climberTimer = new Stopwatch();
+        double timeInMillis = CLIMBER_FLING_TIME * 1000.0;
+        while (climberTimer.time() < timeInMillis)
+        {
+            double newPosition = (climberTimer.time() / timeInMillis);
+            if (newPosition > 1) newPosition = 1;
+            moveDumper (newPosition);
+        }
+        sleep (2000);
+        moveDumper(DOWN);
+
+    }
 
     public Boolean getRescueBeaconColor () //experimental for the time being
     {

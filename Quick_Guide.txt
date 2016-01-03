@@ -4,6 +4,42 @@ The following is a quick guide to using our programs (which will be updated as t
 
 TELEOP:
 
+***********************************************************************
+
+NEW ROBOT:
+
+Joystick 1:
+
+Left Analog Stick Up/Down: Drive forwards and backwards
+Left Analog Stick Right/Left: Rotate in place
+Right Analog Stick Button: Reverse drive direction
+Right Analog Stick Up/Down: Drive forwards and backwards slowly, at a fixed power.
+Right Bumper: Turn the sweeper forwards (to collect debris)
+Right Trigger: Turn the sweeper backwards (to unjam the sweeper, when neccessary)
+Left Bumper: Raise wall
+Left Trigger: Lower wall
+Y Button: Extend linear slides
+A Button Retract linear slides
+Top Hat Left/Right: Swivel linear slides
+Top Hat Up/Down: Raise/Lower dumper
+
+
+Joystick 2:
+
+Left Bumper: Raise wall
+Left Trigger: Lower wall
+Right Bumper: Extends linear slides
+Right Trigger: Retract linear slides
+Right Analog Stick Button: Move swivel to collection position
+A Button: Move swivel to red medium goal position
+B Button: Move swivel to blue medium goal position
+X Button: Move swivel to red high goal position
+Y Button: Move swivel to blue high goal position
+
+***********************************************************************
+
+OLD ROBOT:
+
 Joystick 1:
 
 Left Analog Stick Up/Down: Drive forwards and backwards
@@ -19,6 +55,7 @@ Left Trigger: Make Driving Really Slow (must be held down)
 Left Bumper: Toggle Betweens Forwards and Backward Drive
 Right Analog Stick Up/Down: Pull with robot lifting motors up/down
 
+
 Joystick 2:
 
 A Button: Move arm to collection position
@@ -32,6 +69,9 @@ Left Analog Stick: Polar Coordinate Arm Control
 Left Bumper and Left Trigger: Extend/Retract Climber Trigger Arms
 Right Bumper: Raise arm to highest position
 Right Trigger: Lower arm to lowest position
+
+***********************************************************************
+
 ----------------------------------------------------------------------------------------------------
 
 AUTONOMOUS:

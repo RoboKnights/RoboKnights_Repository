@@ -275,76 +275,43 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
 
     public void autonomous ()
-    {/*
-        if (color == RED)
-        {
-            move (24); //12 = one foot, 24 = one floor tile
-           // rotate(-45);
-            rotateEncoder(-6);
-            move(67.88);
-            //rotate(45);
-            rotateEncoder(-6);
-            //detect first side
-            move(12);
-            //detect second side, make decision where to push
-            //rotate(-90);
-            rotateEncoder(-12);
-            //go forward, dump climbers, and come back.
-            //rotate(45);
-            rotateEncoder(6);
-            move (-33.94);
-            rotateEncoder(12);
-            moveTime(30000, 0.99); //drive at full power up the mountain until ProgramKiller kills the program at the 30 second mark.
-        }
-
-        else if (color == BLUE)
-        {
-            move (24); //12 = one foot, 24 = one floor tile
-            // rotate(-45);
-            rotateEncoder(6);
-            move(48); //was 67.88
-            //rotate(45);
-            rotateEncoder(6);
-            //detect first side
-            move(12);
-            //detect second side, make decision where to push
-            //rotate(-90);
-            rotateEncoder(12);
-            //go forward, dump climbers, and come back.
-            //rotate(45);
-            rotateEncoder(-6);
-            move (-33.94);
-            rotateEncoder(-12);
-            moveTime(30000, 0.99); //drive at full power up the mountain until ProgramKiller kills the program at the 30 second mark.
-        }
-        */
-
+    {
         if (color == BLUE)
         {
-            if (sweeperOn) setMotorPower(sweeperMotor, 1);
-            move(70);
-            if (sweeperOn) setMotorPower(sweeperMotor, 0);
-            sleep(250);
-           // hookTiltServo.setPosition(1);
-            sleep(600);
-            rotateEncoder(5.32); //was 3.62
-            sleep(350);
-            move(4.35);
-            sleep(350);
-            //flingClimbers();
-            sleep(350);
-            move(-3);
-            sleep(350);
-            rotateEncoder(-5.5);
-            sleep(300);
+            sleep (250);
+            move(-60.5);
+            sleep(750);
+            rotateEncoder(2.45); //was 3.62
+            sleep(750);
+            move(-5.5);
+            sleep(750);
+            flingClimbers();
+            sleep(750);
+            move(5);
+
+            sleep(750);
+            rotateEncoder(3);
+            sleep(700);
 
             if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
             {
-                if (sweeperOn) setMotorPower(sweeperMotor, -1);
-                move(-31.5); //was 41.5
+                move (6);
+                rotateEncoder(-27);
+                if (sweeperOn) setMotorPower(sweeperMotor, 1);
+                move(6.68); //was 41.5
+                sleep(5000);
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
-                sleep(400);
-                rotateEncoder(-13.0);
+
+            /*
+                if (sweeperOn) setMotorPower(sweeperMotor, 1);
+                move(41.5); //was 41.5
+                sleep(2000);
+                if (sweeperOn) setMotorPower(sweeperMotor, 0);
+
+
+                */
+               // move(-33); /was 32.5
+                //rotateEncoder(-13.0);
                 /*
                 armServo.setPosition(1);
                 sleep(2500);
@@ -374,7 +341,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             else if (path == RAMP)
             {
                 if (sweeperOn) setMotorPower(sweeperMotor, -1);
-                move(-21.5); //was 41.5
+                move(21.5); //was 41.5
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
                 sleep(700);
                 rotateEncoder(-13.0);
@@ -382,33 +349,32 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 sleep(1500);
                 swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
                 sleep(1200);
-                move(-51.6);//was 51.6
+                move(51.6);//was 51.6
             }
         }
 
         else if (color == RED)
         {
-            if (sweeperOn) setMotorPower(sweeperMotor, 1);
-            move(64);
-            if (sweeperOn) setMotorPower(sweeperMotor, 0);
+            sleep(250);
+            move(-64);
             sleep(250);
            // hookTiltServo.setPosition(1);
             sleep(600);
             rotateEncoder(-3.79); //was 4.32
             sleep(350);
-            move(1.2);
+            move(-1.2);
             sleep(350);
             //flingClimbers();
             sleep(350);
-            move(-3);
+            move(3);
             sleep(450);
             rotateEncoder(3.5);
             sleep(400);
 
             if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
             {
-                if (sweeperOn) setMotorPower(sweeperMotor, -1);
-                move(-31.5); //was 41.5
+                if (sweeperOn) setMotorPower(sweeperMotor, 1);
+                move(31.5); //was 41.5
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
                 sleep(400);
                 rotateEncoder(13.0);
@@ -441,7 +407,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             else if (path == RAMP)
             {
                 if (sweeperOn) setMotorPower(sweeperMotor, -1);
-                move(-21.5); //was 41.5
+                move(21.5); //was 41.5
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
                 sleep(700);
                 rotateEncoder(-13.0);
@@ -449,7 +415,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 sleep(1500);
                 swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
                 sleep(1200);
-                move(-51.6);//was 51.6
+                move(51.6);//was 51.6
             }
 
         }
