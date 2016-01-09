@@ -35,6 +35,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
 
+import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
@@ -106,7 +107,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double ENCODER_SYNC_UPDATE_TIME = 20; //in milliseconds for convenience
     protected static final double GYRO_SYNC_UPDATE_TIME = 20; //in milliseconds for convenience
 
-    protected static final double CLIMBER_FLING_TIME = 3.0;
+    protected static final double CLIMBER_FLING_TIME = 1.0;
 
     //MOTORS AND SERVOS:
 
@@ -142,6 +143,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     //OTHER GLOBAL VARIABLES:
 
+    protected FtcRobotControllerActivity ftcRCA;
     protected Stopwatch gameTimer;
     protected boolean isArmMoving = false;
     protected int phase = HAS_NOT_STARTED;
@@ -149,6 +151,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public void setup()//this and the declarations above are the equivalent of the pragmas in RobotC
     {
         phase = SETUP;
+
+        ftcRCA = FtcRobotControllerActivity.ftcRCA;
 
         leftFrontMotor = hardwareMap.dcMotor.get("lf");
         rightFrontMotor = hardwareMap.dcMotor.get("rf");
@@ -396,6 +400,13 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         telemetry.addData("01", "Hello world!");
     }
+
+    public void restartRobot()
+    {
+        ftcRCA.requestRobotRestart();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //MOVEMENT:
 

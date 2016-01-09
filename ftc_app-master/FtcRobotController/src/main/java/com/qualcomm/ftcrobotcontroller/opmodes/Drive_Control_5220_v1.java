@@ -82,22 +82,22 @@ public class Drive_Control_5220_v1 extends OpMode_5220
     {
         if (direction == BACKWARDS)
         {
-            setDrivePower(-0.5);
+            setDrivePower(-0.7);
         }
 
         else if (direction == FORWARDS)
         {
-            setDrivePower(0.5);
+            setDrivePower(0.7);
         }
 
         else if (direction == LEFT)
         {
-            setTurnPower(-0.5);
+            setTurnPower(-1.0);
         }
 
         else if (direction == RIGHT)
         {
-            setTurnPower(0.5);
+            setTurnPower(1.0);
         }
 
         while (opModeIsActive())

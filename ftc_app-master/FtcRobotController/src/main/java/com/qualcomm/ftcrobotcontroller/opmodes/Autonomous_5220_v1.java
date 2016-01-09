@@ -57,7 +57,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int NUM_PATHS = 4;
 
 
-    private boolean color = BLUE; //RED by default, of course it'll change when neccessary
+    private boolean color = RED; //RED by default, of course it'll change when neccessary
     private int path = 0;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean sweeperOn = true;
@@ -276,66 +276,38 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void autonomous ()
     {
+        sleep (750);
         if (color == BLUE)
         {
-            sleep (250);
-            move(-60.5);
+            move(-24.5);
             sleep(750);
-            rotateEncoder(2.45); //was 3.62
+            rotateEncoder(6);
+            sleep (750);
+            move(-40);
             sleep(750);
-            move(-5.5);
+            rotateEncoder(6.25); //was 3.62
+            sleep(750);
+            move(-11);
             sleep(750);
             flingClimbers();
             sleep(750);
             move(5);
 
             sleep(750);
-            rotateEncoder(3);
+            rotateEncoder(7);
             sleep(700);
 
             if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
             {
-                move (6);
-                rotateEncoder(-27);
+                move (15);
+                sleep(750);
+                rotateEncoder(22);
+                sleep(750);
                 if (sweeperOn) setMotorPower(sweeperMotor, 1);
-                move(6.68); //was 41.5
+                moveTime(8000, 0.12); //was 41.5
                 sleep(5000);
+                move (-10, 0.15);
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
-
-            /*
-                if (sweeperOn) setMotorPower(sweeperMotor, 1);
-                move(41.5); //was 41.5
-                sleep(2000);
-                if (sweeperOn) setMotorPower(sweeperMotor, 0);
-
-
-                */
-               // move(-33); /was 32.5
-                //rotateEncoder(-13.0);
-                /*
-                armServo.setPosition(1);
-                sleep(2500);
-                swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
-                sleep(2500);
-                move(-8);//was 51.6
-                */
-                /*
-                sleep(1000);
-                armServo.setPosition(0.68);
-                sleep(1000);
-                moveDoor(OPEN);
-                sleep(3000);
-                moveDoor(CLOSE);
-                armServo.setPosition(1);
-                sleep(700);
-                move(15);
-                swivelServo.setPosition(SWIVEL_INIT);
-                setDrivePower(0.7);
-                sleep(2000);
-                armServo.setPosition(0.14);
-                setDrivePower(0);
-                sleep(1000);
-                */
             }
 
             else if (path == RAMP)
@@ -355,53 +327,36 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         else if (color == RED)
         {
-            sleep(250);
-            move(-64);
-            sleep(250);
-           // hookTiltServo.setPosition(1);
-            sleep(600);
-            rotateEncoder(-3.79); //was 4.32
-            sleep(350);
-            move(-1.2);
-            sleep(350);
-            //flingClimbers();
-            sleep(350);
-            move(3);
-            sleep(450);
-            rotateEncoder(3.5);
-            sleep(400);
+
+            move(-17.4);
+            sleep (750);
+            rotateEncoder(-6);
+            sleep(750);
+            move(-40.75);
+            sleep(750);
+            rotateEncoder(-6.6); //was 3.62
+            sleep(750);
+            move(-10.6);
+            sleep(750);
+            flingClimbers();
+            sleep(750);
+            move(5);
+
+            sleep(750);
+            rotateEncoder(-7);
+            sleep(700);
 
             if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
             {
+                move (15);
+                sleep(750);
+                rotateEncoder(-22);
+                sleep(750);
                 if (sweeperOn) setMotorPower(sweeperMotor, 1);
-                move(31.5); //was 41.5
+                moveTime(6000, 0.12); //was 41.5
+                sleep(5000);
+                move (-10, 0.15);
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
-                sleep(400);
-                rotateEncoder(13.0);
-                /*
-                armServo.setPosition(1);
-                sleep(2500);
-                swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
-                sleep(2500);
-                move(-8);//was 51.6
-                */
-                /*
-                sleep(1000);
-                armServo.setPosition(0.68);
-                sleep(1000);
-                moveDoor(OPEN);
-                sleep(3000);
-                moveDoor(CLOSE);
-                armServo.setPosition(1);
-                sleep(700);
-                move(15);
-                swivelServo.setPosition(SWIVEL_INIT);
-                setDrivePower(0.7);
-                sleep(2000);
-                armServo.setPosition(0.14);
-                setDrivePower(0);
-                sleep(1000);
-                */
             }
 
             else if (path == RAMP)

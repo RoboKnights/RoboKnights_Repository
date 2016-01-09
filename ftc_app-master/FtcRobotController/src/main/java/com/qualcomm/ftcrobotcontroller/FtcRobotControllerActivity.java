@@ -105,6 +105,14 @@ public class FtcRobotControllerActivity extends Activity {
 
   protected FtcEventLoop eventLoop;
 
+  public static FtcRobotControllerActivity ftcRCA;
+
+  public FtcRobotControllerActivity ()
+  {
+    super();
+    ftcRCA = this;
+  }
+
   protected class RobotRestarter implements Restarter {
 
     public void requestRestart() {
@@ -356,7 +364,7 @@ public class FtcRobotControllerActivity extends Activity {
     controllerService.shutdownRobot();
   }
 
-  private void requestRobotRestart() {
+  public void requestRobotRestart() {
     requestRobotShutdown();
     requestRobotSetup();
   }
