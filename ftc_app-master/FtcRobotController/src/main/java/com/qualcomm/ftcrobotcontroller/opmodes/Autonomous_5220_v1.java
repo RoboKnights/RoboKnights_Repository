@@ -299,15 +299,14 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
             if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
             {
-                move (15);
+                move(15);
                 sleep(750);
                 rotateEncoder(22);
                 sleep(750);
                 if (sweeperOn) setMotorPower(sweeperMotor, 1);
-                moveTime(8000, 0.12); //was 41.5
-                sleep(5000);
-                move (-10, 0.15);
+                moveTime(29250 - gameTimer.time(), 0.12); //was 41.5
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
+
             }
 
             else if (path == RAMP)
@@ -328,15 +327,15 @@ public class Autonomous_5220_v1 extends OpMode_5220
         else if (color == RED)
         {
 
-            move(-17.4);
+            move(-19.75);
             sleep (750);
             rotateEncoder(-6);
             sleep(750);
             move(-40.75);
             sleep(750);
-            rotateEncoder(-6.6); //was 3.62
+            rotateEncoder(-6.4); //was 3.62
             sleep(750);
-            move(-10.6);
+            move(-8);
             sleep(750);
             flingClimbers();
             sleep(750);
@@ -353,9 +352,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 rotateEncoder(-22);
                 sleep(750);
                 if (sweeperOn) setMotorPower(sweeperMotor, 1);
-                moveTime(6000, 0.12); //was 41.5
+                moveTime(29250 - gameTimer.time(), 0.12); //was 41.5
+                /*
                 sleep(5000);
                 move (-10, 0.15);
+                */
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
             }
 

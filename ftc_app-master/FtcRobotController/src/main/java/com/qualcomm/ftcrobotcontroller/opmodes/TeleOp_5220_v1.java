@@ -392,6 +392,16 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             if (!gamepad1.dpad_down && !gamepad1.dpad_up)
             {
                 dumperTime = null;
+
+                if (gamepad1.b || gamepad2.dpad_down)
+                {
+                    moveDumper(DOWN);
+                }
+
+                else if (gamepad1.x || gamepad2.dpad_up)
+                {
+                    moveDumper(DOWN + 0.184); //fine-tune value soon
+                }
             }
 
 

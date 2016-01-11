@@ -201,6 +201,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         gyroSensor.calibrate();
         gyroSensor.resetZAxisIntegrator();
         */
+        moveWall(DOWN);
         phase = INIT;
     }
 
@@ -769,20 +770,22 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         swivelServo.setPosition(position);
     }
 
+    public static final double leftWallInit = 0.48;
+    public static final double rightWallInit = 0.5;
     public static final double wallOffset = 0.335;
 
     public final void moveWall (double position)
     {
         if (position == UP)
         {
-            leftWallServo.setPosition(0.5 - wallOffset);
-            rightWallServo.setPosition(0.5 + wallOffset);
+            leftWallServo.setPosition(leftWallInit + wallOffset);
+            rightWallServo.setPosition(rightWallInit - wallOffset);
         }
 
         else if (position == DOWN)
         {
-            leftWallServo.setPosition(0.5);
-            rightWallServo.setPosition(0.5);
+            leftWallServo.setPosition(leftWallInit);
+            rightWallServo.setPosition(rightWallInit);
         }
     }
 
