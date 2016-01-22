@@ -9,8 +9,8 @@
         <Motor name="slides" port="2" />
     </MotorController>
     <MotorController name="Motor Controller 3" serialNumber="AL00UVMI">
-        <Motor name="hang1" port="1" />
-        <Motor name="hang2" port="2" />
+        <Motor name="lm" port="1" />
+        <Motor name="rm" port="2" />
     </MotorController>
     <ServoController name="Servo Controller 4" serialNumber="AI02RN3S">
         <Servo name="sServo" port="2" />

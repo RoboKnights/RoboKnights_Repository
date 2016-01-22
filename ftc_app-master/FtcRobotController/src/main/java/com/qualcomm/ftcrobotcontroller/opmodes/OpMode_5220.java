@@ -117,10 +117,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected DcMotor rightFrontMotor;
     protected DcMotor leftBackMotor;
     protected DcMotor rightBackMotor;
+    protected DcMotor leftMidMotor;
+    protected DcMotor rightMidMotor;
     protected DcMotor sweeperMotor;
     protected DcMotor slideMotor;
-    protected DcMotor liftMotor1;
-    protected DcMotor liftMotor2;
 
     protected DcMotor[] driveMotors = new DcMotor[4];
     protected int[] driveMotorInitValues = new int[4];
@@ -159,8 +159,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         leftBackMotor = hardwareMap.dcMotor.get("lb");
         rightBackMotor = hardwareMap.dcMotor.get("rb");
 
+        leftMidMotor = hardwareMap.dcMotor.get("lm");
+        rightMidMotor = hardwareMap.dcMotor.get("rm");
+
         rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
         rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftMidMotor.setDirection(DcMotor.Direction.REVERSE);
 
         driveMotors[0] = leftFrontMotor;
         driveMotors[1] = rightFrontMotor;
@@ -173,8 +177,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         sweeperMotor = hardwareMap.dcMotor.get("sweeper");
         slideMotor = hardwareMap.dcMotor.get("slides");
 
-        liftMotor1 = hardwareMap.dcMotor.get("hang1");
-        liftMotor2 = hardwareMap.dcMotor.get("hang2");
+
 
         swivelServo = hardwareMap.servo.get("sServo");
         releaseServo = hardwareMap.servo.get("rServo");
@@ -423,12 +426,14 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         setMotorPower (leftFrontMotor, power);
         setMotorPower (leftBackMotor, power);
+        setMotorPower(leftMidMotor, power);
     }
 
     public final void setRightDrivePower (double power)
     {
         setMotorPower (rightFrontMotor, power);
         setMotorPower (rightBackMotor, power);
+        setMotorPower(rightMidMotor, power);
     }
 
     public final void setDrivePower (double power)
