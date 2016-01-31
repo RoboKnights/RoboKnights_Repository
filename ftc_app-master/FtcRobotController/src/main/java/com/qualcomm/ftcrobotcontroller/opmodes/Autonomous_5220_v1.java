@@ -57,7 +57,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int NUM_PATHS = 4;
 
 
-    private boolean color = RED; //RED by default, of course it'll change when neccessary
+    private boolean color = BLUE; //RED by default, of course it'll change when neccessary
     private int path = 0;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean sweeperOn = true;
@@ -118,14 +118,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 boolean l;
                 boolean r;
 
-                l = touchSensor1.isPressed();
-                r = touchSensor2.isPressed();
-
-                if (!l && !r)
-                {
-                    l = gamepad1.left_bumper;
-                    r = gamepad1.right_bumper;
-                }
+                l = gamepad1.left_bumper;
+                r = gamepad1.right_bumper;
 
 
                 if (bothPressed)
@@ -339,48 +333,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             setRightDrivePower(0);
             sleep(750);
             flingClimbers();
-            sleep(750);
-            move(8);
-            /*
-            sleep(750);
-            rotateEncoder (16);
-            sleep(750);
-            move(-14);
-            sleep(750);
-            rotateEncoder(-10);
-            sleep(750);
-            move (-11);
-*/
-
-
-            if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
-            {
-                /*
-                move(15);
-                sleep(750);
-                rotateEncoder(22);
-                sleep(750);
-                if (sweeperOn) setMotorPower(sweeperMotor, 1);
-                moveTime(29250 - gameTimer.time(), 0.12); //was 41.5
-                if (sweeperOn) setMotorPower(sweeperMotor, 0);
-*/
-            }
-
-            else if (path == RAMP)
-            {
-                /*
-                if (sweeperOn) setMotorPower(sweeperMotor, -1);
-                move(21.5); //was 41.5
-                if (sweeperOn) setMotorPower(sweeperMotor, 0);
-                sleep(700);
-                rotateEncoder(-13.0);
-                //armServo.setPosition(1);
-                sleep(1500);
-                swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
-                sleep(1200);
-                move(51.6);//was 51.6
-                */
-            }
+            scoreRescueBeacon();
         }
 
         else if (color == RED)
@@ -407,12 +360,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
             move(-28.5);
             sleep(700);
-            rotateEncoder(-6.2);
+            rotateEncoder(-6.3);
             sleep(700);
-            move(-38);
+            move(-30);
             sleep(700);
 
-            rotateEncoder(-9.5);
+            rotateEncoder(-11.75);
             sleep(700);
 
             setDrivePower(-0.37);
@@ -424,7 +377,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             sleep(550);
             move(-1.2);
             sleep(700);
-            rotateEncoder(6.04);
+            rotateEncoder(5);
             sleep (700);
 
             Stopwatch tempTime = new Stopwatch();
@@ -447,41 +400,35 @@ public class Autonomous_5220_v1 extends OpMode_5220
             stopDrivetrain();
             setLeftDrivePower(0);
             setRightDrivePower(0);
-            sleep(750);
+            stopDrivetrain();
+            sleep(450);
             flingClimbers();
-            sleep(750);
-            move (8);
-            if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
-            {
-                /*
-                move (15);
-                sleep(750);
-                rotateEncoder(-22);
-                sleep(750);
-                if (sweeperOn) setMotorPower(sweeperMotor, 1);
-                moveTime(29250 - gameTimer.time(), 0.12); //was 41.5
-                /*
-                sleep(5000);
-                move (-10, 0.15);
-                */
-                //if (sweeperOn) setMotorPower(sweeperMotor, 0);
-            }
+            scoreRescueBeacon();
 
-            else if (path == RAMP)
-            {/*
-                if (sweeperOn) setMotorPower(sweeperMotor, -1);
-                move(21.5); //was 41.5
-                if (sweeperOn) setMotorPower(sweeperMotor, 0);
-                sleep(700);
-                rotateEncoder(-13.0);
-                //armServo.setPosition(1);
-                sleep(1500);
-                swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
-                sleep(1200);
-                move(51.6);//was 51.6
-                */
-            }
+        }
+    }
 
+    private void scoreRescueBeacon ()
+    {
+        boolean rescueBeaconColor = getRescueBeaconColor();
+
+        if (rescueBeaconColor == color)
+        {
+            buttonServo.setPosition(0.5);
+            sleep(1000);
+            buttonServo.setPosition(0.1);
+            sleep(500);
+            move(5);
+        }
+
+        else
+        {
+            move(2);
+            moveSwivel(0.86);
+            sleep(1000);
+            moveTime(1000, -0.2);
+            sleep(550);
+            move(2.8, 0.4);
         }
     }
 

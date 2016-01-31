@@ -306,14 +306,14 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             if (gamepad1.left_trigger > 0.7 || gamepad2.left_bumper) //color sensor added for testing
             {
-                //moveWall(UP);
+                moveWall(UP);
                 //colorSensorFront.enableLed(false);
-                colorSensorDown.enableLed(false);
+                //colorSensorFront.enableLed(false);
 
             }
             else if (gamepad1.left_bumper || gamepad2.left_trigger > 0.7) {
-                //moveWall(DOWN);
-                colorSensorDown.enableLed(true);
+                moveWall(DOWN);
+                //colorSensorFront.enableLed(true);
                 //colorSensorFront.enableLed(true);
             }
 

@@ -87,7 +87,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
 
-    protected static final double SWIVEL_INIT = 0.77;
+    protected static final double SWIVEL_INIT = 0.76;
     protected static final double SWIVEL_180 = 0.23;
     protected static final double SWIVEL_360 = SWIVEL_180 * 2;
 
@@ -129,11 +129,13 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     protected Servo swivelServo;
     protected Servo releaseServo;
-   // protected Servo hookServo;
+    protected Servo buttonServo;
     protected Servo leftWallServo;
     protected Servo rightWallServo;
     protected Servo leftDumpServo;
     protected Servo rightDumpServo;
+    protected Servo leftClimberServo;
+    protected Servo rightClimberServo;
 
     protected double swivelServoInit;
 
@@ -186,22 +188,21 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         swivelServo = hardwareMap.servo.get("sServo");
         releaseServo = hardwareMap.servo.get("rServo");
-        //hookServo = hardwareMap.servo.get("hServo");
+        buttonServo = hardwareMap.servo.get("bServo");
         leftWallServo = hardwareMap.servo.get ("lwServo");
         rightWallServo = hardwareMap.servo.get ("rwServo");
         leftDumpServo = hardwareMap.servo.get("ldServo");
         rightDumpServo = hardwareMap.servo.get("rdServo");
+        leftClimberServo = hardwareMap.servo.get("lcServo");
+        rightClimberServo = hardwareMap.servo.get("rcServo");
 
         colorSensorDown = hardwareMap.colorSensor.get("cSensor1");
-       // colorSensorFront = hardwareMap.colorSensor.get("cSensor2");
-       // colorSensorFront.setI2cAddress(colorSensorDown.getI2cAddress() + 2);
-        //colorSensorDown.setI2cAddress();
-        //colorSensorFront.enableLed(false); //make sure this method works as it's supposed to
-         colorSensorDown.enableLed(true); //make sure this method works as it's supposed to
-        //gyroSensor = hardwareMap.gyroSensor.get("gSensor");
-        //touchSensor1 = hardwareMap.touchSensor.get("tSensor1");
-        //touchSensor2 = hardwareMap.touchSensor.get("tSensor2");
-        touchSensorFront = hardwareMap.touchSensor.get("tSensor3");
+        colorSensorFront = hardwareMap.colorSensor.get("cSensor2");
+        colorSensorFront.setI2cAddress(0x3E); //in hex, 0x3e = 62. deault address is 60 (reserved for colorSensorDown)
+        colorSensorFront.enableLed(false); //make sure this method works as it's supposed to
+        colorSensorDown.enableLed(true); //make sure this method works as it's supposed to
+        gyroSensor = hardwareMap.gyroSensor.get("gSensor");
+        touchSensorFront = hardwareMap.touchSensor.get("tSensor1");
     }
 
     public void initialize()
@@ -209,16 +210,19 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         //swivelServoInit = swivelServo.getPosition();
        // setCustomSkin();
         moveDumper(DOWN);
+        leftClimberServo.setPosition(0);
+        rightClimberServo.setPosition(1);
+        buttonServo.setPosition(0.1);
         swivelServo.setPosition(SWIVEL_INIT);
 
-        //gyroSensor.calibrate();
-        //gyroSensor.resetZAxisIntegrator();
+        gyroSensor.calibrate();
+        gyroSensor.resetZAxisIntegrator();
 
         moveWall(DOWN);
         phase = INIT;
 
         writeToLog ("Down: " + colorSensorDown.getI2cAddress());
-        //writeToLog ("Front: " + colorSensorFront.getI2cAddress());
+        writeToLog ("Front: " + colorSensorFront.getI2cAddress());
     }
 
     public void waitForStart () throws InterruptedException
@@ -310,8 +314,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
                 //telemetry.addData("5", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue());
                 telemetry.addData("5", "Down: R = " + colorSensorDown.red() + ", G = " + colorSensorDown.green() + ", B = " + colorSensorDown.blue() + ", A = " +  colorSensorDown.alpha());
-                //telemetry.addData("6", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue() + ", A = " +  colorSensorDown.alpha());
-               // telemetry.addData("6", "Gyro H: " + getGyroDirection() /*+ ", Front Touch: " + touchSensorFront.isPressed()*/);
+                telemetry.addData("6", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue() + ", A = " +  colorSensorFront.alpha());
+                telemetry.addData("7", "Gyro H: " + getGyroDirection() /*+ ", Front Touch: " + touchSensorFront.isPressed()*/);
                 //telemetry.addData("7", "Touch: " + touchSensor1.isPressed());
 
                 //telemetry.addData("7", "Beacon: " + getRescueBeaconColor());
@@ -839,27 +843,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         double blue = colorSensorFront.blue();
         double green = colorSensorFront.green();
 
-        if (green > red && green > blue) // indeterminate if there is too much green
-        {
-            return null;
-        }
-
-        double rbRatio = red / blue;
-        double requiredRatio = 1.5;
-        if (rbRatio > requiredRatio)
-        {
-            return RED;
-        }
-
-        else if (rbRatio < (1.0 / requiredRatio))
-        {
-            return BLUE;
-        }
-
-        else
-        {
-            return null;
-        }
+        if (blue >= 1) return BLUE;
+        else return RED;
     }
 
     public double getFloorBrightness ()

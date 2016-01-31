@@ -18,17 +18,21 @@
     </MotorController>
     <DeviceInterfaceModule name="Device Interface Module 5" serialNumber="AL00VFCJ">
         <ColorSensor name="cSensor1" port="0" />
-        <TouchSensor name="tSensor3" port="2" />
+        <ColorSensor name="cSensor2" port="1" />
+        <Gyro name="gSensor" port="2" />
+        <TouchSensor name="tSensor1" port="0" />
     </DeviceInterfaceModule>
     <ServoController name="Servo Controller 4" serialNumber="AI02RN3S">
+        <Servo name="lcServo" port="1" />
         <Servo name="sServo" port="2" />
         <Servo name="rServo" port="3" />
         <Servo name="lwServo" port="4" />
-        <Servo name="hServo" port="5" />
+        <Servo name="bServo" port="5" />
         <Servo name="ldServo" port="6" />
     </ServoController>
     <ServoController name="Servo Controller 7" serialNumber="AL00XM4K">
         <Servo name="rdServo" port="1" />
+        <Servo name="rcServo" port="2" />
         <Servo name="rwServo" port="4" />
     </ServoController>
 </Robot>
