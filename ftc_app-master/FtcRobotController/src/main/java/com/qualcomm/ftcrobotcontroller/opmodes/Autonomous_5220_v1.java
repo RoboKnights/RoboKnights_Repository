@@ -81,7 +81,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         }
     }
 
-    private class ConfigLoop extends Thread //uses touch sensors to configure robot
+    private class ConfigLoop extends Thread //uses gamepad 1 left and right bumpers to configure. Will probably change to using analog stick or top hat with up and down for changing options.
     {
         private static final int UP = 1;
         private static final int DOWN = -1;
@@ -249,84 +249,37 @@ public class Autonomous_5220_v1 extends OpMode_5220
         }
     }
 
-
-
-    private boolean touchSensorValue (int port) //currently a placeholder
-    {
-        return false;
-    }
-
     public void initialize () //override
     {
         super.initialize(); //do everything in the original, common initialization.
-       // new ConfigLoop().start(); //uncomment once we figure out how to add the touch sensors for config
+        new ConfigLoop().start(); //
     }
 
-    public void test()
+    public void test() //for debug, whenever we want to test something independent of the rest of the autonomous program
     {
 
     }
-
 
     public void autonomous ()
     {
         colorSensorDown.enableLed(true);
         sleep(750);
+
         if (color == BLUE)
-        {/*
-            move(-24.5);
-            sleep(750);
-            rotateEncoder(6);
-            sleep (750);
-            move(-40);
-            sleep(750);
-            rotateEncoder(6.25); //was 3.62
-            sleep(750);
-            move(-11);
-            sleep(750);
-            flingClimbers();
-            sleep(750);
-            move(5);
-
-            sleep(750);
-            rotateEncoder(7);
-            sleep(700);
-            */
-
+        {
             move(-15.5);
             sleep(700);
             rotateEncoder(6.3);
             sleep(700);
             move(-31.2);
             sleep(700);
-            setDrivePower(-0.37);
-            while (runConditions() && getFloorBrightness() < LINE_WHITE_THRESHOLD)
-            {
-
-            }
-            stopDrivetrain();
+            driveToLine(-0.37);
             sleep(550);
             move(-0.9);
             sleep(700);
             rotateEncoder(6.04);
-            sleep (700);
-
-            Stopwatch tempTime = new Stopwatch();
-            setLeftDrivePower(-0.14);
-            while (runConditions() && touchSensorFront.getValue() < 0.04)
-            {
-                if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
-                {
-                    setRightDrivePower(0);
-                    setLeftDrivePower(-0.14);
-                }
-
-                else
-                {
-                    setRightDrivePower(-0.32);
-                    setLeftDrivePower(0.05);
-                }
-            }
+            sleep(700);
+            followLineUntilTouch();
             sleep(50);
             stopDrivetrain();
             setLeftDrivePower(0);
@@ -338,74 +291,62 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         else if (color == RED)
         {
-/*
-            move(-19.75);
-            sleep (750);
-            rotateEncoder(-6);
-            sleep(750);
-            move(-40.75);
-            sleep(750);
-            rotateEncoder(-6.4); //was 3.62
-            sleep(750);
-            move(-8);
-            sleep(750);
-            flingClimbers();
-            sleep(750);
-            move(5);
-
-            sleep(750);
-            rotateEncoder(-7);
-            sleep(700);
-*/
-
             move(-28.5);
             sleep(700);
             rotateEncoder(-6.3);
             sleep(700);
             move(-30);
             sleep(700);
-
             rotateEncoder(-11.75);
             sleep(700);
-
-            setDrivePower(-0.37);
-            while (runConditions() && getFloorBrightness() < LINE_WHITE_THRESHOLD)
-            {
-
-            }
-            stopDrivetrain();
+            driveToLine(-0.37);
             sleep(550);
             move(-1.2);
             sleep(700);
             rotateEncoder(5);
-            sleep (700);
-
-            Stopwatch tempTime = new Stopwatch();
-            setLeftDrivePower(-0.14);
-            while (runConditions() && touchSensorFront.getValue() < 0.04)
-            {
-                if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
-                {
-                    setRightDrivePower(0);
-                    setLeftDrivePower(-0.14);
-                }
-
-                else
-                {
-                    setRightDrivePower(-0.32);
-                    setLeftDrivePower(0.05);
-                }
-            }
-            sleep(50);
-            stopDrivetrain();
-            setLeftDrivePower(0);
-            setRightDrivePower(0);
-            stopDrivetrain();
+            sleep(700);
+            followLineUntilTouch();
             sleep(450);
             flingClimbers();
             scoreRescueBeacon();
+        }
+    }
+
+    private void driveToLine (double power)
+    {
+        setDrivePower(power);
+        while (runConditions() && getFloorBrightness() < LINE_WHITE_THRESHOLD)
+        {
 
         }
+        stopDrivetrain();
+        stopDrivetrain(); //one can never be too sure
+    }
+
+    private void followLineUntilTouch ()
+    {
+        setLeftDrivePower(-0.14);
+
+        while (runConditions() && touchSensorFront.getValue() < 0.04)
+        {
+            if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
+            {
+                setRightDrivePower(0);
+                setLeftDrivePower(-0.14);
+            }
+
+            else
+            {
+                setRightDrivePower(-0.32);
+                setLeftDrivePower(0.05);
+            }
+        }
+
+        sleep(50);
+        stopDrivetrain();
+        setLeftDrivePower(0);
+        setRightDrivePower(0);
+        stopDrivetrain();
     }
 
     private void scoreRescueBeacon ()
@@ -434,7 +375,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void main ()
     {
-        //new ProgramKiller().start(); //PROGRAM KILLER SCREWS UP AUTONOMOUS.
+        //new ProgramKiller().start(); //PROGRAM KILLER MESSES UP AUTONOMOUS.
         new DebuggerDisplayLoop().start();
         sleep(startWaitTime * 1000);
        // test();
