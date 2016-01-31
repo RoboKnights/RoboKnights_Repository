@@ -304,12 +304,17 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //moveDumper(gamepad1.b ? UP : DOWN);
 
-            if (gamepad1.left_trigger > 0.7 || gamepad2.left_bumper)
+            if (gamepad1.left_trigger > 0.7 || gamepad2.left_bumper) //color sensor added for testing
             {
-                moveWall(UP);
+                //moveWall(UP);
+                //colorSensorFront.enableLed(false);
+                colorSensorDown.enableLed(false);
+
             }
             else if (gamepad1.left_bumper || gamepad2.left_trigger > 0.7) {
-                moveWall(DOWN);
+                //moveWall(DOWN);
+                colorSensorDown.enableLed(true);
+                //colorSensorFront.enableLed(true);
             }
 
             //MOUNTAIN HOOK CONTROL

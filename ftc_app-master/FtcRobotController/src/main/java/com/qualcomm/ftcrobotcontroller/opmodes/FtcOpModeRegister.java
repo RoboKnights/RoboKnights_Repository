@@ -99,5 +99,6 @@ public class FtcOpModeRegister implements OpModeRegister {
       manager.register("TeleOp_5220_v1", TeleOp_5220_v1.class);
       manager.register("Drive_Control_5220_v1", Drive_Control_5220_v1.class);
       manager.register("ColorSensorDriver_5220", ColorSensorDriver_5220.class);
+      manager.register("LinearI2cAddressChange_5220", LinearI2cAddressChange_5220.class);
   }
 }

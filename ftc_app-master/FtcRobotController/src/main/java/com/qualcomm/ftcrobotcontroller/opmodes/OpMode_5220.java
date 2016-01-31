@@ -87,7 +87,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
 
-    protected static final double SWIVEL_INIT = 0.79;
+    protected static final double SWIVEL_INIT = 0.77;
     protected static final double SWIVEL_180 = 0.23;
     protected static final double SWIVEL_360 = SWIVEL_180 * 2;
 
@@ -109,6 +109,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     protected static final double CLIMBER_FLING_TIME = 1.0;
 
+    protected static final double LINE_WHITE_THRESHOLD = 40;
+
     //MOTORS AND SERVOS:
 
     protected static final String[] motorNames = {}; //Fill this in later.
@@ -117,8 +119,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected DcMotor rightFrontMotor;
     protected DcMotor leftBackMotor;
     protected DcMotor rightBackMotor;
-    protected DcMotor leftMidMotor;
-    protected DcMotor rightMidMotor;
+    protected DcMotor pullMotor1;
+    protected DcMotor pullMotor2;
     protected DcMotor sweeperMotor;
     protected DcMotor slideMotor;
 
@@ -136,10 +138,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected double swivelServoInit;
 
     //SENSORS:
-    protected ColorSensor colorSensor;
+    protected ColorSensor colorSensorFront;
+    protected ColorSensor colorSensorDown;
     protected GyroSensor gyroSensor;
     protected TouchSensor touchSensor1;
     protected TouchSensor touchSensor2;
+    protected TouchSensor touchSensorFront;
 
     //OTHER GLOBAL VARIABLES:
 
@@ -154,17 +158,18 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         ftcRCA = FtcRobotControllerActivity.ftcRCA;
 
+        hardwareMap.logDevices();
+
         leftFrontMotor = hardwareMap.dcMotor.get("lf");
         rightFrontMotor = hardwareMap.dcMotor.get("rf");
         leftBackMotor = hardwareMap.dcMotor.get("lb");
         rightBackMotor = hardwareMap.dcMotor.get("rb");
 
-        leftMidMotor = hardwareMap.dcMotor.get("lm");
-        rightMidMotor = hardwareMap.dcMotor.get("rm");
-
+        pullMotor1 = hardwareMap.dcMotor.get("p1");
+        pullMotor2 = hardwareMap.dcMotor.get("p2");
         rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
         rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
-        leftMidMotor.setDirection(DcMotor.Direction.REVERSE);
+        //leftMidMotor.setDirection(DcMotor.Direction.REVERSE);
 
         driveMotors[0] = leftFrontMotor;
         driveMotors[1] = rightFrontMotor;
@@ -187,11 +192,16 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         leftDumpServo = hardwareMap.servo.get("ldServo");
         rightDumpServo = hardwareMap.servo.get("rdServo");
 
-        colorSensor = hardwareMap.colorSensor.get("cSensor1");
-        colorSensor.enableLed(false); //make sure this method works as it's supposed to
-        gyroSensor = hardwareMap.gyroSensor.get("gSensor");
-        touchSensor1 = hardwareMap.touchSensor.get("tSensor1");
-        touchSensor2 = hardwareMap.touchSensor.get("tSensor2");
+        colorSensorDown = hardwareMap.colorSensor.get("cSensor1");
+       // colorSensorFront = hardwareMap.colorSensor.get("cSensor2");
+       // colorSensorFront.setI2cAddress(colorSensorDown.getI2cAddress() + 2);
+        //colorSensorDown.setI2cAddress();
+        //colorSensorFront.enableLed(false); //make sure this method works as it's supposed to
+         colorSensorDown.enableLed(true); //make sure this method works as it's supposed to
+        //gyroSensor = hardwareMap.gyroSensor.get("gSensor");
+        //touchSensor1 = hardwareMap.touchSensor.get("tSensor1");
+        //touchSensor2 = hardwareMap.touchSensor.get("tSensor2");
+        touchSensorFront = hardwareMap.touchSensor.get("tSensor3");
     }
 
     public void initialize()
@@ -200,12 +210,15 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
        // setCustomSkin();
         moveDumper(DOWN);
         swivelServo.setPosition(SWIVEL_INIT);
-        /*
-        gyroSensor.calibrate();
-        gyroSensor.resetZAxisIntegrator();
-        */
+
+        //gyroSensor.calibrate();
+        //gyroSensor.resetZAxisIntegrator();
+
         moveWall(DOWN);
         phase = INIT;
+
+        writeToLog ("Down: " + colorSensorDown.getI2cAddress());
+        //writeToLog ("Front: " + colorSensorFront.getI2cAddress());
     }
 
     public void waitForStart () throws InterruptedException
@@ -295,12 +308,16 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 telemetry.addData("3", "Swivel: " + swivelServo.getPosition());
                 telemetry.addData("4", "Dumper: " + leftDumpServo.getPosition());
 
-                telemetry.addData("5", "R = " + colorSensor.red() + ", G = " + colorSensor.green() + ", B = " + colorSensor.blue());
-                telemetry.addData("7", "Gyro H: " + getGyroDirection());
+                //telemetry.addData("5", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue());
+                telemetry.addData("5", "Down: R = " + colorSensorDown.red() + ", G = " + colorSensorDown.green() + ", B = " + colorSensorDown.blue() + ", A = " +  colorSensorDown.alpha());
+                //telemetry.addData("6", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue() + ", A = " +  colorSensorDown.alpha());
+               // telemetry.addData("6", "Gyro H: " + getGyroDirection() /*+ ", Front Touch: " + touchSensorFront.isPressed()*/);
+                //telemetry.addData("7", "Touch: " + touchSensor1.isPressed());
 
                 //telemetry.addData("7", "Beacon: " + getRescueBeaconColor());
 
                 telemetry.addData("8", "Time Elapsed:" + gameTimer.time());
+                //waitOneFullHardwareCycle();
             }
         }
     }
@@ -397,7 +414,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public double getGyroDirection () //placeholder
     {
         //return gyroSensor.getRotation();
-        return gyroSensor.getHeading();
+        //return gyroSensor.getHeading();
+        return 42.0; //testing
     }
 
     public void update_telemetry() //fix this to make it actually useful later. or maybe let is override
@@ -426,14 +444,14 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         setMotorPower (leftFrontMotor, power);
         setMotorPower (leftBackMotor, power);
-        setMotorPower(leftMidMotor, power);
+        //setMotorPower(leftMidMotor, power);
     }
 
     public final void setRightDrivePower (double power)
     {
         setMotorPower (rightFrontMotor, power);
         setMotorPower (rightBackMotor, power);
-        setMotorPower(rightMidMotor, power);
+       // setMotorPower(rightMidMotor, power);
     }
 
     public final void setDrivePower (double power)
@@ -585,7 +603,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         int encoderCount = distanceToEncoderCount(distance);
         writeToLog("MOVING: Distance = " + distance + ", Encoder Count = " + encoderCount + ", Mode = " + getModeText(mode) + ", Power = " + power);
         writeToLog("MOVING: UnReset encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
-       // double initialDirection = getGyroDirection();
+        double initialDirection = getGyroDirection();
 
         double powerChange = 0;
         double updateTime = ((mode == ENCODER) ? ENCODER_SYNC_UPDATE_TIME : GYRO_SYNC_UPDATE_TIME);
@@ -608,7 +626,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
                 else if (mode == GYRO)
                 {
-                   // powerChange = (getGyroDirection() - initialDirection) * GYRO_SYNC_PROPORTIONALITY_CONSTANT;
+                   powerChange = (getGyroDirection() - initialDirection) * GYRO_SYNC_PROPORTIONALITY_CONSTANT;
                 }
 
                 setLeftDrivePower(power - powerChange);
@@ -817,9 +835,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public Boolean getRescueBeaconColor () //experimental for the time being
     {
-        double red = colorSensor.red();
-        double blue = colorSensor.blue();
-        double green = colorSensor.green();
+        double red = colorSensorFront.red();
+        double blue = colorSensorFront.blue();
+        double green = colorSensorFront.green();
 
         if (green > red && green > blue) // indeterminate if there is too much green
         {
@@ -843,4 +861,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             return null;
         }
     }
+
+    public double getFloorBrightness ()
+    {
+        return (colorSensorDown.red() + colorSensorDown.green() + colorSensorDown.blue());
+    }
+
 }

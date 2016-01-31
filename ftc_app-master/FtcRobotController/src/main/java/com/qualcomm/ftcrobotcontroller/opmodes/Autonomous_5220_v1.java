@@ -265,7 +265,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void initialize () //override
     {
         super.initialize(); //do everything in the original, common initialization.
-        new ConfigLoop().start(); //uncomment once we figure out how to add the touch sensors for config
+       // new ConfigLoop().start(); //uncomment once we figure out how to add the touch sensors for config
     }
 
     public void test()
@@ -276,9 +276,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void autonomous ()
     {
-        sleep (750);
+        colorSensorDown.enableLed(true);
+        sleep(750);
         if (color == BLUE)
-        {
+        {/*
             move(-24.5);
             sleep(750);
             rotateEncoder(6);
@@ -296,9 +297,65 @@ public class Autonomous_5220_v1 extends OpMode_5220
             sleep(750);
             rotateEncoder(7);
             sleep(700);
+            */
+
+            move(-15.5);
+            sleep(700);
+            rotateEncoder(6.3);
+            sleep(700);
+            move(-31.2);
+            sleep(700);
+            setDrivePower(-0.37);
+            while (runConditions() && getFloorBrightness() < LINE_WHITE_THRESHOLD)
+            {
+
+            }
+            stopDrivetrain();
+            sleep(550);
+            move(-0.9);
+            sleep(700);
+            rotateEncoder(6.04);
+            sleep (700);
+
+            Stopwatch tempTime = new Stopwatch();
+            setLeftDrivePower(-0.14);
+            while (runConditions() && touchSensorFront.getValue() < 0.04)
+            {
+                if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
+                {
+                    setRightDrivePower(0);
+                    setLeftDrivePower(-0.14);
+                }
+
+                else
+                {
+                    setRightDrivePower(-0.32);
+                    setLeftDrivePower(0.05);
+                }
+            }
+            sleep(50);
+            stopDrivetrain();
+            setLeftDrivePower(0);
+            setRightDrivePower(0);
+            sleep(750);
+            flingClimbers();
+            sleep(750);
+            move(8);
+            /*
+            sleep(750);
+            rotateEncoder (16);
+            sleep(750);
+            move(-14);
+            sleep(750);
+            rotateEncoder(-10);
+            sleep(750);
+            move (-11);
+*/
+
 
             if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
             {
+                /*
                 move(15);
                 sleep(750);
                 rotateEncoder(22);
@@ -306,11 +363,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 if (sweeperOn) setMotorPower(sweeperMotor, 1);
                 moveTime(29250 - gameTimer.time(), 0.12); //was 41.5
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
-
+*/
             }
 
             else if (path == RAMP)
             {
+                /*
                 if (sweeperOn) setMotorPower(sweeperMotor, -1);
                 move(21.5); //was 41.5
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
@@ -321,12 +379,13 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
                 sleep(1200);
                 move(51.6);//was 51.6
+                */
             }
         }
 
         else if (color == RED)
         {
-
+/*
             move(-19.75);
             sleep (750);
             rotateEncoder(-6);
@@ -344,9 +403,57 @@ public class Autonomous_5220_v1 extends OpMode_5220
             sleep(750);
             rotateEncoder(-7);
             sleep(700);
+*/
 
+            move(-28.5);
+            sleep(700);
+            rotateEncoder(-6.2);
+            sleep(700);
+            move(-38);
+            sleep(700);
+
+            rotateEncoder(-9.5);
+            sleep(700);
+
+            setDrivePower(-0.37);
+            while (runConditions() && getFloorBrightness() < LINE_WHITE_THRESHOLD)
+            {
+
+            }
+            stopDrivetrain();
+            sleep(550);
+            move(-1.2);
+            sleep(700);
+            rotateEncoder(6.04);
+            sleep (700);
+
+            Stopwatch tempTime = new Stopwatch();
+            setLeftDrivePower(-0.14);
+            while (runConditions() && touchSensorFront.getValue() < 0.04)
+            {
+                if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
+                {
+                    setRightDrivePower(0);
+                    setLeftDrivePower(-0.14);
+                }
+
+                else
+                {
+                    setRightDrivePower(-0.32);
+                    setLeftDrivePower(0.05);
+                }
+            }
+            sleep(50);
+            stopDrivetrain();
+            setLeftDrivePower(0);
+            setRightDrivePower(0);
+            sleep(750);
+            flingClimbers();
+            sleep(750);
+            move (8);
             if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
             {
+                /*
                 move (15);
                 sleep(750);
                 rotateEncoder(-22);
@@ -357,11 +464,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 sleep(5000);
                 move (-10, 0.15);
                 */
-                if (sweeperOn) setMotorPower(sweeperMotor, 0);
+                //if (sweeperOn) setMotorPower(sweeperMotor, 0);
             }
 
             else if (path == RAMP)
-            {
+            {/*
                 if (sweeperOn) setMotorPower(sweeperMotor, -1);
                 move(21.5); //was 41.5
                 if (sweeperOn) setMotorPower(sweeperMotor, 0);
@@ -372,6 +479,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 swivelServo.setPosition(SWIVEL_INIT - SWIVEL_180);
                 sleep(1200);
                 move(51.6);//was 51.6
+                */
             }
 
         }
