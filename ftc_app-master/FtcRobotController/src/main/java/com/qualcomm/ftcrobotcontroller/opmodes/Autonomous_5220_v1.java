@@ -57,7 +57,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int NUM_PATHS = 4;
 
 
-    private boolean color = BLUE; //RED by default, of course it'll change when neccessary
+    private boolean color = RED; //RED by default, of course it'll change when neccessary
     private int path = 0;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean sweeperOn = true;
@@ -269,15 +269,15 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             move(-15.5);
             sleep(700);
-            rotateEncoder(6.3);
+            rotateEncoder(3.22);
             sleep(700);
-            move(-31.2);
+            move(-30);
             sleep(700);
             driveToLine(-0.37);
             sleep(550);
             move(-0.9);
             sleep(700);
-            rotateEncoder(6.04);
+            rotateEncoder(4.5);
             sleep(700);
             followLineUntilTouch();
             sleep(50);
@@ -286,6 +286,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             setRightDrivePower(0);
             sleep(750);
             flingClimbers();
+            sleep(500);
             scoreRescueBeacon();
         }
 
@@ -295,19 +296,20 @@ public class Autonomous_5220_v1 extends OpMode_5220
             sleep(700);
             rotateEncoder(-6.3);
             sleep(700);
-            move(-30);
+            move(-37);
             sleep(700);
-            rotateEncoder(-11.75);
+            rotateEncoder(-11.9);
             sleep(700);
             driveToLine(-0.37);
             sleep(550);
-            move(-1.2);
+            move(-1.1);
             sleep(700);
-            rotateEncoder(5);
+            rotateEncoder(3.89);
             sleep(700);
             followLineUntilTouch();
             sleep(450);
             flingClimbers();
+            sleep(500);
             scoreRescueBeacon();
         }
     }
@@ -365,8 +367,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
         else
         {
             move(2);
-            moveSwivel(0.86);
-            sleep(1000);
+            moveSwivel(0.865);
+            sleep(1350);
             moveTime(1000, -0.2);
             sleep(550);
             move(2.8, 0.4);

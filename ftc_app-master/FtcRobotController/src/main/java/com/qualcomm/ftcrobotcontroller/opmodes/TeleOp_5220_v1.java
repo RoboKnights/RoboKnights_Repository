@@ -509,6 +509,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     {
         new DebuggerDisplayLoop().start();
         for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        colorSensorFront.enableLed(false);
         loop5220();
     }
 }
