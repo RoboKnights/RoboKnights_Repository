@@ -24,10 +24,11 @@ Top Hat Up/Down: Raise/Lower dumper
 
 Joystick 2:
 
-Left Bumper: Raise wall
-Left Trigger: Lower wall
-Right Bumper: Extends linear slides
-Right Trigger: Retract linear slides
+Left Bumper: Raise left climber triggerer
+Left Trigger: Lower left climber triggerer
+Right Bumper: Raise right climber triggerer
+Right Trigger: Lower right climber triggerer
+Either Analog Stick Up/Down: Extend/Retract linear slides
 Right Analog Stick Button: Move swivel to collection position
 A Button: Move swivel to red medium goal position
 B Button: Move swivel to blue medium goal position
