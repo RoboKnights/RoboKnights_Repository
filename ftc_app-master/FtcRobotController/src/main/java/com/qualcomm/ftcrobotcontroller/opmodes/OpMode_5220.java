@@ -210,8 +210,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         //swivelServoInit = swivelServo.getPosition();
        // setCustomSkin();
         moveDumper(DOWN);
-        leftClimberServo.setPosition(0);
-        rightClimberServo.setPosition(1);
+        leftClimberServo.setPosition(0.5);
+        rightClimberServo.setPosition(0.5);
         buttonServo.setPosition(0.1);
         swivelServo.setPosition(SWIVEL_INIT);
 

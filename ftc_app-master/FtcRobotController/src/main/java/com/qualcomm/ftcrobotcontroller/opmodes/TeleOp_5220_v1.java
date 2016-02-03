@@ -304,17 +304,14 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //moveDumper(gamepad1.b ? UP : DOWN);
 
-            if (gamepad1.left_trigger > 0.7 || gamepad2.left_bumper) //color sensor added for testing
+            if (gamepad1.left_trigger > 0.7 /*|| gamepad2.left_bumper*/)
             {
                 moveWall(UP);
-                //colorSensorFront.enableLed(false);
-                //colorSensorFront.enableLed(false);
 
             }
-            else if (gamepad1.left_bumper || gamepad2.left_trigger > 0.7) {
+            else if (gamepad1.left_bumper /*|| gamepad2.left_trigger > 0.7*/)
+            {
                 moveWall(DOWN);
-                //colorSensorFront.enableLed(true);
-                //colorSensorFront.enableLed(true);
             }
 
             //MOUNTAIN HOOK CONTROL
@@ -414,12 +411,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //HOOK EXTENSION CONTROL:
 
-            if (gamepad1.y || gamepad2.right_bumper) //up
+            if (gamepad1.y || gamepad2.left_stick_y < -0.7 || gamepad2.right_stick_y < -0.7) //up
             {
                 slideMotor.setPower(1);
             }
 
-            else if (gamepad1.a || gamepad2.right_trigger > 0.7)
+            else if (gamepad1.a || gamepad2.left_stick_y > 0.7 || gamepad2.right_stick_y > 0.7)
             {
                 slideMotor.setPower(-1);
             }
@@ -427,6 +424,38 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             else
             {
                 slideMotor.setPower(0);
+            }
+
+            //CLIMBER TRIGGER CONTROL:
+
+            if (gamepad2.left_bumper)
+            {
+                rightClimberServo.setPosition(0);
+            }
+
+            else if (gamepad2.left_trigger > 0.7)
+            {
+                rightClimberServo.setPosition(1);
+            }
+
+            else
+            {
+                rightClimberServo.setPosition(0.5);
+            }
+
+            if (gamepad2.right_bumper)
+            {
+                leftClimberServo.setPosition(0);
+            }
+
+            else if (gamepad2.right_trigger > 0.7)
+            {
+                leftClimberServo.setPosition(1);
+            }
+
+            else
+            {
+                leftClimberServo.setPosition(0.5);
             }
 
             //LIFT MOTOR CONTROL:
@@ -510,6 +539,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         new DebuggerDisplayLoop().start();
         for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         colorSensorFront.enableLed(false);
+        colorSensorDown.enableLed(false);
         loop5220();
     }
 }
