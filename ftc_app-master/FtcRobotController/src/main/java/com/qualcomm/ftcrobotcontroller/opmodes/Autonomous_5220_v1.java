@@ -47,6 +47,7 @@ Add option to try to drive to other side of field (make sure its allowed), climb
 Add ultrasonic sensor when we add rescue beacon detection?
 */
 
+//Hello world.
 
 public class Autonomous_5220_v1 extends OpMode_5220
 {
@@ -267,7 +268,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void test() //for debug, whenever we want to test something independent of the rest of the autonomous program
     {
-
+        sleep(250);
     }
 
     public void autonomous ()
