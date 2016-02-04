@@ -87,7 +87,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
 
-    protected static final double SWIVEL_INIT = 0.76;
+    protected static final double SWIVEL_INIT = 0.7098;
     protected static final double SWIVEL_180 = 0.23;
     protected static final double SWIVEL_360 = SWIVEL_180 * 2;
 
@@ -200,7 +200,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         colorSensorFront = hardwareMap.colorSensor.get("cSensor2");
         colorSensorFront.setI2cAddress(0x3E); //in hex, 0x3e = 62. deault address is 60 (reserved for colorSensorDown)
         colorSensorFront.enableLed(false); //make sure this method works as it's supposed to
-        colorSensorDown.enableLed(true); //make sure this method works as it's supposed to
+        colorSensorDown.enableLed(false); //make sure this method works as it's supposed to
         gyroSensor = hardwareMap.gyroSensor.get("gSensor");
         touchSensorFront = hardwareMap.touchSensor.get("tSensor1");
     }

@@ -162,6 +162,15 @@ public class Autonomous_5220_v1 extends OpMode_5220
                     prevR = r;
                 }
 
+                if (gamepad1.y)
+                {
+                    colorSensorDown.enableLed(true);
+                }
+
+                if (gamepad1.x)
+                {
+                    colorSensorDown.enableLed(false);
+                }
                 //sleep(10); //not sure if neccessary
             }
         }
@@ -253,6 +262,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     {
         super.initialize(); //do everything in the original, common initialization.
         new ConfigLoop().start(); //
+        colorSensorDown.enableLed(true);
     }
 
     public void test() //for debug, whenever we want to test something independent of the rest of the autonomous program
@@ -263,15 +273,16 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void autonomous ()
     {
         colorSensorDown.enableLed(true);
+        colorSensorDown.enableLed(true);
         sleep(750);
 
         if (color == BLUE)
         {
-            move(-15.5);
+            move(-13);
             sleep(700);
-            rotateEncoder(3.22);
+            rotateEncoder(3.6825);
             sleep(700);
-            move(-30);
+            move(-28.7);
             sleep(700);
             driveToLine(-0.37);
             sleep(550);
@@ -296,7 +307,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             sleep(700);
             rotateEncoder(-6.3);
             sleep(700);
-            move(-37);
+            move(-22.75);
             sleep(700);
             rotateEncoder(-11.9);
             sleep(700);
@@ -327,14 +338,14 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     private void followLineUntilTouch ()
     {
-        setLeftDrivePower(-0.14);
+        setLeftDrivePower(-0.15);
 
         while (runConditions() && touchSensorFront.getValue() < 0.04)
         {
             if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
             {
                 setRightDrivePower(0);
-                setLeftDrivePower(-0.14);
+                setLeftDrivePower(-0.15);
             }
 
             else
@@ -367,7 +378,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         else
         {
             move(2);
-            moveSwivel(0.865);
+            moveSwivel(0.815);
             sleep(1350);
             moveTime(1000, -0.2);
             sleep(550);
