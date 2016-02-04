@@ -1,11 +1,10 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <Robot>
     <MotorController name="Motor Controller 3" serialNumber="AL00UVMI">
-        <Motor name="p1" port="1" />
-        <Motor name="p2" port="2" />
+        <Motor name="sweeper2" port="1" />
     </MotorController>
     <MotorController name="Motor Controller 2" serialNumber="AL00XQ8T">
-        <Motor name="sweeper" port="1" />
+        <Motor name="sweeper1" port="1" />
         <Motor name="slides" port="2" />
     </MotorController>
     <MotorController name="Motor Controller 1" serialNumber="AL00XUAH">

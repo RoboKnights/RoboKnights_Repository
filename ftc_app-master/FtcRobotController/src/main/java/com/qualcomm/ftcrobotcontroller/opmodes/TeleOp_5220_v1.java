@@ -298,7 +298,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 sweeperPower = -1;
             }
 
-            setMotorPower(sweeperMotor, sweeperPower);
+            setSweeperPower(sweeperPower);
 
             //DUMPER CONTROL:
 

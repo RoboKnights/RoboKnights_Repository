@@ -119,9 +119,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected DcMotor rightFrontMotor;
     protected DcMotor leftBackMotor;
     protected DcMotor rightBackMotor;
-    protected DcMotor pullMotor1;
-    protected DcMotor pullMotor2;
-    protected DcMotor sweeperMotor;
+    //protected DcMotor pullMotor1;
+   // protected DcMotor pullMotor2;
+    protected DcMotor sweeperMotor1;
+    protected DcMotor sweeperMotor2;
     protected DcMotor slideMotor;
 
     protected DcMotor[] driveMotors = new DcMotor[4];
@@ -167,8 +168,6 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         leftBackMotor = hardwareMap.dcMotor.get("lb");
         rightBackMotor = hardwareMap.dcMotor.get("rb");
 
-        pullMotor1 = hardwareMap.dcMotor.get("p1");
-        pullMotor2 = hardwareMap.dcMotor.get("p2");
         rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
         rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
         //leftMidMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -181,7 +180,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
-        sweeperMotor = hardwareMap.dcMotor.get("sweeper");
+        sweeperMotor1 = hardwareMap.dcMotor.get("sweeper1");
+        sweeperMotor2 = hardwareMap.dcMotor.get("sweeper2");
         slideMotor = hardwareMap.dcMotor.get("slides");
 
 
@@ -814,6 +814,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             leftWallServo.setPosition(leftWallInit);
             rightWallServo.setPosition(rightWallInit);
         }
+    }
+    
+    public final void setSweeperPower (double power)
+    {
+        sweeperMotor1.setPower(power);
+        sweeperMotor2.setPower(power);
     }
 
     public final void releasePin()
