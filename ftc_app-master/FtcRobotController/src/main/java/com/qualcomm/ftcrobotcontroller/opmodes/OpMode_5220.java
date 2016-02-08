@@ -78,6 +78,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static enum ProgramType {UNDECIDED, AUTONOMOUS, TELEOP};
     protected static ProgramType programType = ProgramType.UNDECIDED;
 
+    protected static final int TELEOP_TIME_LIMIT = 1200000; //currently 20 minutes, more than enough for any single run.
+    protected static final int AUTONOMOUS_TIME_LIMIT = 29000;
+
     protected static final double NORMAL = 2;
     protected static final double ENCODER = 3;
     protected static final double GYRO = 4;
@@ -87,7 +90,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
 
-    protected static final double SWIVEL_INIT = 0.7098;
+    protected static final double SWIVEL_INIT = 0.7529; //may be reset in TeleOp
     protected static final double SWIVEL_180 = 0.23;
     protected static final double SWIVEL_360 = SWIVEL_180 * 2;
 
@@ -109,7 +112,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     protected static final double CLIMBER_FLING_TIME = 1.0;
 
-    protected static final double LINE_WHITE_THRESHOLD = 40;
+    protected static final double LINE_WHITE_THRESHOLD = 50;
 
     //MOTORS AND SERVOS:
 
@@ -154,6 +157,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected Stopwatch gameTimer;
     protected boolean isArmMoving = false;
     protected int phase = HAS_NOT_STARTED;
+    protected double swivelPosition;
 
     public void setup()//this and the declarations above are the equivalent of the pragmas in RobotC
     {
@@ -372,12 +376,14 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         if (getProgramType() == ProgramType.AUTONOMOUS)
         {
-            maxTime = 120000 - TIMER_STOP_BUFFER;
+            //maxTime = 120000 - TIMER_STOP_BUFFER;
+            maxTime = AUTONOMOUS_TIME_LIMIT;
         }
 
         else if (getProgramType() == ProgramType.TELEOP)
         {
-            maxTime = 30000 - TIMER_STOP_BUFFER;
+            return (opModeIsActive());
+            //maxTime = 30000 - TIMER_STOP_BUFFER;
         }
 
         boolean timeValid = (!TIMER_ON || (gameTimer.time() < maxTime));
@@ -566,6 +572,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final void move (double distance, double... params)
     {
+        if (!runConditions()) return;
+
         double power = DEFAULT_DRIVE_POWER;
         double mode = NORMAL;
 
@@ -657,7 +665,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public void moveSimple (int count)
     {
         setDrivePower(DEFAULT_DRIVE_POWER);
-        while (opModeIsActive() && !driveEncodersHaveReached(count))
+        while (runConditions() && !driveEncodersHaveReached(count))
         {
 
         }
@@ -688,7 +696,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         sleep(500);
         if (degrees < 0)
         {
-            while (getGyroDirection() > (360 - degrees) || getGyroDirection() < 5)
+            while (runConditions() && (getGyroDirection() > (360 - degrees) || getGyroDirection() < 5))
             {
 
             }
@@ -696,7 +704,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         else
         {
-            while (getGyroDirection() < degrees || getGyroDirection() > 355)
+            while (runConditions() && (getGyroDirection() < degrees || getGyroDirection() > 355))
             {
 
             }
@@ -755,7 +763,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         resetDriveEncoders();
         setTurnPower(power);
-        while (opModeIsActive() && !turnEncodersHaveReached(distanceToEncoderCount(distance))) //change back to runConditions if neecessary
+        while (runConditions() && !turnEncodersHaveReached(distanceToEncoderCount(distance))) //change back to runConditions if neecessary
         {
 
         }
@@ -832,7 +840,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         sleep (500);
         Stopwatch climberTimer = new Stopwatch();
         double timeInMillis = CLIMBER_FLING_TIME * 1000.0;
-        while (climberTimer.time() < timeInMillis)
+        while (runConditions() && climberTimer.time() < timeInMillis)
         {
             double newPosition = (climberTimer.time() / timeInMillis);
             if (newPosition > 1) newPosition = 1;

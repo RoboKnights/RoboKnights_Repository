@@ -397,12 +397,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             {
                 dumperTime = null;
 
-                if (gamepad1.b || gamepad2.dpad_down)
+                if (/*gamepad1.b ||*/ gamepad2.dpad_down)
                 {
                     moveDumper(DOWN);
                 }
 
-                else if (gamepad1.x || gamepad2.dpad_up)
+                else if (/*gamepad1.x || */gamepad2.dpad_up)
                 {
                     moveDumper(DOWN + 0.184); //fine-tune value soon
                 }
@@ -460,6 +460,13 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 leftClimberServo.setPosition(0.5);
             }
 
+            //SWIVEL CENTER RESET
+/*
+            if (gamepad1.x)
+            {
+                SWIVEL_INIT = swivelServo.getPosition();
+            }
+*/
             //LIFT MOTOR CONTROL:
 /*
             if (gamepad2.right_stick_y > 0.7)
@@ -513,7 +520,21 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             flingValue = Math.max(0.0, flingValue);
 
             climberServo.setPosition(flingValue);
+
+
 */
+            //COLOR SENSOR LIGHT:
+            /*
+            if (gamepad2.left_stick_button)
+            {
+                colorSensorDown.enableLed(true);
+            }
+/*
+            else
+            {
+                colorSensorDown.enableLed(false);
+            }
+            */
             //Previous value settings:
 
             prevTopHatUp1 = gamepad1.dpad_up;

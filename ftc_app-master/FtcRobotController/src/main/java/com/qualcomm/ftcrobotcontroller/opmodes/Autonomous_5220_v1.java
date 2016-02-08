@@ -169,9 +169,22 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 }
 
                 if (gamepad1.x)
+
                 {
                     colorSensorDown.enableLed(false);
                 }
+
+                try
+                {
+                    waitOneFullHardwareCycle();
+                }
+
+                catch (Exception epicFail)
+                {
+                    epicFail.printStackTrace();
+
+                }
+
                 //sleep(10); //not sure if neccessary
             }
         }
@@ -308,9 +321,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
             sleep(700);
             rotateEncoder(-6.3);
             sleep(700);
-            move(-22.75);
+            move(-23.6);
             sleep(700);
-            rotateEncoder(-11.9);
+            rotateEncoder(-11.3);
             sleep(700);
             driveToLine(-0.37);
             sleep(550);
@@ -335,6 +348,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
         }
         stopDrivetrain();
         stopDrivetrain(); //one can never be too sure
+    }
+
+    private void turnToLine (double power)
+    {
+
     }
 
     private void followLineUntilTouch ()
@@ -379,7 +397,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         else
         {
             move(2);
-            moveSwivel(0.815);
+            moveSwivel(SWIVEL_INIT + 0.1052);
             sleep(1350);
             moveTime(1000, -0.2);
             sleep(550);
