@@ -421,6 +421,30 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         return;
     }
 
+    public final void waitFullCycle ()
+    {
+        try
+        {
+            waitOneFullHardwareCycle();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public final void waitNextCycle ()
+    {
+        try
+        {
+            waitForNextHardwareCycle();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     public double getGyroDirection () //placeholder
     {
         //return gyroSensor.getRotation();
@@ -654,12 +678,15 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 }
             }
 
+            waitFullCycle();
+
             //do nothing if mode is NORMAL.
         }
 
         stopDrivetrain();
         writeToLog("MOVING: Final encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
-        sleep(200); //maybe reduce this if it wastes too much time to have this safety interval.
+        waitFullCycle();
+        //sleep(200); //maybe reduce this if it wastes too much time to have this safety interval.
     }
 
     public void moveSimple (int count)
@@ -667,9 +694,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         setDrivePower(DEFAULT_DRIVE_POWER);
         while (runConditions() && !driveEncodersHaveReached(count))
         {
-
+            waitFullCycle();
         }
         stopDrivetrain();
+        waitFullCycle();
     }
 
     public final void moveTime(int time, double power)
@@ -765,9 +793,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         setTurnPower(power);
         while (runConditions() && !turnEncodersHaveReached(distanceToEncoderCount(distance))) //change back to runConditions if neecessary
         {
-
+            waitFullCycle();
         }
         stopDrivetrain();
+        waitFullCycle();
     }
 
     public final void rotateEncoder (double distance)
@@ -845,6 +874,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             double newPosition = (climberTimer.time() / timeInMillis);
             if (newPosition > 1) newPosition = 1;
             moveDumper (newPosition);
+            waitFullCycle(); //not sure if needed here
         }
         sleep (2000);
         moveDumper(DOWN);

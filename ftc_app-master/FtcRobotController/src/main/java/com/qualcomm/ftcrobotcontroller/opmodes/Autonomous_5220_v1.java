@@ -174,16 +174,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                     colorSensorDown.enableLed(false);
                 }
 
-                try
-                {
-                    waitOneFullHardwareCycle();
-                }
-
-                catch (Exception epicFail)
-                {
-                    epicFail.printStackTrace();
-
-                }
+                waitFullCycle();
 
                 //sleep(10); //not sure if neccessary
             }
