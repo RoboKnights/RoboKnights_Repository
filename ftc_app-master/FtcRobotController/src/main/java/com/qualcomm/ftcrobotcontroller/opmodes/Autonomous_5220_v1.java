@@ -284,48 +284,48 @@ public class Autonomous_5220_v1 extends OpMode_5220
         if (color == BLUE)
         {
             move(-13);
-            sleep(700);
+            //sleep(700);
             rotateEncoder(3.6825);
-            sleep(700);
+            //sleep(700);
             move(-28.7);
-            sleep(700);
+            //sleep(700);
             driveToLine(-0.37);
-            sleep(550);
+            //sleep(550);
             move(-0.9);
-            sleep(700);
+            //sleep(700);
             rotateEncoder(4.5);
-            sleep(700);
+            //sleep(700);
             followLineUntilTouch();
-            sleep(50);
+           // sleep(50);
             stopDrivetrain();
             setLeftDrivePower(0);
             setRightDrivePower(0);
-            sleep(750);
+            //sleep(750);
             flingClimbers();
-            sleep(500);
+            //sleep(500);
             scoreRescueBeacon();
         }
 
         else if (color == RED)
         {
             move(-28.5);
-            sleep(700);
+            //sleep(700);
             rotateEncoder(-6.3);
-            sleep(700);
+            //sleep(700);
             move(-23.6);
-            sleep(700);
+            //sleep(700);
             rotateEncoder(-11.3);
-            sleep(700);
+            //sleep(700);
             driveToLine(-0.37);
-            sleep(550);
+            //sleep(550);
             move(-1.1);
-            sleep(700);
+           // sleep(700);
             rotateEncoder(3.89);
-            sleep(700);
+            //sleep(700);
             followLineUntilTouch();
-            sleep(450);
+            //sleep(450);
             flingClimbers();
-            sleep(500);
+            //sleep(500);
             scoreRescueBeacon();
         }
     }
