@@ -59,6 +59,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int DEFENSE = 3;
     public static final int NUM_PATHS = 4;
 
+    public static final double lineBlockedTime = 17000;
 
     private boolean color = BLUE; //RED by default, of course it'll change when neccessary
     private int path = 0;
@@ -380,6 +381,19 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 setLeftDrivePower(0.07);
             }
             //waitFullCycle();
+
+            if (gameTimer.time() > lineBlockedTime)
+            {
+                stopDrivetrain();
+                waitFullCycle();
+                stopDrivetrain();
+                waitFullCycle();
+                extendAndScoreClimbers();
+                waitFullCycle();
+                move (2);
+                programFinished = true;
+                return;
+            }
         }
 
         sleep(50);
@@ -414,6 +428,20 @@ public class Autonomous_5220_v1 extends OpMode_5220
             sleep(150);
             move(2.8, 0.4);
         }
+    }
+
+    private void extendAndScoreClimbers()
+    {
+        slideMotor.setPower(0.6); //will be better once we have encoder on the slide motor
+        sleep(600);
+        slideMotor.setPower(0);
+        waitFullCycle();
+        flingClimbers();
+        waitFullCycle();
+        slideMotor.setPower(-0.6);
+        sleep(600);
+        slideMotor.setPower(0);
+        waitFullCycle();
     }
 
     public void main ()

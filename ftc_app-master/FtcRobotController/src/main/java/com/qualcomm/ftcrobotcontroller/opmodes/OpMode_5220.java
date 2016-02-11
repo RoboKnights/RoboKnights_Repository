@@ -154,6 +154,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     //OTHER GLOBAL VARIABLES:
 
     protected FtcRobotControllerActivity ftcRCA;
+    protected boolean programFinished = false; //allows manual termination of the program in an orderly fashion, especially for autonomous
     protected Stopwatch gameTimer;
     protected boolean isArmMoving = false;
     protected int phase = HAS_NOT_STARTED;
@@ -388,7 +389,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         }
 
         boolean timeValid = (!TIMER_ON || (gameTimer.time() < maxTime));
-        return (opModeIsActive() && timeValid);
+        return (opModeIsActive() && (!programFinished) && timeValid);
     }
 
     public int distanceToEncoderCount (double distance) //distance is in inches
@@ -423,6 +424,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final void waitFullCycle ()
     {
+        if (!runConditions()) return; //NOT SURE IF PUTTING THIS HERE IS A GOOD IDEA, TEST IT TO SEE IF IT IS OK.
+
         try
         {
             waitOneFullHardwareCycle();
