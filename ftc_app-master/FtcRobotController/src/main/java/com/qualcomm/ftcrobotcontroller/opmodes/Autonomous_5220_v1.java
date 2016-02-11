@@ -388,6 +388,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         setLeftDrivePower(0);
         setRightDrivePower(0);
         stopDrivetrain();
+        //
     }
 
     private void scoreRescueBeacon ()
