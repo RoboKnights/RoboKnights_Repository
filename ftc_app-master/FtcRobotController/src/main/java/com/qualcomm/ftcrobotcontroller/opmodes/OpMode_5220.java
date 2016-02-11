@@ -90,7 +90,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
 
-    protected static final double SWIVEL_INIT = 0.7529; //may be reset in TeleOp
+    protected static final double SWIVEL_INIT = 0.7529; //// may be reset in TeleOp
     protected static final double SWIVEL_180 = 0.23;
     protected static final double SWIVEL_360 = SWIVEL_180 * 2;
 
@@ -99,7 +99,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final boolean TIMER_ON = false;
     protected static final int TIMER_STOP_BUFFER = 500; //in millis
 
-    protected static final double DEFAULT_DRIVE_POWER = 0.95;
+    protected static final double DEFAULT_DRIVE_POWER = 1.0;
     protected static final double DEFAULT_SYNC_POWER = 0.56;
     protected static final double DEFAULT_TURN_POWER = 0.30;
     protected static final double DEFAULT_TURN_POWER_HIGH = 0.80;
@@ -332,6 +332,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public void writeToLog (String toWrite)
     {
+        if (!runConditions()) return;
         String text = "USER MESSAGE: ";
         for (int i = 0; i < 54; i++) text = text + "*";
         for (int i = 0; i < 54; i++) text = text + " ";
@@ -388,7 +389,6 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         boolean timeValid = (!TIMER_ON || (gameTimer.time() < maxTime));
         return (opModeIsActive() && timeValid);
-
     }
 
     public int distanceToEncoderCount (double distance) //distance is in inches
@@ -416,7 +416,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         int startTime = gameTimer.time();
         while (runConditions() && (gameTimer.time() < startTime + millis))
         {
-
+            //waitFullCycle();
         }
         return;
     }
@@ -448,13 +448,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public double getGyroDirection () //placeholder
     {
         //return gyroSensor.getRotation();
-        //return gyroSensor.getHeading();
-        return 42.0; //testing
-    }
-
-    public void update_telemetry() //fix this to make it actually useful later. or maybe let is override
-    {
-        telemetry.addData("01", "Hello world!");
+        return gyroSensor.getHeading();
+        //return 42.0; //testing
     }
 
     public void restartRobot()
@@ -648,7 +643,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         writeToLog("MOVING: Initialized encoder values (should be 0) are LFM: " + getEncoderValue(leftFrontMotor) + ", RFM = " + getEncoderValue(rightFrontMotor));
         setDrivePower(power);
 
-        while (opModeIsActive() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works, change back to driveEncodersHaveReached if it works
+        while (runConditions() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works, change back to driveEncodersHaveReached if it works
         {
             if (mode != NORMAL)
             {
@@ -678,15 +673,16 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 }
             }
 
-            waitFullCycle();
+            //waitFullCycle();
 
             //do nothing if mode is NORMAL.
         }
-
         stopDrivetrain();
-        writeToLog("MOVING: Final encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
+        if (!runConditions()) return;
+        //writeToLog("MOVING: Final encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
         waitFullCycle();
-        //sleep(200); //maybe reduce this if it wastes too much time to have this safety interval.
+        waitFullCycle();
+        sleep(99); //maybe reduce this if it wastes too much time to have this safety interval.
     }
 
     public void moveSimple (int count)
@@ -694,7 +690,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         setDrivePower(DEFAULT_DRIVE_POWER);
         while (runConditions() && !driveEncodersHaveReached(count))
         {
-            waitFullCycle();
+            //waitFullCycle();
         }
         stopDrivetrain();
         waitFullCycle();
@@ -702,8 +698,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final void moveTime(int time, double power)
     {
+        writeToLog("Moving at " + power + " power for " + time + " ms");
         setDrivePower(power);
         sleep(time);
+        stopDrivetrain();
+        if (!runConditions()) return;
+        waitFullCycle();
         stopDrivetrain();
     }
 
@@ -757,7 +757,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         int encoderCount = distanceToEncoderCount(distance);
 
-        while (opModeIsActive() && (side == RIGHT ? !hasEncoderReached(rightFrontMotor, encoderCount) : !hasEncoderReached(leftFrontMotor, encoderCount))) //change back to runConditions if neecessary
+        while (runConditions() && (side == RIGHT ? !hasEncoderReached(rightFrontMotor, encoderCount) : !hasEncoderReached(leftFrontMotor, encoderCount))) //change back to runConditions if neecessary
         {
 
         }
@@ -793,7 +793,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         setTurnPower(power);
         while (runConditions() && !turnEncodersHaveReached(distanceToEncoderCount(distance))) //change back to runConditions if neecessary
         {
-            waitFullCycle();
+            //waitFullCycle();
         }
         stopDrivetrain();
         waitFullCycle();
@@ -866,7 +866,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public void flingClimbers ()
     {
-        sleep (500);
+        if (!runConditions()) return;
+        sleep (200);
+       // writeToLog ("Flinging Climbers.");
         Stopwatch climberTimer = new Stopwatch();
         double timeInMillis = CLIMBER_FLING_TIME * 1000.0;
         while (runConditions() && climberTimer.time() < timeInMillis)
@@ -874,10 +876,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             double newPosition = (climberTimer.time() / timeInMillis);
             if (newPosition > 1) newPosition = 1;
             moveDumper (newPosition);
-            waitFullCycle(); //not sure if needed here
+            //waitFullCycle(); //not sure if needed here
         }
         sleep (2000);
         moveDumper(DOWN);
+       // writeToLog("Climber flinging is done.");
 
     }
 

@@ -49,6 +49,8 @@ Add ultrasonic sensor when we add rescue beacon detection?
 
 //Hello world.
 
+//NOTE: Do NOT put waitFullCycle in loops. Only put in between other stuff
+
 public class Autonomous_5220_v1 extends OpMode_5220
 {
     public static final int LOW_GOAL_AND_COLLECT_ON_SAME_SIDE = 0;
@@ -58,7 +60,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int NUM_PATHS = 4;
 
 
-    private boolean color = RED; //RED by default, of course it'll change when neccessary
+    private boolean color = BLUE; //RED by default, of course it'll change when neccessary
     private int path = 0;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean sweeperOn = true;
@@ -102,7 +104,6 @@ public class Autonomous_5220_v1 extends OpMode_5220
         public void run ()
         {
             for (int i = 0; i < telemetryLines.length; i++) telemetryLines[i] = "";
-            telemetry.addData("1", "AUTONOMOUS CONFIGURATION:");
             telemetryLines[COLOR] = ("Color: " + (color == RED ? "RED" : "BLUE")); //maybe add starter asterisk here. Not sure if it is neccessary.
             telemetryLines[WAIT] = ("Wait Time (in seconds): " + startWaitTime /*+ " seconds"*/);
             telemetryLines[SWEEP] = ("Sweeper: " + (sweeperOn ? "ON" : "OFF"));
@@ -272,7 +273,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void test() //for debug, whenever we want to test something independent of the rest of the autonomous program
     {
-        sleep(250);
+        //move (25);
+        buttonServo.setPosition(0.5);
+        sleep(1000);
+        buttonServo.setPosition(0.1);
     }
 
     public void autonomous ()
@@ -283,71 +287,83 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         if (color == BLUE)
         {
-            move(-13);
-            //sleep(700);
+            move(-14);
             rotateEncoder(3.6825);
-            //sleep(700);
-            move(-28.7);
-            //sleep(700);
+            move(-27.3);
             driveToLine(-0.37);
-            //sleep(550);
-            move(-0.9);
-            //sleep(700);
-            rotateEncoder(4.5);
-            //sleep(700);
+            move(-1.0);
+            turnAcrossLine(0.6);
             followLineUntilTouch();
-           // sleep(50);
             stopDrivetrain();
             setLeftDrivePower(0);
             setRightDrivePower(0);
-            //sleep(750);
             flingClimbers();
-            //sleep(500);
+            sleep(200);
             scoreRescueBeacon();
         }
 
         else if (color == RED)
         {
-            move(-28.5);
-            //sleep(700);
+            move (-23);
             rotateEncoder(-6.3);
-            //sleep(700);
-            move(-23.6);
-            //sleep(700);
-            rotateEncoder(-11.3);
-            //sleep(700);
-            driveToLine(-0.37);
-            //sleep(550);
-            move(-1.1);
-           // sleep(700);
-            rotateEncoder(3.89);
-            //sleep(700);
+            move(-31);
+            turnToLine(-0.6);
+            sleep(100);
             followLineUntilTouch();
-            //sleep(450);
             flingClimbers();
-            //sleep(500);
+            sleep(200);
             scoreRescueBeacon();
+
+        }
+    }
+
+    private void waitForLine ()
+    {
+        while (runConditions() && getFloorBrightness() < LINE_WHITE_THRESHOLD)
+        {
+            //waitFullCycle();
         }
     }
 
     private void driveToLine (double power)
     {
+        if (!runConditions()) return;
         setDrivePower(power);
-        while (runConditions() && getFloorBrightness() < LINE_WHITE_THRESHOLD)
-        {
-
-        }
+        waitForLine();
         stopDrivetrain();
+        waitFullCycle();
         stopDrivetrain(); //one can never be too sure
     }
 
     private void turnToLine (double power)
     {
+        if (!runConditions()) return;
+        setTurnPower(power);
+        waitForLine();
+        stopDrivetrain();
+        waitFullCycle();
+        stopDrivetrain(); //one can never be too sure
+        sleep(50);
+    }
 
+    private void turnAcrossLine (double power)
+    {
+        if (!runConditions()) return;
+        setTurnPower(power);
+        waitForLine();
+        while (runConditions() && getFloorBrightness() >= LINE_WHITE_THRESHOLD)
+        {
+            //waitFullCycle();
+        }
+        stopDrivetrain();
+        waitFullCycle();
+        stopDrivetrain(); //one can never be too sure
+        sleep(50);
     }
 
     private void followLineUntilTouch ()
     {
+        if (!runConditions()) return;
         setLeftDrivePower(-0.15);
 
         while (runConditions() && touchSensorFront.getValue() < 0.04)
@@ -355,18 +371,20 @@ public class Autonomous_5220_v1 extends OpMode_5220
             if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
             {
                 setRightDrivePower(0);
-                setLeftDrivePower(-0.15);
+                setLeftDrivePower(-0.30);
             }
 
             else
             {
-                setRightDrivePower(-0.32);
-                setLeftDrivePower(0.05);
+                setRightDrivePower(-0.48);
+                setLeftDrivePower(0.07);
             }
+            //waitFullCycle();
         }
 
         sleep(50);
         stopDrivetrain();
+        waitFullCycle();
         setLeftDrivePower(0);
         setRightDrivePower(0);
         stopDrivetrain();
@@ -374,8 +392,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     private void scoreRescueBeacon ()
     {
+        if (!runConditions()) return;
         boolean rescueBeaconColor = getRescueBeaconColor();
-
+        //writeToLog("Right Rescue Beacon Color: " + (rescueBeaconColor == color));
         if (rescueBeaconColor == color)
         {
             buttonServo.setPosition(0.5);
@@ -388,10 +407,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
         else
         {
             move(2);
-            moveSwivel(SWIVEL_INIT + 0.1052);
+            moveSwivel(SWIVEL_INIT + 0.1);
             sleep(1350);
             moveTime(1000, -0.2);
-            sleep(550);
+            sleep(150);
             move(2.8, 0.4);
         }
     }
@@ -401,7 +420,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         //new ProgramKiller().start(); //PROGRAM KILLER MESSES UP AUTONOMOUS.
         new DebuggerDisplayLoop().start();
         sleep(startWaitTime * 1000);
-       // test();
+        //test();
         autonomous();
     }
 
