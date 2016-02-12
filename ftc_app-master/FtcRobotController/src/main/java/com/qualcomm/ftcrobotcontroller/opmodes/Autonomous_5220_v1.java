@@ -59,9 +59,14 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int DEFENSE = 3;
     public static final int NUM_PATHS = 4;
 
+    public static final int START_RAMP = 0;
+    public static final int START_CORNER = 1;
+    public static final int NUM_STARTS = 2;
+
     public static final double lineBlockedTime = 17000;
 
-    private boolean color = BLUE; //RED by default, of course it'll change when neccessary
+    private boolean color = RED; //RED by default, of course it'll change when neccessary
+    private int startPosition = START_RAMP;
     private int path = 0;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean sweeperOn = true;
@@ -91,9 +96,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
         private static final int DOWN = -1;
 
         private static final int COLOR = 0; //these are also their telemetry lines when added to 1.
-        private static final int WAIT = 1;
-        private static final int SWEEP = 2;
-        private static final int PATH = 3;
+        private static final int START = 1;
+        private static final int WAIT = 2;
+        private static final int SWEEP = 3;
+        private static final int PATH = 4;
 
         private static final int NUM_SETTINGS = 4;
 
@@ -106,6 +112,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             for (int i = 0; i < telemetryLines.length; i++) telemetryLines[i] = "";
             telemetryLines[COLOR] = ("Color: " + (color == RED ? "RED" : "BLUE")); //maybe add starter asterisk here. Not sure if it is neccessary.
+            telemetryLines[START] = ("Start Position " + (startPosition == START_RAMP ? "RAMP" : "CORNER"));
             telemetryLines[WAIT] = ("Wait Time (in seconds): " + startWaitTime /*+ " seconds"*/);
             telemetryLines[SWEEP] = ("Sweeper: " + (sweeperOn ? "ON" : "OFF"));
             telemetryLines[PATH] = ("Path: " + pathToString(path));
@@ -206,6 +213,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 telemetryLines[COLOR] = ("Color: " + (color == RED ? "RED" : "BLUE"));
             }
 
+            else if (setting == START)
+            {
+                startPosition = (startPosition + direction) % NUM_STARTS;
+                telemetryLines[START] = ("Start Position " + startPositionToString(startPosition));
+            }
+
             else if (setting == WAIT)
             {
                 startWaitTime += direction;
@@ -263,6 +276,16 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 default: return "Error: Invalid Path Number.";
             }
         }
+
+        private String startPositionToString (int s)
+        {
+            switch (s)
+            {
+                case START_RAMP: return "RAMP START";
+                case START_CORNER: return "CORNER START";
+                default: return "Error: Start Position Number.";
+            }
+        }
     }
 
     public void initialize () //override
@@ -288,9 +311,20 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         if (color == BLUE)
         {
-            move(-14);
-            rotateEncoder(3.6825);
-            move(-27.3);
+            if (startPosition == START_RAMP)
+            {
+                move(-14);
+                rotateEncoder(3.6825);
+                move(-27.3);
+            }
+
+            else if (startPosition == START_CORNER) //untested
+            {
+                move(-4);
+                rotateEncoder(3.6825);
+                move(-38.3);
+            }
+
             driveToLine(-0.37);
             move(-1.0);
             turnAcrossLine(0.6);
@@ -305,9 +339,20 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         else if (color == RED)
         {
-            move (-23);
-            rotateEncoder(-6.3);
-            move(-31);
+            if (startPosition == START_RAMP)
+            {
+                move (-23);
+                rotateEncoder(-6.3);
+                move(-31);
+            }
+
+            else if (startPosition == START_CORNER) //untested
+            {
+                move (-2);
+                rotateEncoder(-6.3);
+                move(-42);
+            }
+
             turnToLine(-0.6);
             sleep(100);
             followLineUntilTouch();
