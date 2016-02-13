@@ -101,7 +101,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         private static final int SWEEP = 3;
         private static final int PATH = 4;
 
-        private static final int NUM_SETTINGS = 4;
+        private static final int NUM_SETTINGS = 5; //always make sure this is correct.
 
         private int currentSetting = 0;
 
