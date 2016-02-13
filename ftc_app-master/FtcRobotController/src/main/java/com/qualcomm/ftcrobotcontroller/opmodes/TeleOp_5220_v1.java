@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
@@ -371,6 +372,11 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 {
                     moveSwivel(COLLECT);
                 }
+
+                else
+                {
+                    //POLAR CONTROL:
+                }
             }
 
             //DUMPER CONTROL:
@@ -460,81 +466,6 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 leftClimberServo.setPosition(0.5);
             }
 
-            //SWIVEL CENTER RESET
-/*
-            if (gamepad1.x)
-            {
-                SWIVEL_INIT = swivelServo.getPosition();
-            }
-*/
-            //LIFT MOTOR CONTROL:
-/*
-            if (gamepad2.right_stick_y > 0.7)
-            {
-                setLiftPower(1);
-            }
-
-            else if (gamepad2.right_stick_y < -0.7)
-            {
-                setLiftPower(-1);
-            }
-
-            else
-            {
-                setLiftPower(0);
-            }
-*/
-            //CLIMBER TRIGGERER CONTROL
-/*
-            if (gamepad2.y != prevY2) //tServo 1 is port 3, the one on the left, looking at the robot with the sweeper at the front and hook extension on the back.
-            {
-                if (gamepad2.y)
-                {
-                    triggerServo1.setPosition(triggerServo1.getPosition() == 1 ? 0.232 : 1);
-                    triggerServo2.setPosition(triggerServo2.getPosition() == 0 ? 0.75 : 0);
-                }
-            }
-*//*
-            if (gamepad2.left_bumper != prevLB2) //tServo 1 is port 3, the one on the left, looking at the robot with the sweeper at the front and hook extension on the back.
-            {
-                if (gamepad2.left_bumper)
-                {
-                    triggerServo2.setPosition(triggerServo2.getPosition() == 0 ? 0.75 : 0);
-                }
-            }
-
-            if (gamepad2.left_trigger > 0.7 != prevLT2) //tServo 1 is port 3, the one on the left, looking at the robot with the sweeper at the front and hook extension on the back.
-            {
-                if (gamepad2.left_trigger > 0.7)
-                {
-                    triggerServo1.setPosition(triggerServo1.getPosition() == 1 ? 0.232 : 1);
-                }
-            }
-*/
-            //climber fling control
-/*
-            double flingValue = gamepad1.right_stick_y;
-            flingValue = Math.abs(flingValue);
-            flingValue = 1.0 - flingValue;
-            flingValue = Math.min(1.0, flingValue);
-            flingValue = Math.max(0.0, flingValue);
-
-            climberServo.setPosition(flingValue);
-
-
-*/
-            //COLOR SENSOR LIGHT:
-            /*
-            if (gamepad2.left_stick_button)
-            {
-                colorSensorDown.enableLed(true);
-            }
-/*
-            else
-            {
-                colorSensorDown.enableLed(false);
-            }
-            */
             //Previous value settings:
 
             prevTopHatUp1 = gamepad1.dpad_up;
@@ -560,9 +491,23 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     public void main ()
     {
         new DebuggerDisplayLoop().start();
-        for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        //for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        waitFullCycle();
         colorSensorFront.enableLed(false);
+        waitFullCycle();
         colorSensorDown.enableLed(false);
-        loop5220();
+        waitFullCycle();
+        while (runConditions())
+        {
+            try
+            {
+                loop5220();
+            }
+            catch (Exception e)
+            {
+                DbgLog.error(e.getMessage());
+            }
+        }
+
     }
 }
