@@ -496,6 +496,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public final void stopDrivetrain ()
     {
         setDrivePower(0);
+        waitFullCycle();
+        setDrivePower(0);
+        waitFullCycle(); //not sure about thsi one.
     }
 
     public final void resetDriveEncoders ()
@@ -685,7 +688,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         if (!runConditions()) return;
         //writeToLog("MOVING: Final encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
         waitFullCycle();
-        waitFullCycle();
+        //waitFullCycle();
         sleep(99); //maybe reduce this if it wastes too much time to have this safety interval.
     }
 
@@ -697,7 +700,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             //waitFullCycle();
         }
         stopDrivetrain();
-        waitFullCycle();
+        //waitFullCycle();
     }
 
     public final void moveTime(int time, double power)
@@ -708,7 +711,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         stopDrivetrain();
         if (!runConditions()) return;
         waitFullCycle();
-        stopDrivetrain();
+        //stopDrivetrain();
     }
 
     //ROTATION:
@@ -802,7 +805,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             //waitFullCycle();
         }
         stopDrivetrain();
-        waitFullCycle();
+        //waitFullCycle();
     }
 
     public final void rotateEncoder (double distance)

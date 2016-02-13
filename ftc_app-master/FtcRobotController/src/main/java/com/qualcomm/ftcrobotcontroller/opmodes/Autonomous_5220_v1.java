@@ -61,7 +61,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public static final int START_RAMP = 0;
     public static final int START_CORNER = 1;
-    public static final int NUM_STARTS = 2;
+    public static final int START_STRAIGHT = 2;
+    public static final int NUM_STARTS = 3;
 
     public static final double lineBlockedTime = 17000;
 
@@ -283,6 +284,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             {
                 case START_RAMP: return "RAMP START";
                 case START_CORNER: return "CORNER START";
+                case START_STRAIGHT: return "STRAIGHT START";
                 default: return "Error: Start Position Number.";
             }
         }
@@ -307,8 +309,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void autonomous ()
     {
         colorSensorDown.enableLed(true);
+        waitFullCycle();
         colorSensorDown.enableLed(true);
-        sleep(750);
+        //sleep(400);
+        waitFullCycle();
 
         if (color == BLUE)
         {
@@ -324,6 +328,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move(-4);
                 rotateEncoder(3.6825);
                 move(-38.3);
+            }
+
+            else if (startPosition == START_STRAIGHT)
+            {
+                move (-25); //untested as of yet.
             }
 
             driveToLine(-0.37);
@@ -354,6 +363,19 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move(-42);
             }
 
+            else if (startPosition == START_STRAIGHT) //untested
+            {
+                move (-25);
+
+                setDrivePower(-0.37);
+                while (runConditions() && colorSensorDown.red() < 20)
+                {
+
+                }
+
+
+            }
+
             turnToLine(-0.6);
             sleep(100);
             followLineUntilTouch();
@@ -378,8 +400,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
         setDrivePower(power);
         waitForLine();
         stopDrivetrain();
-        waitFullCycle();
-        stopDrivetrain(); //one can never be too sure
+        //waitFullCycle();
+        //stopDrivetrain(); //one can never be too sure
     }
 
     private void turnToLine (double power)
@@ -388,8 +410,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
         setTurnPower(power);
         waitForLine();
         stopDrivetrain();
-        waitFullCycle();
-        stopDrivetrain(); //one can never be too sure
+        //waitFullCycle();
+        //stopDrivetrain(); //one can never be too sure
         sleep(50);
     }
 
@@ -403,8 +425,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
             //waitFullCycle();
         }
         stopDrivetrain();
-        waitFullCycle();
-        stopDrivetrain(); //one can never be too sure
+       // waitFullCycle();
+       // stopDrivetrain(); //one can never be too sure
         sleep(50);
     }
 
@@ -431,8 +453,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
             if (gameTimer.time() > lineBlockedTime)
             {
                 stopDrivetrain();
-                waitFullCycle();
-                stopDrivetrain();
+               // waitFullCycle();
+                //stopDrivetrain();
                 waitFullCycle();
                 extendAndScoreClimbers();
                 waitFullCycle();
