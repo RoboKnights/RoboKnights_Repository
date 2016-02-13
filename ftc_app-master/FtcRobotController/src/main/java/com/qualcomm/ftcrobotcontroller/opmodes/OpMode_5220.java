@@ -91,7 +91,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
 
     protected static final double SWIVEL_INIT = 0.7529; //// may be reset in TeleOp
-    protected static final double SWIVEL_180 = 0.23;
+    protected static final double SWIVEL_90 = 0.4706;
+    protected static final double SWIVEL_180 = SWIVEL_90 * 2;
     protected static final double SWIVEL_360 = SWIVEL_180 * 2;
 
     //CONFIGURABLE CONSTANTS:
@@ -220,8 +221,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         buttonServo.setPosition(0.1);
         swivelServo.setPosition(SWIVEL_INIT);
 
-        gyroSensor.calibrate();
-        gyroSensor.resetZAxisIntegrator();
+        //gyroSensor.calibrate();
+       // gyroSensor.resetZAxisIntegrator();
 
         moveWall(DOWN);
         phase = INIT;
@@ -320,7 +321,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 //telemetry.addData("5", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue());
                 telemetry.addData("5", "Down: R = " + colorSensorDown.red() + ", G = " + colorSensorDown.green() + ", B = " + colorSensorDown.blue() + ", A = " +  colorSensorDown.alpha());
                 telemetry.addData("6", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue() + ", A = " +  colorSensorFront.alpha());
-                telemetry.addData("7", "Gyro H: " + getGyroDirection() /*+ ", Front Touch: " + touchSensorFront.isPressed()*/);
+                //telemetry.addData("7", "Gyro H: " + getGyroDirection() /*+ ", Front Touch: " + touchSensorFront.isPressed()*/);
                 //telemetry.addData("7", "Touch: " + touchSensor1.isPressed());
 
                 //telemetry.addData("7", "Beacon: " + getRescueBeaconColor());
@@ -451,8 +452,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public double getGyroDirection () //placeholder
     {
         //return gyroSensor.getRotation();
-        return gyroSensor.getHeading();
-        //return 42.0; //testing
+        //return gyroSensor.getHeading();
+        return 42.0; //testing
     }
 
     public void restartRobot()
@@ -723,7 +724,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         //convert degrees to proper value for this method
         gyroSensor.calibrate();
         while (gyroSensor.isCalibrating()) {};
+        waitFullCycle();
         gyroSensor.resetZAxisIntegrator();
+        waitFullCycle();
         sleep(500);
         if (degrees < 0)
         {
@@ -817,7 +820,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     //ATTACHMENTS:
 
     public static final double UP = 1.0;
-    public static final double DOWN = 0.231;
+    public static final double DOWN = 0.1;
     public static final double dumperHeight = 0.47;
 
     public final void moveDumper (double d)

@@ -70,6 +70,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
     private boolean reverseDriveOn = false;
     private boolean slowDriveOn = false;
+    private boolean polarOn = true;
 
 
     /*
@@ -130,13 +131,29 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         return degrees;
     }
 
+
+    /**
+     * 0.9843
+     * 0.5137
+     * @param degrees
+     * @return
+     */
     public double degreesToSwivelPosition (double degrees) //degrees on analog stick are measured in traditional way, with zero starting in the first quadrant
     {
+        /*
         double swivelPositionAtZeroDegrees = SWIVEL_INIT - (0.75 * SWIVEL_360);
         double swivelPosition = swivelPositionAtZeroDegrees + ((degrees / 360.0) * SWIVEL_360);
         swivelPosition = swivelPosition - (SWIVEL_360 / 4);
         swivelPosition = swivelPosition + ((SWIVEL_360 / 360.0) * 13.5); //brute force fix, eliminate if possible later.
         return swivelPosition;
+        */
+
+        degrees = degrees - 180;
+        degrees = -degrees;
+        double position = SWIVEL_INIT + (((SWIVEL_90 / 90.0) * degrees) / 2);
+        if (position > 1.0) position = 1.0;
+        if (position < 0.51) position = 0.51;
+        return position;
     }
 
     public void initialize ()
@@ -251,6 +268,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             if (left == 0 && right == 0)
             {
+                /*
                 if (gamepad1.right_stick_y < -0.4)
                 {
                     left = -SLOW_POWER;
@@ -262,6 +280,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                     left = SLOW_POWER;
                     right = SLOW_POWER;
                 }
+                */
 
             }
 
@@ -375,7 +394,17 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
                 else
                 {
-                    //POLAR CONTROL:
+                    double[] gamepad1RightStickPolar = cartesianToPolar(gamepad1.right_stick_x, gamepad1.right_stick_y);
+                    double r = gamepad1RightStickPolar[0];
+                    double theta = gamepad1RightStickPolar[1];
+                    telemetry.addData("9", "theta = " + ((int)radiansToDegrees(theta)) + ", r = " + r);
+
+                    if (r > POLAR_CONTROL_R_THRESHOLD)
+                    {
+                        double degrees = radiansToDegrees(theta);
+                        double swivelPosition = degreesToSwivelPosition(degrees);
+                        swivelServo.setPosition(swivelPosition);
+                    }
                 }
             }
 

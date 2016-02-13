@@ -65,7 +65,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public static final double lineBlockedTime = 17000;
 
-    private boolean color = RED; //RED by default, of course it'll change when neccessary
+    private boolean color = BLUE; //RED by default, of course it'll change when neccessary
     private int startPosition = START_RAMP;
     private int path = 0;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
@@ -291,7 +291,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void initialize () //override
     {
         super.initialize(); //do everything in the original, common initialization.
-        new ConfigLoop().start(); //
+        //new ConfigLoop().start(); //
+        waitFullCycle();
         colorSensorDown.enableLed(true);
     }
 
@@ -313,7 +314,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             if (startPosition == START_RAMP)
             {
-                move(-14);
+                move(-11.9);
                 rotateEncoder(3.6825);
                 move(-27.3);
             }
