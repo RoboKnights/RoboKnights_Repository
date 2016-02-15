@@ -5,7 +5,8 @@
         <Motor name="slides" port="2" />
     </MotorController>
     <MotorController name="Motor Controller 1" serialNumber="AL00UVMI">
-        <Motor name="sweeper2" port="1" />
+        <Motor name="lm1" port="1" />
+        <Motor name="lm2" port="2" />
     </MotorController>
     <MotorController name="Motor Controller 5" serialNumber="AL00UVMQ">
         <Motor name="rf" port="1" />

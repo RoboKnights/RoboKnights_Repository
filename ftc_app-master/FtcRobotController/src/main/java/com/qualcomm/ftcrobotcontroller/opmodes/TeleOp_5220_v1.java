@@ -161,6 +161,9 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         super.initialize();
         g1Stick1Xinit = gamepad1.left_stick_x;
         g1Stick1Yinit = gamepad1.left_stick_y;
+        waitFullCycle();
+        cdim.close(); //NOT SURE IF THIS SHOULD BE DONE AND WHETHER IT HELPS
+        waitFullCycle();
     }
 
     public void loop5220()
@@ -448,12 +451,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //HOOK EXTENSION CONTROL:
 
-            if (gamepad1.y || gamepad2.left_stick_y < -0.7 || gamepad2.right_stick_y < -0.7) //up
+            if (gamepad1.y || /*gamepad2.left_stick_y < -0.7 ||*/ gamepad2.right_stick_y < -0.7) //up
             {
                 slideMotor.setPower(1);
             }
 
-            else if (gamepad1.a || gamepad2.left_stick_y > 0.7 || gamepad2.right_stick_y > 0.7)
+            else if (gamepad1.a /*|| gamepad2.left_stick_y > 0.7 */|| gamepad2.right_stick_y > 0.7)
             {
                 slideMotor.setPower(-1);
             }
@@ -461,6 +464,22 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             else
             {
                 slideMotor.setPower(0);
+            }
+
+            //LIFT MOTOR CONTROL:
+            if (gamepad2.left_stick_y > 0.7) //up
+            {
+                setLiftPower(1.0);
+            }
+
+            else if (gamepad2.left_stick_y < -0.7)
+            {
+                setLiftPower(-1.0);
+            }
+
+            else
+            {
+                setLiftPower(0);
             }
 
             //CLIMBER TRIGGER CONTROL:

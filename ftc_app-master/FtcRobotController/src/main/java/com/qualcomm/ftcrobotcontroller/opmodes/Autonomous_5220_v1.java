@@ -293,7 +293,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void initialize () //override
     {
         super.initialize(); //do everything in the original, common initialization.
-        //new ConfigLoop().start(); //
+        new ConfigLoop().start(); //
         waitFullCycle();
         colorSensorDown.enableLed(true);
     }
@@ -345,6 +345,22 @@ public class Autonomous_5220_v1 extends OpMode_5220
             flingClimbers();
             sleep(200);
             scoreRescueBeacon();
+            /* for testing collecting
+            if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
+            {
+                move(5.6);
+                if (sweeperOn) setSweeperPower(1.0);
+                rotateEncoder(8);
+                while (runConditions())
+                {
+                    move(7.5);
+                    move(-7.5);
+                    rotateEncoder(1.94);
+                    //move(5);
+                }
+
+            }
+            */
         }
 
         else if (color == RED)
@@ -373,6 +389,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
                 }
 
+                stopDrivetrain();
+
 
             }
 
@@ -383,7 +401,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
             sleep(200);
             scoreRescueBeacon();
 
+
         }
+
+        setSweeperPower(0);
     }
 
     private void waitForLine ()

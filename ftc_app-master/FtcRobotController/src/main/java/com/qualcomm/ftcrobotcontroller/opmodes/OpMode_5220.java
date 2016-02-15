@@ -119,6 +119,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     protected static final String[] motorNames = {}; //Fill this in later.
 
+    protected DeviceInterfaceModule cdim;
     protected DcMotor leftFrontMotor;
     protected DcMotor rightFrontMotor;
     protected DcMotor leftBackMotor;
@@ -128,6 +129,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected DcMotor sweeperMotor1;
     protected DcMotor sweeperMotor2;
     protected DcMotor slideMotor;
+    protected DcMotor liftMotor1;
+    protected DcMotor liftMotor2;
 
     protected DcMotor[] driveMotors = new DcMotor[4];
     protected int[] driveMotorInitValues = new int[4];
@@ -169,6 +172,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         hardwareMap.logDevices();
 
+        cdim = hardwareMap.deviceInterfaceModule.get("Device Interface Module 4");
+
         leftFrontMotor = hardwareMap.dcMotor.get("lf");
         rightFrontMotor = hardwareMap.dcMotor.get("rf");
         leftBackMotor = hardwareMap.dcMotor.get("lb");
@@ -187,10 +192,13 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
         sweeperMotor1 = hardwareMap.dcMotor.get("sweeper1");
-        sweeperMotor2 = hardwareMap.dcMotor.get("sweeper2");
+        sweeperMotor2 = hardwareMap.dcMotor.get("sweeper1");
         slideMotor = hardwareMap.dcMotor.get("slides");
 
-
+        //configure lift motors
+        liftMotor1 = hardwareMap.dcMotor.get("lm1");
+        liftMotor2 = hardwareMap.dcMotor.get("lm2");
+        //liftMotor2.setDirection(DcMotor.Direction.REVERSE);
 
         swivelServo = hardwareMap.servo.get("sServo");
         releaseServo = hardwareMap.servo.get("rServo");
@@ -217,7 +225,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
        // setCustomSkin();
         moveDumper(DOWN);
         leftClimberServo.setPosition(0.5);
-        rightClimberServo.setPosition(0.5);
+        //rightClimberServo.setPosition(0.5);
         buttonServo.setPosition(0.1);
         swivelServo.setPosition(SWIVEL_INIT);
 
@@ -319,8 +327,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 telemetry.addData("4", "Dumper: " + leftDumpServo.getPosition());
 
                 //telemetry.addData("5", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue());
-                telemetry.addData("5", "Down: R = " + colorSensorDown.red() + ", G = " + colorSensorDown.green() + ", B = " + colorSensorDown.blue() + ", A = " +  colorSensorDown.alpha());
-                telemetry.addData("6", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue() + ", A = " +  colorSensorFront.alpha());
+                //telemetry.addData("5", "Down: R = " + colorSensorDown.red() + ", G = " + colorSensorDown.green() + ", B = " + colorSensorDown.blue() + ", A = " +  colorSensorDown.alpha());
+               // telemetry.addData("6", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue() + ", A = " +  colorSensorFront.alpha());
                 //telemetry.addData("7", "Gyro H: " + getGyroDirection() /*+ ", Front Touch: " + touchSensorFront.isPressed()*/);
                 //telemetry.addData("7", "Touch: " + touchSensor1.isPressed());
 
@@ -868,6 +876,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         sweeperMotor2.setPower(power);
     }
 
+    public final void setLiftPower (double power)
+    {
+        liftMotor1.setPower(power);
+        liftMotor2.setPower(power);
+    }
+
     public final void releasePin()
     {
         releaseServo.setPosition(1.0);
@@ -887,7 +901,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             moveDumper (newPosition);
             //waitFullCycle(); //not sure if needed here
         }
-        sleep (2000);
+        sleep (1000);
         moveDumper(DOWN);
        // writeToLog("Climber flinging is done.");
 
