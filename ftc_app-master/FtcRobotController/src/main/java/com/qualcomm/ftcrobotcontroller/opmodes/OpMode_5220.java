@@ -134,6 +134,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     protected DcMotor[] driveMotors = new DcMotor[4];
     protected int[] driveMotorInitValues = new int[4];
+    protected int slideInit;
 
     protected Servo swivelServo;
     protected Servo releaseServo;
@@ -194,6 +195,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         sweeperMotor1 = hardwareMap.dcMotor.get("sweeper1");
         sweeperMotor2 = hardwareMap.dcMotor.get("sweeper1");
         slideMotor = hardwareMap.dcMotor.get("slides");
+        slideInit = slideMotor.getCurrentPosition();
 
         //configure lift motors
         liftMotor1 = hardwareMap.dcMotor.get("lm1");
@@ -230,7 +232,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         swivelServo.setPosition(SWIVEL_INIT);
 
         //gyroSensor.calibrate();
-       // gyroSensor.resetZAxisIntegrator();
+       gyroSensor.resetZAxisIntegrator();
 
         moveWall(DOWN);
         phase = INIT;
@@ -327,11 +329,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 telemetry.addData("4", "Dumper: " + leftDumpServo.getPosition());
 
                 //telemetry.addData("5", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue());
-                //telemetry.addData("5", "Down: R = " + colorSensorDown.red() + ", G = " + colorSensorDown.green() + ", B = " + colorSensorDown.blue() + ", A = " +  colorSensorDown.alpha());
-               // telemetry.addData("6", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue() + ", A = " +  colorSensorFront.alpha());
+                 telemetry.addData("5", "Down: R = " + colorSensorDown.red() + ", G = " + colorSensorDown.green() + ", B = " + colorSensorDown.blue() + ", A = " +  colorSensorDown.alpha());
+                 telemetry.addData("6", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue() + ", A = " +  colorSensorFront.alpha());
                 //telemetry.addData("7", "Gyro H: " + getGyroDirection() /*+ ", Front Touch: " + touchSensorFront.isPressed()*/);
                 //telemetry.addData("7", "Touch: " + touchSensor1.isPressed());
-
+                telemetry.addData("7", "Slides:" + getSlidePosition());
                 //telemetry.addData("7", "Beacon: " + getRescueBeaconColor());
 
                 telemetry.addData("8", "Time Elapsed:" + gameTimer.time());
@@ -528,6 +530,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public int getEncoderValue (DcMotor dcm)
     {
         return (dcm.getCurrentPosition() - driveMotorInitValues[motorToNumber(dcm)]);
+    }
+
+    public int getSlidePosition ()
+    {
+        return slideMotor.getCurrentPosition() - slideInit;
     }
 
     public int motorToNumber (DcMotor dcm)

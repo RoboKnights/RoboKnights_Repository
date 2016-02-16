@@ -20,7 +20,6 @@
     </DeviceInterfaceModule>
     <ServoController name="Servo Controller 3" serialNumber="AI02RN3S">
         <Servo name="lcServo" port="1" />
-        <Servo name="sServo" port="2" />
         <Servo name="rServo" port="3" />
         <Servo name="lwServo" port="4" />
         <Servo name="bServo" port="5" />
@@ -33,6 +32,7 @@
     <ServoController name="Servo Controller 7" serialNumber="AL00XM4K">
         <Servo name="rdServo" port="1" />
         <Servo name="rcServo" port="2" />
+        <Servo name="sServo" port="3" />
         <Servo name="rwServo" port="4" />
     </ServoController>
 </Robot>

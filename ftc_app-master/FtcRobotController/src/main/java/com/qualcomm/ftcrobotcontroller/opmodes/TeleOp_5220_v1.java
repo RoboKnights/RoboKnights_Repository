@@ -70,7 +70,9 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
     private boolean reverseDriveOn = false;
     private boolean slowDriveOn = false;
-    private boolean polarOn = true;
+    private boolean polarOn = false;
+    private boolean resetAutomationOn = false;
+    private boolean climbingAutomationOn = false;
 
 
     /*
@@ -161,9 +163,9 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         super.initialize();
         g1Stick1Xinit = gamepad1.left_stick_x;
         g1Stick1Yinit = gamepad1.left_stick_y;
-        waitFullCycle();
-        cdim.close(); //NOT SURE IF THIS SHOULD BE DONE AND WHETHER IT HELPS
-        waitFullCycle();
+        //waitFullCycle();
+        //cdim.close(); //NOT SURE IF THIS SHOULD BE DONE AND WHETHER IT HELPS
+        //waitFullCycle();
     }
 
     public void loop5220()
@@ -307,21 +309,6 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 reverseDriveOn = !reverseDriveOn;
             }
 
-            //SWEEPER CONTROL:
-
-            double sweeperPower = 0;
-
-            if (gamepad1.right_bumper)
-            {
-                sweeperPower = 1;
-            }
-
-            else if (gamepad1.right_trigger > 0.7) //not entirely sure we can or will ever need to do this, move the sweeper in reverse.
-            {
-                sweeperPower = -1;
-            }
-
-            setSweeperPower(sweeperPower);
 
             //DUMPER CONTROL:
 
@@ -330,133 +317,175 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             if (gamepad1.left_trigger > 0.7 /*|| gamepad2.left_bumper*/)
             {
                 moveWall(UP);
-               // colorSensorDown.enableLed(true);
+                // colorSensorDown.enableLed(true);
 
             }
+
             else if (gamepad1.left_bumper /*|| gamepad2.left_trigger > 0.7*/)
             {
                 moveWall(DOWN);
                 //colorSensorDown.enableLed(false);
             }
 
-            //MOUNTAIN HOOK CONTROL
-
-
-
-
+            //AUTOMATION SETTING
+            if (gamepad1.b && !prevB1)
+            {
+                resetAutomationOn = !resetAutomationOn;
+            }
 
             //ADD SOME WAY TO DISABLE P1 ARM CONTROL WHILE P2 IS RUNNING AN ARM MOTION SUBROUTINE.
             //SWIVEL CONTROL:
 
-
-
-            if ((gamepad1.dpad_right) && (!prevTopHatRight1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
+            if (resetAutomationOn)
             {
-                double newPosition = swivelServo.getPosition() + SWIVEL_INCREMENT;
-                if (newPosition > 1) newPosition = 1;
-                swivelServo.setPosition(newPosition);
-                topHatXTime = new Stopwatch();
+                moveSwivel(SWIVEL_INIT);
             }
 
-            if ((gamepad1.dpad_left) && (!prevTopHatLeft1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
+            else
             {
-                double newPosition = swivelServo.getPosition() - SWIVEL_INCREMENT;
-                if (newPosition < 0) newPosition = 0;
-                swivelServo.setPosition(newPosition);
-                topHatXTime = new Stopwatch();
-            }
 
-            if (!gamepad1.dpad_left && !gamepad1.dpad_right)
-            {
-                topHatXTime = null;
-
-                if (gamepad2.a)
+                if ((gamepad1.dpad_right) && (!prevTopHatRight1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
                 {
-                    moveSwivel(RED_MEDIUM);
+                    double newPosition = swivelServo.getPosition() + SWIVEL_INCREMENT;
+                    if (newPosition > 1) newPosition = 1;
+                    swivelServo.setPosition(newPosition);
+                    topHatXTime = new Stopwatch();
                 }
 
-                else if (gamepad2.b)
+                if ((gamepad1.dpad_left) && (!prevTopHatLeft1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
                 {
-                    moveSwivel(BLUE_MEDIUM);
+                    double newPosition = swivelServo.getPosition() - SWIVEL_INCREMENT;
+                    if (newPosition < 0) newPosition = 0;
+                    swivelServo.setPosition(newPosition);
+                    topHatXTime = new Stopwatch();
                 }
 
-                else if (gamepad2.x)
+                if (!gamepad1.dpad_left && !gamepad1.dpad_right)
                 {
-                    moveSwivel(RED_HIGH);
-                }
+                    topHatXTime = null;
 
-                else if (gamepad2.y)
-                {
-                    moveSwivel(BLUE_HIGH);
-                }
-
-                else if (gamepad2.right_stick_button)
-                {
-                    moveSwivel(COLLECT);
-                }
-
-                else
-                {
-                    double[] gamepad1RightStickPolar = cartesianToPolar(gamepad1.right_stick_x, gamepad1.right_stick_y);
-                    double r = gamepad1RightStickPolar[0];
-                    double theta = gamepad1RightStickPolar[1];
-                    telemetry.addData("9", "theta = " + ((int)radiansToDegrees(theta)) + ", r = " + r);
-
-                    if (r > POLAR_CONTROL_R_THRESHOLD)
+                    if (gamepad2.a)
                     {
-                        double degrees = radiansToDegrees(theta);
-                        double swivelPosition = degreesToSwivelPosition(degrees);
-                        swivelServo.setPosition(swivelPosition);
+                        moveSwivel(RED_MEDIUM);
+                    }
+
+                    else if (gamepad2.b)
+                    {
+                        moveSwivel(BLUE_MEDIUM);
+                    }
+
+                    else if (gamepad2.x)
+                    {
+                        moveSwivel(RED_HIGH);
+                    }
+
+                    else if (gamepad2.y)
+                    {
+                        moveSwivel(BLUE_HIGH);
+                    }
+
+                    else if (gamepad2.right_stick_button)
+                    {
+                        moveSwivel(COLLECT);
+                    }
+
+                    else
+                    {
+
+                        double[] gamepad1RightStickPolar = cartesianToPolar(gamepad1.right_stick_x, gamepad1.right_stick_y);
+                        double r = gamepad1RightStickPolar[0];
+                        double theta = gamepad1RightStickPolar[1];
+                        //telemetry.addData("9", "theta = " + ((int) radiansToDegrees(theta)) + ", r = " + r);
+
+                        if (r > POLAR_CONTROL_R_THRESHOLD)
+                        {
+                            polarOn = true;
+                            double degrees = radiansToDegrees(theta);
+                            double swivelPosition = degreesToSwivelPosition(degrees);
+                            swivelServo.setPosition(swivelPosition);
+                        }
+
+                        else
+                        {
+                            polarOn = false;
+                        }
+                    }
+
+                }
+
+            }
+
+            //DUMPER CONTROL:
+            if (resetAutomationOn)
+            {
+                moveDumper(DOWN);
+            }
+            else
+            {
+                if ((gamepad1.dpad_up) && (!prevTopHatUp1 || (dumperTime != null && dumperTime.time() > DUMPER_INCREMENT_TIME)))
+                {
+                    double newPosition = leftDumpServo.getPosition() + DUMPER_INCREMENT;
+                    if (newPosition > 1) newPosition = 1;
+                    moveDumper(newPosition);
+
+                    dumperTime = new Stopwatch();
+                }
+
+                if ((gamepad1.dpad_down) && (!prevTopHatDown1 || (dumperTime != null && dumperTime.time() > DUMPER_INCREMENT_TIME)))
+                {
+                    double newPosition = leftDumpServo.getPosition() - DUMPER_INCREMENT;
+                    if (newPosition < DOWN - 0.02) newPosition = DOWN;
+                    moveDumper(newPosition);
+
+                    dumperTime = new Stopwatch();
+                }
+
+                if (!gamepad1.dpad_down && !gamepad1.dpad_up)
+                {
+                    dumperTime = null;
+
+                    if (/*gamepad1.b ||*/ gamepad2.dpad_down)
+                    {
+                        moveDumper(DOWN);
+                    }
+
+                    else if (/*gamepad1.x || */gamepad2.dpad_up)
+                    {
+                        moveDumper(DOWN + 0.184); //fine-tune value soon
                     }
                 }
             }
 
-            //DUMPER CONTROL:
+            //SWEEPER CONTROL:
 
-            if ((gamepad1.dpad_up) && (!prevTopHatUp1 || (dumperTime != null && dumperTime.time() > DUMPER_INCREMENT_TIME)))
+            double sweeperPower = 0;
+
+            if (!polarOn && gamepad1.right_bumper)
             {
-                double newPosition = leftDumpServo.getPosition() + DUMPER_INCREMENT;
-                if (newPosition > 1) newPosition = 1;
-                moveDumper(newPosition);
-
-                dumperTime = new Stopwatch();
+                sweeperPower = 1;
+                resetAutomationOn = false;
             }
 
-            if ((gamepad1.dpad_down) && (!prevTopHatDown1 || (dumperTime != null && dumperTime.time() > DUMPER_INCREMENT_TIME)))
+            else if (!polarOn && gamepad1.right_trigger > 0.7) //not entirely sure we can or will ever need to do this, move the sweeper in reverse.
             {
-                double newPosition = leftDumpServo.getPosition() - DUMPER_INCREMENT;
-                if (newPosition < DOWN - 0.02) newPosition = DOWN;
-                moveDumper(newPosition);
-
-                dumperTime = new Stopwatch();
+                sweeperPower = -1;
             }
 
-            if (!gamepad1.dpad_down && !gamepad1.dpad_up)
-            {
-                dumperTime = null;
-
-                if (/*gamepad1.b ||*/ gamepad2.dpad_down)
-                {
-                    moveDumper(DOWN);
-                }
-
-                else if (/*gamepad1.x || */gamepad2.dpad_up)
-                {
-                    moveDumper(DOWN + 0.184); //fine-tune value soon
-                }
-            }
-
-
-            //HOOK TILT CONTROL:
+            setSweeperPower(sweeperPower);
 
             //HOOK EXTENSION CONTROL:
 
-            if (gamepad1.y || /*gamepad2.left_stick_y < -0.7 ||*/ gamepad2.right_stick_y < -0.7) //up
+            if (resetAutomationOn && Math.abs(getSlidePosition()) > 70)
+            {
+                slideMotor.setPower(-1);
+            }
+
+            else if (gamepad1.y || (polarOn && gamepad1.right_bumper) || /*gamepad2.left_stick_y < -0.7 ||*/ gamepad2.right_stick_y < -0.7) //up
             {
                 slideMotor.setPower(1);
             }
 
-            else if (gamepad1.a /*|| gamepad2.left_stick_y > 0.7 */|| gamepad2.right_stick_y > 0.7)
+            else if (gamepad1.a /*|| gamepad2.left_stick_y > 0.7 */|| (polarOn && gamepad1.right_trigger > 0.7) || gamepad2.right_stick_y > 0.7)
             {
                 slideMotor.setPower(-1);
             }
@@ -533,6 +562,11 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             prevY2 = gamepad2.y;
             prevLB2 = gamepad2.left_bumper;
             prevLT2 = gamepad2.left_trigger > 0.7;
+
+           // telemetry.addData("9", "RSA: " + resetAutomationOn);
+            waitNextCycle();
+
+
         }
     }
 
@@ -541,10 +575,11 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         new DebuggerDisplayLoop().start();
         //for (DcMotor dcm: driveMotors) dcm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         waitFullCycle();
-        colorSensorFront.enableLed(false);
+        colorSensorFront.enableLed(true);
         waitFullCycle();
-        colorSensorDown.enableLed(false);
+        colorSensorDown.enableLed(true);
         waitFullCycle();
+
         while (runConditions())
         {
             try
@@ -556,6 +591,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 DbgLog.error(e.getMessage());
             }
         }
+
+        //loop5220();
 
     }
 }
