@@ -53,8 +53,8 @@ Add ultrasonic sensor when we add rescue beacon detection?
 
 public class Autonomous_5220_v1 extends OpMode_5220
 {
-    public static final int LOW_GOAL_AND_COLLECT_ON_SAME_SIDE = 0;
-    public static final int LOW_GOAL_AND_COLLECT_ON_OTHER_SIDE = 1;
+    public static final int PARK = 0;
+    public static final int COLLECTION = 1;
     public static final int RAMP = 2;
     public static final int DEFENSE = 3;
     public static final int NUM_PATHS = 4;
@@ -64,11 +64,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int START_STRAIGHT = 2;
     public static final int NUM_STARTS = 3;
 
-    public static final double lineBlockedTime = 17000;
+    public double lineBlockedTime = 17000;
+    private boolean lineBlocked = false;
 
-    private boolean color = BLUE; //RED by default, of course it'll change when neccessary
+    private boolean color = BLUE; //arbitrary default
     private int startPosition = START_RAMP;
-    private int path = 0;
+    private int path = PARK;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean sweeperOn = true;
 
@@ -270,8 +271,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             switch (path)
             {
-                case LOW_GOAL_AND_COLLECT_ON_SAME_SIDE: return "LOW_GOAL_AND_COLLECT_ON_SAME_SIDE";
-                case LOW_GOAL_AND_COLLECT_ON_OTHER_SIDE: return "LOW_GOAL_AND_COLLECT_ON_OTHER_SIDE";
+                case PARK: return "PARK";
+                case COLLECTION: return "COLLECTION";
                 case RAMP: return "RAMP";
                 case DEFENSE: return "DEFENSE";
                 default: return "Error: Invalid Path Number.";
@@ -361,13 +362,60 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void autonomous ()
     {
-        colorSensorDown.enableLed(true);
-        waitFullCycle();
-        colorSensorDown.enableLed(true);
-        //sleep(400);
-        waitFullCycle();
+        startToLine(color);
 
-        if (color == BLUE)
+        followLineUntilTouch();
+
+        if (lineBlocked)
+        {
+            extendAndScoreClimbers();
+        }
+
+        else
+        {
+            flingClimbers();
+            sleep(200);
+            scoreRescueBeacon();
+        }
+
+        setDrivePower(0.36);
+        waitForAllianceLine();
+        stopDrivetrain();
+
+        //At this point, robot should straight towards the wall, with color sensor directly above the colored line
+
+        if (path == PARK)
+        {
+            move(-2.0);
+        }
+
+        else if (path == COLLECTION)
+        {
+            move(5.6);
+            if (sweeperOn) setSweeperPower(1.0);
+            rotateEncoder(8);
+            while (runConditions())
+            {
+                move(7.5);
+                move(-7.5);
+                rotateEncoder(1.94);
+                //move(5);
+            }
+
+        }
+
+        else if (path == RAMP)
+        {
+            driveToRamp();
+            climbRamp();
+        }
+
+        setSweeperPower(0);
+    }
+
+    private void startToLine (boolean c)
+    {
+        if (c == BLUE)
         {
             if (startPosition == START_RAMP)
             {
@@ -381,7 +429,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move(-4);
                 rotateEncoder(3.6825);
                 move(-38.3);
-            } else if (startPosition == START_STRAIGHT)
+            }
+
+            else if (startPosition == START_STRAIGHT)
             {
                 move (-25); //untested as of yet.
             }
@@ -389,32 +439,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
             driveToLine(-0.37);
             move(-1.0);
             turnAcrossLine(0.6);
-            followLineUntilTouch();
-            stopDrivetrain();
-            setLeftDrivePower(0);
-            setRightDrivePower(0);
-            flingClimbers();
-            sleep(200);
-            scoreRescueBeacon();
-            /* for testing collecting
-            if (path == LOW_GOAL_AND_COLLECT_ON_SAME_SIDE)
-            {
-                move(5.6);
-                if (sweeperOn) setSweeperPower(1.0);
-                rotateEncoder(8);
-                while (runConditions())
-                {
-                    move(7.5);
-                    move(-7.5);
-                    rotateEncoder(1.94);
-                    //move(5);
-                }
-
-            }
-            */
         }
 
-        else if (color == RED)
+        else if (c == RED)
         {
             if (startPosition == START_RAMP)
             {
@@ -441,28 +468,29 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 }
 
                 stopDrivetrain();
-
-
             }
 
             turnToLine(-0.6);
-            sleep(100);
-            followLineUntilTouch();
-            flingClimbers();
-            sleep(200);
-            scoreRescueBeacon();
-
-
         }
 
-        setSweeperPower(0);
+        sleep(100);
+    }
+
+    private void waitForAllianceLine ()
+    {
+        waitForColoredLine(color);
+    }
+
+    private void waitForColoredLine (boolean c)
+    {
+        while (runConditions() && (c == RED ? colorSensorDown.red() : colorSensorDown.blue()) < 10);
     }
 
     private void waitForLine ()
     {
         while (runConditions() && getFloorBrightness() < LINE_WHITE_THRESHOLD)
         {
-            //waitFullCycle();
+
         }
     }
 
@@ -472,8 +500,6 @@ public class Autonomous_5220_v1 extends OpMode_5220
         setDrivePower(power);
         waitForLine();
         stopDrivetrain();
-        //waitFullCycle();
-        //stopDrivetrain(); //one can never be too sure
     }
 
     private void turnToLine (double power)
@@ -482,8 +508,6 @@ public class Autonomous_5220_v1 extends OpMode_5220
         setTurnPower(power);
         waitForLine();
         stopDrivetrain();
-        //waitFullCycle();
-        //stopDrivetrain(); //one can never be too sure
         sleep(50);
     }
 
@@ -494,11 +518,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
         waitForLine();
         while (runConditions() && getFloorBrightness() >= LINE_WHITE_THRESHOLD)
         {
-            //waitFullCycle();
+
         }
         stopDrivetrain();
-       // waitFullCycle();
-       // stopDrivetrain(); //one can never be too sure
         sleep(50);
     }
 
@@ -520,27 +542,23 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 setRightDrivePower(-0.48);
                 setLeftDrivePower(0.07);
             }
-            //waitFullCycle();
 
             if (gameTimer.time() > lineBlockedTime)
             {
                 stopDrivetrain();
-               // waitFullCycle();
-                //stopDrivetrain();
-                waitFullCycle();
+                lineBlocked = true;
+                /*
                 extendAndScoreClimbers();
                 waitFullCycle();
                 move (2);
                 programFinished = true;
+                */
                 return;
             }
         }
 
         sleep(50);
         stopDrivetrain();
-        waitFullCycle();
-        setLeftDrivePower(0);
-        setRightDrivePower(0);
         stopDrivetrain();
         //
     }
@@ -556,7 +574,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             sleep(1000);
             buttonServo.setPosition(0.1);
             sleep(500);
-            move(5);
+            //move(5);
         }
 
         else
@@ -567,6 +585,14 @@ public class Autonomous_5220_v1 extends OpMode_5220
             moveTime(1000, -0.2);
             sleep(150);
             move(2.8, 0.4);
+            /*
+            setDrivePower(-0.2);
+            while (touchSensorFront.getValue() < 0.04)
+            {
+
+            }
+            stopDrivetrain();
+            */
         }
     }
 
@@ -584,14 +610,83 @@ public class Autonomous_5220_v1 extends OpMode_5220
         waitFullCycle();
     }
 
+    private void driveToRamp () //untested
+    {
+        if (color == RED)
+        {
+            rotateEncoder(-10);
+            move(-15);
+            rotateEncoder(-6);
+        }
+
+        else if (color == BLUE)
+        {
+            rotateEncoder(8);
+            move(-15);
+            rotateEncoder(4);
+        }
+
+    }
+
+    private void climbRamp () //blue is untested
+    {
+        moveWall(UP);
+        setDrivePower(-0.35);
+        if (color == RED)
+        {
+            while (runConditions() && colorSensorDown.blue() + colorSensorDown.green() >= 3)
+            {
+
+            }
+        }
+
+        else if (color == BLUE)
+        {
+            while (runConditions() && colorSensorDown.red() + colorSensorDown.green() >= 3)
+            {
+
+            }
+        }
+
+        sleep(100);
+        if (color == RED)
+        {
+            while (runConditions() && colorSensorDown.red() > 3)
+            {
+
+            }
+        }
+
+        else if (color == BLUE)
+        {
+            while (runConditions() && colorSensorDown.blue() > 3)
+            {
+
+            }
+        }
+        sleep(5);
+        stopDrivetrain();
+        moveWall(DOWN);
+    }
+
     public void main ()
     {
         //new ProgramKiller().start(); //PROGRAM KILLER MESSES UP AUTONOMOUS.
         new DebuggerDisplayLoop().start();
-        sleep(startWaitTime * 1000);
-        test();
-       // autonomous();
+
+        lineBlockedTime = lineBlockedTime + startWaitTime;
+
+        colorSensorDown.enableLed(true);
+        waitFullCycle();
+        colorSensorDown.enableLed(true);
+        waitFullCycle();
+
+        while (gameTimer.time() < startWaitTime)
+        {
+
+        }
+
+        //test();
+        autonomous();
     }
-
-
 }
