@@ -71,6 +71,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     private int startPosition = START_RAMP;
     private int path = PARK;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
+    private boolean beaconScoringOn = true;
     private boolean sweeperOn = true;
 
     public ProgramType getProgramType ()
@@ -100,10 +101,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
         private static final int COLOR = 0; //these are also their telemetry lines when added to 1.
         private static final int START = 1;
         private static final int WAIT = 2;
-        private static final int SWEEP = 3;
-        private static final int PATH = 4;
+        private static final int PATH = 3;
+        private static final int BEACON = 4;
+        private static final int SWEEP = 5;
 
-        private static final int NUM_SETTINGS = 5; //always make sure this is correct.
+
+        private static final int NUM_SETTINGS = 6; //always make sure this is correct.
 
         private int currentSetting = 0;
 
@@ -116,6 +119,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             telemetryLines[COLOR] = ("Color: " + (color == RED ? "RED" : "BLUE")); //maybe add starter asterisk here. Not sure if it is neccessary.
             telemetryLines[START] = ("Start Position " + (startPosition == START_RAMP ? "RAMP" : "CORNER"));
             telemetryLines[WAIT] = ("Wait Time (in seconds): " + startWaitTime /*+ " seconds"*/);
+            telemetryLines[BEACON] = ("Beacon Scoring: " + (beaconScoringOn ? "ON" : "OFF"));
             telemetryLines[SWEEP] = ("Sweeper: " + (sweeperOn ? "ON" : "OFF"));
             telemetryLines[PATH] = ("Path: " + pathToString(path));
             writeLinesToTelemetry();
@@ -230,6 +234,13 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 }
 
                 telemetryLines[WAIT] = ("Wait Time(in seconds): " + startWaitTime /*+ " seconds"*/);
+            }
+
+            else if (setting == BEACON)
+            {
+                beaconScoringOn = !beaconScoringOn;
+
+                telemetryLines[BEACON] = ("Beacon Scoring: " + (beaconScoringOn ? "ON" : "OFF"));
             }
 
             else if (setting == SWEEP)
@@ -375,7 +386,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             flingClimbers();
             sleep(200);
-            scoreRescueBeacon();
+            if (beaconScoringOn)scoreRescueBeacon();
         }
 
         setDrivePower(0.36);
@@ -408,6 +419,14 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             driveToRamp();
             climbRamp();
+        }
+
+        else if (path == DEFENSE)
+        {
+            if (color == RED) rotateEncoder(10);
+            else if (color == BLUE) rotateEncoder(-10);
+            move (-32);
+
         }
 
         setSweeperPower(0);
@@ -585,6 +604,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             moveTime(1000, -0.2);
             sleep(150);
             move(2.8, 0.4);
+            moveSwivel(SWIVEL_INIT);
             /*
             setDrivePower(-0.2);
             while (touchSensorFront.getValue() < 0.04)

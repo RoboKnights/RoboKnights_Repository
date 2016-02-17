@@ -861,6 +861,32 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         liftMotor2.setPower(power);
     }
 
+    public final void moveSlides (int position)
+    {
+        if (getSlidePosition() < position)
+        {
+            slideMotor.setPower(1.0);
+            while (runConditions() && getSlidePosition() < position)
+            {
+
+            }
+        }
+
+        if (getSlidePosition() > position)
+        {
+            slideMotor.setPower(-1.0);
+            while (runConditions() && getSlidePosition() > position)
+            {
+
+            }
+        }
+
+        slideMotor.setPower(0);
+        waitFullCycle();
+        slideMotor.setPower(0);
+        waitFullCycle();
+    }
+
     public final void releasePin()
     {
         releaseServo.setPosition(1.0);

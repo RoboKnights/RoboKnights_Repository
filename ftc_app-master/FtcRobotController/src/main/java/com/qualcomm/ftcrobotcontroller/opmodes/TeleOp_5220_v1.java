@@ -481,12 +481,14 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             prevTopHatDown2 = gamepad2.dpad_down;
             prevTopHatRight2 = gamepad2.dpad_right;
             prevTopHatLeft2 = gamepad2.dpad_left;
+
             prevRSB1 = gamepad1.right_stick_button;
             prevX1 = gamepad1.x;
             prevB1 = gamepad1.b;
             prevLB = gamepad1.left_bumper;
             prevLT = gamepad1.left_trigger > 0.7;
             prevBack = gamepad1.back;
+
             prevY2 = gamepad2.y;
             prevLB2 = gamepad2.left_bumper;
             prevLT2 = gamepad2.left_trigger > 0.7;
