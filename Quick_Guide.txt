@@ -46,7 +46,7 @@ Press and release the left touch sensor to decrement the selected setting, and t
 To move on to the next setting, press both touch sensors and release them. This process can also be done with the left and right bumpers on gamepad 1
 instead of the left and right touch sensors. UPDATE: as of now, only the gamepad can be useda, and not the touch sensors.
 
-Current Options (option name before colon; choices listed after colon, with default optionlisted first):
+Current Options (option name before colon; choices listed after colon, with default option listed first):
 
 Color: RED, BLUE
 Start Wait Time: 0-30 seconds (0 is default)
