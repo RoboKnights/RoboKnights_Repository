@@ -36,12 +36,6 @@ import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
 
-//MAKE THING SO THAT MOVING THE ANALOG STICK TO A ROTATIONAL POSITION (and pressing a button) WILL ROTATIONALLY INSTANTLY MOVE THE ARM TO THAT LOCATION. USE TRIG TO CONVERT FROM X Y TO R THETA.
-
-// change dumper up/down to top hat up/down (instead of x and b)
-//change the wall control to be both alvin and eric, same buttons
-//add slow drive control
-
 public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a long comment.
 {
     private static final double JOYSTICK_THRESHOLD = 0.08; //below this joysticks won't cause movement.
@@ -74,44 +68,19 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private boolean resetAutomationOn = false;
     private boolean climbingAutomationOn = false;
 
-
-    /*
-    private void updateTopHat()
-    {
-        if (gamepad1.)
-    }
-
-    private void updatePrevTopHat ()
-    {
-
-    }
-*/
-
     public ProgramType getProgramType ()
     {
         return ProgramType.TELEOP;
     }
 
+    //SWIVEL HELPER METHODS:
+
     public double[] cartesianToPolar (double x, double y) //returns array with polar coordinates, theta between 0 and 2 pi.
     {
         double r = Math.sqrt((x * x) + (y * y));
         double theta = Math.atan2(x, y);
-        /*
-        if (x < 0) //make sure this works
-        {
-            theta = theta + Math.PI;
-        }
-        */
         theta = (theta + (2 * Math.PI)) % (2 * Math.PI);
-        //record values here
-        /*
-        if (theta < 0)
-        {
-            theta = theta + (2 * Math.PI);
-        }
-        */
         double[] toReturn = new double[2];
-
         toReturn[0] = r;
         toReturn[1] = theta;
         return toReturn;
@@ -133,23 +102,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         return degrees;
     }
 
-
-    /**
-     * 0.9843
-     * 0.5137
-     * @param degrees
-     * @return
-     */
     public double degreesToSwivelPosition (double degrees) //degrees on analog stick are measured in traditional way, with zero starting in the first quadrant
     {
-        /*
-        double swivelPositionAtZeroDegrees = SWIVEL_INIT - (0.75 * SWIVEL_360);
-        double swivelPosition = swivelPositionAtZeroDegrees + ((degrees / 360.0) * SWIVEL_360);
-        swivelPosition = swivelPosition - (SWIVEL_360 / 4);
-        swivelPosition = swivelPosition + ((SWIVEL_360 / 360.0) * 13.5); //brute force fix, eliminate if possible later.
-        return swivelPosition;
-        */
-
         degrees = degrees - 180;
         degrees = -degrees;
         double position = SWIVEL_INIT + (((SWIVEL_90 / 90.0) * degrees) / 2);
@@ -158,18 +112,20 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         return position;
     }
 
+    //INITIALZATION:
+
     public void initialize ()
     {
         super.initialize();
         g1Stick1Xinit = gamepad1.left_stick_x;
         g1Stick1Yinit = gamepad1.left_stick_y;
-        //waitFullCycle();
-        //cdim.close(); //NOT SURE IF THIS SHOULD BE DONE AND WHETHER IT HELPS
-        //waitFullCycle();
     }
+
+    //MAIN PROGRAM:
 
     public void loop5220()
     {
+        //STATE VARIABLES FOR LOOP:
         Stopwatch topHatXTime = null;
         Stopwatch topHatYTime = null;
         Stopwatch dumperTime = null;
@@ -210,11 +166,10 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             double right = throttle - direction;
             double left = throttle + direction;
 
-            // clip the right/left values so that the values never exceed +/- 1
             right = Range.clip(right, -2, 2);
             left = Range.clip(left, -2, 2);
 
-            if (false) //change to button later.
+            if (false) //Slow control
             {
                 if (right > SLOW_POWER)
                 {
@@ -273,19 +228,6 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             if (left == 0 && right == 0)
             {
-                /*
-                if (gamepad1.right_stick_y < -0.4)
-                {
-                    left = -SLOW_POWER;
-                    right = -SLOW_POWER;
-                }
-
-                else if (gamepad1.right_stick_y > 0.4)
-                {
-                    left = SLOW_POWER;
-                    right = SLOW_POWER;
-                }
-                */
 
             }
 
@@ -297,12 +239,6 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 g1Stick1Xinit = gamepad1.left_stick_x;
                 g1Stick1Yinit = gamepad1.left_stick_y;
             }
-/*
-            if (gamepad1.back != prevBack && !gamepad1.back) //acts on button release
-            {
-                reverseDriveOn = !reverseDriveOn;
-            }
-*/
 
             if (gamepad1.right_stick_button != prevRSB1 && gamepad1.right_stick_button) //acts on button press
             {
@@ -312,19 +248,14 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //DUMPER CONTROL:
 
-            //moveDumper(gamepad1.b ? UP : DOWN);
-
-            if (gamepad1.left_trigger > 0.7 /*|| gamepad2.left_bumper*/)
+            if (gamepad1.left_trigger > 0.7)
             {
                 moveWall(UP);
-                // colorSensorDown.enableLed(true);
-
             }
 
-            else if (gamepad1.left_bumper /*|| gamepad2.left_trigger > 0.7*/)
+            else if (gamepad1.left_bumper)
             {
                 moveWall(DOWN);
-                //colorSensorDown.enableLed(false);
             }
 
             //AUTOMATION SETTING
@@ -333,9 +264,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 resetAutomationOn = !resetAutomationOn;
             }
 
-            //ADD SOME WAY TO DISABLE P1 ARM CONTROL WHILE P2 IS RUNNING AN ARM MOTION SUBROUTINE.
             //SWIVEL CONTROL:
-
             if (resetAutomationOn)
             {
                 moveSwivel(SWIVEL_INIT);
@@ -343,7 +272,6 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             else
             {
-
                 if ((gamepad1.dpad_right) && (!prevTopHatRight1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
                 {
                     double newPosition = swivelServo.getPosition() + SWIVEL_INCREMENT;
@@ -444,14 +372,14 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 {
                     dumperTime = null;
 
-                    if (/*gamepad1.b ||*/ gamepad2.dpad_down)
+                    if (gamepad2.dpad_down)
                     {
                         moveDumper(DOWN);
                     }
 
-                    else if (/*gamepad1.x || */gamepad2.dpad_up)
+                    else if (gamepad2.dpad_up)
                     {
-                        moveDumper(DOWN + 0.184); //fine-tune value soon
+                        moveDumper(DOWN + 0.184);
                     }
                 }
             }
@@ -473,19 +401,19 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             setSweeperPower(sweeperPower);
 
-            //HOOK EXTENSION CONTROL:
+            //LINEAR SLIDE CONTROL:
 
             if (resetAutomationOn && Math.abs(getSlidePosition()) > 70)
             {
                 slideMotor.setPower(-1);
             }
 
-            else if (gamepad1.y || (polarOn && gamepad1.right_bumper) || /*gamepad2.left_stick_y < -0.7 ||*/ gamepad2.right_stick_y < -0.7) //up
+            else if (gamepad1.y || (polarOn && gamepad1.right_bumper) || gamepad2.right_stick_y < -0.7) //up
             {
                 slideMotor.setPower(1);
             }
 
-            else if (gamepad1.a /*|| gamepad2.left_stick_y > 0.7 */|| (polarOn && gamepad1.right_trigger > 0.7) || gamepad2.right_stick_y > 0.7)
+            else if (gamepad1.a || (polarOn && gamepad1.right_trigger > 0.7) || gamepad2.right_stick_y > 0.7) //down
             {
                 slideMotor.setPower(-1);
             }
@@ -543,7 +471,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 leftClimberServo.setPosition(0.5);
             }
 
-            //Previous value settings:
+            //PREVIOUS VALUE SETTINGS
 
             prevTopHatUp1 = gamepad1.dpad_up;
             prevTopHatDown1 = gamepad1.dpad_down;

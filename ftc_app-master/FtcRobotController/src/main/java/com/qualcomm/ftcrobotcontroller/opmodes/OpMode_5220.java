@@ -223,11 +223,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public void initialize()
     {
-        //swivelServoInit = swivelServo.getPosition();
-       // setCustomSkin();
         moveDumper(DOWN);
         leftClimberServo.setPosition(0.5);
-        //rightClimberServo.setPosition(0.5);
         buttonServo.setPosition(0.1);
         swivelServo.setPosition(SWIVEL_INIT);
 
@@ -270,32 +267,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     //HELPER CLASSES AND METHODS:
     //______________________________________________________________________________________________________________
-   /* public class DcMotor5220
-    {
-        private DcMotor dcMotor;
-        private int encoderInit = 0;
 
-        public DcMotor5220 (DcMotor dcMotor)
-        {
-
-        }
-
-        public void resetEncoder ()
-        {
-            encoderInit = getCurrentPosition();
-        }
-
-        public int getCurrentPosition ()
-        {
-            return super.getCurrentPosition() - encoderInit;
-        }
-
-        public int getAbsoluteCurrentPosition ()
-        {
-            return super.getCurrentPosition();
-        }
-    }
-*/
     public class Stopwatch
     {
         private final long start;
