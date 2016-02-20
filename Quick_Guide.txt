@@ -32,10 +32,7 @@ Right Trigger: Lower right climber triggerer
 Right Analog Stick Up/Down: Extend/Retract linear slides
 Right Analog Stick Button: Move swivel to collection position
 Left Analog Stick Up/Down: Move robot lift motors (always at full power)
-A Button: Move swivel to red medium goal position
-B Button: Move swivel to blue medium goal position
-X Button: Move swivel to red high goal position
-Y Button: Move swivel to blue high goal position
+B Button: Turn on reset automation, which sets swivel, dumper, and linear slides back to initial position. To end the automation, press B again, or operate sweeper.
 
 ----------------------------------------------------------------------------------------------------
 

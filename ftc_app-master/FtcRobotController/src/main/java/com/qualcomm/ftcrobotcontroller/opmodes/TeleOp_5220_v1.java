@@ -242,11 +242,13 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 g1Stick1Yinit = gamepad1.left_stick_y;
             }
 
+            //we don't need reverse drive for now
+/*
             if (gamepad2.b != prevB2 && gamepad2.b) //acts on button press
             {
                 reverseDriveOn = !reverseDriveOn;
             }
-
+*/
 
             //DUMPER CONTROL:
 
@@ -261,7 +263,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             }
 
             //AUTOMATION SETTING
-            if (gamepad1.b && !prevB1)
+            if (gamepad2.a && !prevA2)
             {
                 resetAutomationOn = !resetAutomationOn;
             }
