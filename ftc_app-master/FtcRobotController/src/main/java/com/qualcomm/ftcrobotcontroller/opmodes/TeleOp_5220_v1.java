@@ -148,6 +148,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         boolean prevLT = false;
         boolean prevBack = false;
         boolean prevY2 = false;
+        boolean prevB2 = false;
+        boolean prevA2 = false;
         boolean prevLB2 = false;
         boolean prevLT2 = false;
 
@@ -240,7 +242,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 g1Stick1Yinit = gamepad1.left_stick_y;
             }
 
-            if (gamepad1.right_stick_button != prevRSB1 && gamepad1.right_stick_button) //acts on button press
+            if (gamepad2.b != prevB2 && gamepad2.b) //acts on button press
             {
                 reverseDriveOn = !reverseDriveOn;
             }
@@ -291,7 +293,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 if (!gamepad1.dpad_left && !gamepad1.dpad_right)
                 {
                     topHatXTime = null;
-
+/*
                     if (gamepad2.a)
                     {
                         moveSwivel(RED_MEDIUM);
@@ -311,8 +313,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                     {
                         moveSwivel(BLUE_HIGH);
                     }
-
-                    else if (gamepad2.right_stick_button)
+*/
+                    if (gamepad2.right_stick_button)
                     {
                         moveSwivel(COLLECT);
                     }
@@ -490,6 +492,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             prevBack = gamepad1.back;
 
             prevY2 = gamepad2.y;
+            prevB2 = gamepad2.b;
+            prevA2 = gamepad2.a;
             prevLB2 = gamepad2.left_bumper;
             prevLT2 = gamepad2.left_trigger > 0.7;
 

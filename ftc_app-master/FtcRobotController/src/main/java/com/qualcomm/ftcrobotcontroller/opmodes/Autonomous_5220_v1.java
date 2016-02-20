@@ -67,6 +67,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public double lineBlockedTime = 17000;
     private boolean lineBlocked = false;
 
+    public static final int OFF_RAMP_STALL_TIME = 4000;
+    public static final int ON_RAMP_STALL_TIME = 3500;
+
     private boolean color = BLUE; //arbitrary default
     private int startPosition = START_RAMP;
     private int path = PARK;
@@ -419,6 +422,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             driveToRamp();
             climbRamp();
+            stopDrivetrain(); //neccessary, otherwise would have to put this in 4 different places in climbRamp.
         }
 
         else if (path == DEFENSE)
@@ -651,12 +655,13 @@ public class Autonomous_5220_v1 extends OpMode_5220
     private void climbRamp () //blue is untested
     {
         moveWall(UP);
+        int rampStartTime = gameTimer.time();
         setDrivePower(-0.35);
         if (color == RED)
         {
             while (runConditions() && colorSensorDown.blue() + colorSensorDown.green() >= 3)
             {
-
+                if (gameTimer.time() > rampStartTime + OFF_RAMP_STALL_TIME) return;
             }
         }
 
@@ -664,16 +669,17 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             while (runConditions() && colorSensorDown.red() + colorSensorDown.green() >= 3)
             {
-
+                if (gameTimer.time() > rampStartTime + OFF_RAMP_STALL_TIME) return;
             }
         }
 
+        rampStartTime = gameTimer.time();
         sleep(100);
         if (color == RED)
         {
             while (runConditions() && colorSensorDown.red() > 3)
             {
-
+                if (gameTimer.time() > rampStartTime + ON_RAMP_STALL_TIME) return;
             }
         }
 
@@ -681,6 +687,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             while (runConditions() && colorSensorDown.blue() > 3)
             {
+                if (gameTimer.time() > rampStartTime + ON_RAMP_STALL_TIME) return;
 
             }
         }
