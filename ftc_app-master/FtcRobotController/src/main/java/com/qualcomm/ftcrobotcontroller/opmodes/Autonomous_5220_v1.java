@@ -70,8 +70,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int OFF_RAMP_STALL_TIME = 4000;
     public static final int ON_RAMP_STALL_TIME = 3500;
 
-    private boolean color = BLUE; //arbitrary default
-    private int startPosition = START_RAMP;
+    private boolean color = RED; //arbitrary default
+    private int startPosition = START_CORNER;
     private int path = PARK;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean beaconScoringOn = true;
@@ -449,9 +449,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
             else if (startPosition == START_CORNER) //untested
             {
-                move(-4);
-                rotateEncoder(3.6825);
-                move(-38.3);
+                move(-2.9);
+                rotateEncoder(3.2);
+                move(-28);
+                rotateEncoder(-4.6);
             }
 
             else if (startPosition == START_STRAIGHT)
@@ -459,7 +460,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move (-25); //untested as of yet.
             }
 
-            driveToLine(-0.37);
+            driveToLine(-0.3);
             move(-1.0);
             turnAcrossLine(0.6);
         }
@@ -475,25 +476,32 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
             else if (startPosition == START_CORNER) //untested
             {
-                move (-2);
-                rotateEncoder(-6.3);
-                move(-42);
+                move (-3);
+                sleep (200);
+                rotateEncoder(-5.2);
+                move(-63);
+                rotateEncoder(-12);
+                driveToLine(-0.3);
+                move (-0.8);
+                turnAcrossLine (0.6);
             }
 
             else if (startPosition == START_STRAIGHT) //untested
             {
                 move (-25);
 
-                setDrivePower(-0.37);
-                while (runConditions() && colorSensorDown.red() < 20)
-                {
 
-                }
+
+                setDrivePower(-0.37);
+                waitForAllianceLine();
 
                 stopDrivetrain();
+                rotateEncoder(-12);
+                driveToLine(0.3);
+                turnAcrossLine(0.7);
             }
 
-            turnToLine(-0.6);
+            //turnToLine(-0.6);
         }
 
         sleep(100);
@@ -506,7 +514,18 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     private void waitForColoredLine (boolean c)
     {
-        while (runConditions() && (c == RED ? colorSensorDown.red() : colorSensorDown.blue()) < 10);
+        while (runConditions())
+        {
+            if (c == RED)
+            {
+                if (colorSensorDown.red() > 12 && colorSensorDown.blue() < 9) break;
+            }
+
+            else if (c == BLUE)
+            {
+                if (colorSensorDown.blue() > 12 && colorSensorDown.red() < 9) break;
+            }
+        }
     }
 
     private void waitForLine ()

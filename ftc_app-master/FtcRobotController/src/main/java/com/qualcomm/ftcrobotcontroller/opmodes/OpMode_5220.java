@@ -194,6 +194,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         sweeperMotor1 = hardwareMap.dcMotor.get("sweeper1");
         sweeperMotor2 = hardwareMap.dcMotor.get("sweeper1");
+        sweeperMotor1.setDirection(DcMotor.Direction.REVERSE);
+        sweeperMotor2.setDirection(DcMotor.Direction.REVERSE);
         slideMotor = hardwareMap.dcMotor.get("slides");
         slideInit = slideMotor.getCurrentPosition();
 

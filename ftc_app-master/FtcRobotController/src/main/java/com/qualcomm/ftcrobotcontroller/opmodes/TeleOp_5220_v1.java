@@ -394,7 +394,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             if (!polarOn && gamepad1.right_bumper)
             {
-                sweeperPower = 1;
+                sweeperPower = 0.8;
                 resetAutomationOn = false;
             }
 
