@@ -56,7 +56,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int PARK = 0;
     public static final int COLLECTION = 1;
     public static final int RAMP = 2;
-    public static final int DEFENSE = 3;
+    public static final int OTHER_SIDE = 3;
     public static final int NUM_PATHS = 4;
 
     public static final int START_RAMP = 0;
@@ -288,7 +288,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 case PARK: return "PARK";
                 case COLLECTION: return "COLLECTION";
                 case RAMP: return "RAMP";
-                case DEFENSE: return "DEFENSE";
+                case OTHER_SIDE: return "OTHER_SIDE";
                 default: return "Error: Invalid Path Number.";
             }
         }
@@ -425,7 +425,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             stopDrivetrain(); //neccessary, otherwise would have to put this in 4 different places in climbRamp.
         }
 
-        else if (path == DEFENSE)
+        else if (path == OTHER_SIDE)
         {
             if (color == RED) rotateEncoder(10);
             else if (color == BLUE) rotateEncoder(-10);
@@ -507,6 +507,27 @@ public class Autonomous_5220_v1 extends OpMode_5220
         sleep(100);
     }
 
+    private void straightenWithLine ()
+    {
+        Stopwatch darkTime = new Stopwatch();
+        while (runConditions())
+        {
+            if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
+            {
+                if (darkTime == null) darkTime = new Stopwatch();
+                setLeftDrivePower(-0.1);
+                setRightDrivePower(-0.1);
+                if (darkTime.time() > 1000) break;
+            }
+
+            else
+            {
+                darkTime = null;
+                setLeftDrivePower(-0.03);
+                setRightDrivePower(-0.32);
+            }
+        }
+    }
     private void waitForAllianceLine ()
     {
         waitForColoredLine(color);
