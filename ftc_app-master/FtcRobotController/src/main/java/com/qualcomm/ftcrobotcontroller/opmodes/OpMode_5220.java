@@ -74,6 +74,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final boolean RED = false;
     protected static final boolean RIGHT = true;
     protected static final boolean LEFT = false;
+    protected static final boolean UP = true;
+    protected static final boolean DOWN = false;
 
     protected static enum ProgramType {UNDECIDED, AUTONOMOUS, TELEOP};
     protected static ProgramType programType = ProgramType.UNDECIDED;
@@ -145,6 +147,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected Servo rightDumpServo;
     protected Servo leftClimberServo;
     protected Servo rightClimberServo;
+    protected Servo doorServo;
+    protected Servo hookServo;
 
     protected double swivelServoInit;
 
@@ -213,6 +217,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         rightDumpServo = hardwareMap.servo.get("rdServo");
         leftClimberServo = hardwareMap.servo.get("lcServo");
         rightClimberServo = hardwareMap.servo.get("rcServo");
+        doorServo = hardwareMap.servo.get("dServo");
+        hookServo = hardwareMap.servo.get("hServo");
 
         colorSensorDown = hardwareMap.colorSensor.get("cSensor1");
         colorSensorFront = hardwareMap.colorSensor.get("cSensor2");
@@ -226,18 +232,29 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public void initialize()
     {
         moveDumper(DOWN);
-        leftClimberServo.setPosition(0.5);
+        leftClimberServo.setPosition(0.0);
+        rightClimberServo.setPosition(1.0);
         buttonServo.setPosition(0.1);
+        hookServo.setPosition(1.0);
         swivelServo.setPosition(SWIVEL_INIT);
 
-        //gyroSensor.calibrate();
-       gyroSensor.resetZAxisIntegrator();
+        waitFullCycle();
+
+        gyroSensor.calibrate();
+        while (runConditions() && gyroSensor.isCalibrating())
+        {
+
+        }
+        waitFullCycle();
+        gyroSensor.resetZAxisIntegrator();
+        waitFullCycle();
 
         moveWall(DOWN);
         phase = INIT;
 
         writeToLog ("Down: " + colorSensorDown.getI2cAddress());
-        writeToLog ("Front: " + colorSensorFront.getI2cAddress());
+        writeToLog("Front: " + colorSensorFront.getI2cAddress());
+
     }
 
     public void waitForStart () throws InterruptedException
@@ -252,6 +269,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         setup();
         initialize();
+
+        telemetry.addData("1", "Ready to run.");
+
         waitForStart();
 
         phase = RUNNING;
@@ -433,11 +453,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         }
     }
 
-    public double getGyroDirection () //placeholder
+    public int getGyroDirection () //placeholder
     {
         //return gyroSensor.getRotation();
-        //return gyroSensor.getHeading();
-        return 42.0; //testing
+        return gyroSensor.getHeading();
+        //return 42.0; //testing
     }
 
     public void restartRobot()
@@ -811,9 +831,14 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     //ATTACHMENTS:
 
-    public static final double UP = 1.0;
-    public static final double DOWN = 0.1;
+    public static final double DUMPER_UP = 1.0;
+    public static final double DUMPER_DOWN = 0.1;
     public static final double dumperHeight = 0.47;
+
+    public final void moveDumper (boolean b)
+    {
+        moveDumper(b == UP ? DUMPER_UP : DUMPER_DOWN);
+    }
 
     public final void moveDumper (double d)
     {
@@ -836,7 +861,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public static final double rightWallInit = 0.5;
     public static final double wallOffset = 0.335;
 
-    public final void moveWall (double position)
+    public final void moveWall (boolean position)
     {
         if (position == UP)
         {
@@ -861,6 +886,26 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         liftMotor1.setPower(power);
         liftMotor2.setPower(power);
+    }
+
+    public final void setDoorPosition (double position)
+    {
+        doorServo.setPosition(position);
+    }
+
+    public final void setDoorPosition (boolean position)
+    {
+        setDoorPosition(position == UP ? 1.0 : 0.0);
+    }
+
+    public final void setHookPosition (double position)
+    {
+        hookServo.setPosition(position);
+    }
+
+    public final void setHookPosition (boolean position)
+    {
+        setHookPosition(position == UP ? 0.5 : 1.0);
     }
 
     public final void moveSlides (int position)

@@ -34,5 +34,7 @@
         <Servo name="rcServo" port="2" />
         <Servo name="sServo" port="3" />
         <Servo name="rwServo" port="4" />
+        <Servo name="dServo" port="5" />
+        <Servo name="hServo" port="6" />
     </ServoController>
 </Robot>

@@ -102,7 +102,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         return degrees;
     }
 
-    public double degreesToSwivelPosition (double degrees) //degrees on analog stick are measured in traditional way, with zero starting in the first quadrant
+    public double degreesToSwivelPosition (double degrees)                          //degrees on analog stick are measured in traditional way, with zero starting in the first quadrant
     {
         degrees = degrees - 180;
         degrees = -degrees;
@@ -152,6 +152,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         boolean prevA2 = false;
         boolean prevLB2 = false;
         boolean prevLT2 = false;
+        boolean prevRB2 = false;
 
         while (runConditions())
         {
@@ -276,73 +277,31 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             else
             {
-                if ((gamepad1.dpad_right) && (!prevTopHatRight1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
+                if (gamepad2.right_stick_button)
                 {
-                    double newPosition = swivelServo.getPosition() + SWIVEL_INCREMENT;
-                    if (newPosition > 1) newPosition = 1;
-                    swivelServo.setPosition(newPosition);
-                    topHatXTime = new Stopwatch();
+                    moveSwivel(COLLECT);
                 }
 
-                if ((gamepad1.dpad_left) && (!prevTopHatLeft1 || (topHatXTime != null && topHatXTime.time() > SWIVEL_INCREMENT_TIME)))
+                else
                 {
-                    double newPosition = swivelServo.getPosition() - SWIVEL_INCREMENT;
-                    if (newPosition < 0) newPosition = 0;
-                    swivelServo.setPosition(newPosition);
-                    topHatXTime = new Stopwatch();
-                }
 
-                if (!gamepad1.dpad_left && !gamepad1.dpad_right)
-                {
-                    topHatXTime = null;
-/*
-                    if (gamepad2.a)
-                    {
-                        moveSwivel(RED_MEDIUM);
-                    }
+                    double[] gamepad1RightStickPolar = cartesianToPolar(gamepad1.right_stick_x, gamepad1.right_stick_y);
+                    double r = gamepad1RightStickPolar[0];
+                    double theta = gamepad1RightStickPolar[1];
+                    //telemetry.addData("9", "theta = " + ((int) radiansToDegrees(theta)) + ", r = " + r);
 
-                    else if (gamepad2.b)
+                    if (r > POLAR_CONTROL_R_THRESHOLD)
                     {
-                        moveSwivel(BLUE_MEDIUM);
-                    }
-
-                    else if (gamepad2.x)
-                    {
-                        moveSwivel(RED_HIGH);
-                    }
-
-                    else if (gamepad2.y)
-                    {
-                        moveSwivel(BLUE_HIGH);
-                    }
-*/
-                    if (gamepad2.right_stick_button)
-                    {
-                        moveSwivel(COLLECT);
+                        polarOn = true;
+                        double degrees = radiansToDegrees(theta);
+                        double swivelPosition = degreesToSwivelPosition(degrees);
+                        swivelServo.setPosition(swivelPosition);
                     }
 
                     else
                     {
-
-                        double[] gamepad1RightStickPolar = cartesianToPolar(gamepad1.right_stick_x, gamepad1.right_stick_y);
-                        double r = gamepad1RightStickPolar[0];
-                        double theta = gamepad1RightStickPolar[1];
-                        //telemetry.addData("9", "theta = " + ((int) radiansToDegrees(theta)) + ", r = " + r);
-
-                        if (r > POLAR_CONTROL_R_THRESHOLD)
-                        {
-                            polarOn = true;
-                            double degrees = radiansToDegrees(theta);
-                            double swivelPosition = degreesToSwivelPosition(degrees);
-                            swivelServo.setPosition(swivelPosition);
-                        }
-
-                        else
-                        {
-                            polarOn = false;
-                        }
+                        polarOn = false;
                     }
-
                 }
 
             }
@@ -366,7 +325,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 if ((gamepad1.dpad_down) && (!prevTopHatDown1 || (dumperTime != null && dumperTime.time() > DUMPER_INCREMENT_TIME)))
                 {
                     double newPosition = leftDumpServo.getPosition() - DUMPER_INCREMENT;
-                    if (newPosition < DOWN - 0.02) newPosition = DOWN;
+                    if (newPosition < DUMPER_DOWN - 0.02) newPosition = DUMPER_DOWN;
                     moveDumper(newPosition);
 
                     dumperTime = new Stopwatch();
@@ -383,9 +342,27 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
                     else if (gamepad2.dpad_up)
                     {
-                        moveDumper(DOWN + 0.184);
+                        moveDumper(DUMPER_DOWN + 0.184);
                     }
                 }
+            }
+
+            //DOOR CONTROL:
+
+            if (gamepad1.dpad_left)
+            {
+                setDoorPosition(UP);
+            }
+
+            else if (gamepad1.dpad_right)
+            {
+                setDoorPosition(DOWN);
+            }
+
+            //HOOK CONTROL:
+            if (gamepad2.b && !prevB2)
+            {
+                setHookPosition(hookServo.getPosition() == 1.0 ? UP : DOWN);
             }
 
             //SWEEPER CONTROL:
@@ -445,34 +422,16 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //CLIMBER TRIGGER CONTROL:
 
-            if (gamepad2.left_bumper)
+            double climberOffset = 0.65;
+
+            if (gamepad2.left_bumper && !prevLB2)
             {
-                rightClimberServo.setPosition(0);
+                rightClimberServo.setPosition(rightClimberServo.getPosition() == 1.0 ? 1.0 - climberOffset : 1.0);
             }
 
-            else if (gamepad2.left_trigger > 0.7)
+            if (gamepad2.right_bumper && !prevRB2)
             {
-                rightClimberServo.setPosition(1);
-            }
-
-            else
-            {
-                rightClimberServo.setPosition(0.5);
-            }
-
-            if (gamepad2.right_bumper)
-            {
-                leftClimberServo.setPosition(0);
-            }
-
-            else if (gamepad2.right_trigger > 0.7)
-            {
-                leftClimberServo.setPosition(1);
-            }
-
-            else
-            {
-                leftClimberServo.setPosition(0.5);
+                leftClimberServo.setPosition(leftClimberServo.getPosition() == 0.0 ? climberOffset : 0.0);
             }
 
             //PREVIOUS VALUE SETTINGS
@@ -498,6 +457,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             prevA2 = gamepad2.a;
             prevLB2 = gamepad2.left_bumper;
             prevLT2 = gamepad2.left_trigger > 0.7;
+            prevRB2 = gamepad2.right_bumper;
 
            // telemetry.addData("9", "RSA: " + resetAutomationOn);
             waitNextCycle();

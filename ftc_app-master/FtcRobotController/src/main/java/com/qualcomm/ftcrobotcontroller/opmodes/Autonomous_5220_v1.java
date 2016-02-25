@@ -71,7 +71,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int ON_RAMP_STALL_TIME = 3500;
 
     private boolean color = RED; //arbitrary default
-    private int startPosition = START_CORNER;
+    private int startPosition = START_RAMP;
     private int path = PARK;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean beaconScoringOn = true;
@@ -321,6 +321,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         sleep(1000);
         buttonServo.setPosition(0.1);
         */
+        /*
 
         colorSensorDown.enableLed(true);
         waitFullCycle();
@@ -367,11 +368,17 @@ public class Autonomous_5220_v1 extends OpMode_5220
             }
 
             sleep(700);
-            */
+
             stopDrivetrain();
             telemetry.addData("10", "on floor");
             sleep(2000);
+
+
+
         }
+    */
+        //driveToLine(-0.37);
+        straightenWithLine();
     }
 
     public void autonomous ()
@@ -469,9 +476,15 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             if (startPosition == START_RAMP)
             {
-                move (-23);
-                rotateEncoder(-6.3);
-                move(-31);
+                move (-24.5);
+                rotateEncoder(-6.312);
+                move(-26.77);
+                rotateEncoder(-11.3);
+                driveToLine(-0.37);
+                move (1.1);
+                straightenWithLine();
+               // rotateEncoder(3.89);
+                //turnAcrossLine (0.6);
             }
 
             else if (startPosition == START_CORNER) //untested
@@ -507,26 +520,44 @@ public class Autonomous_5220_v1 extends OpMode_5220
         sleep(100);
     }
 
-    private void straightenWithLine ()
+    private void straightenWithLine () //need to test this
     {
-        Stopwatch darkTime = new Stopwatch();
+        //Stopwatch darkTime = new Stopwatch();
+        driveToLine(-0.1);
+        //int gyroInit = getGyroDirection();
+        int encInit = leftFrontMotor.getCurrentPosition();
+        boolean lastWasWhite = false;
         while (runConditions())
         {
-            if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
+            if (getFloorBrightness() > LINE_WHITE_THRESHOLD)
             {
-                if (darkTime == null) darkTime = new Stopwatch();
-                setLeftDrivePower(-0.1);
-                setRightDrivePower(-0.1);
-                if (darkTime.time() > 1000) break;
+                //darkTime = null;
+                //encInit = getEncoderValue(rightFrontMotor);
+                lastWasWhite = true;
+
+                setLeftDrivePower(0.42);
+                setRightDrivePower(-0.03);
             }
 
             else
             {
-                darkTime = null;
-                setLeftDrivePower(-0.03);
-                setRightDrivePower(-0.32);
+                //if (Math.abs(getGyroDirection() - gyroInit) < 3) break; //not sure if gyro will work for this, or if I need to use time or encoder.
+                //if (darkTime == null) darkTime = new Stopwatch();
+                if (lastWasWhite)
+                {
+                    encInit = leftFrontMotor.getCurrentPosition();
+                    lastWasWhite = false;
+                }
+                if (Math.abs(leftFrontMotor.getCurrentPosition() - encInit) > 200) break;
+
+                setLeftDrivePower(-0.2);
+                setRightDrivePower(-0.2);
+                //gyroInit = getGyroDirection();
+                //if (darkTime.time() > 1000) break;
             }
         }
+
+        stopDrivetrain();
     }
     private void waitForAllianceLine ()
     {
@@ -678,9 +709,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
     {
         if (color == RED)
         {
-            rotateEncoder(-10);
+            rotateEncoder(-13.4);
             move(-15);
-            rotateEncoder(-6);
+            rotateEncoder(6);
         }
 
         else if (color == BLUE)
