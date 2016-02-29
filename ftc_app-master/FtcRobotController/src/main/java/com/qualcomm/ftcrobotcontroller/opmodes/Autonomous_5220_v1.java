@@ -72,7 +72,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     private boolean color = RED; //arbitrary default
     private int startPosition = START_RAMP;
-    private int path = PARK;
+    private int path = OTHER_SIDE;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean beaconScoringOn = true;
     private boolean sweeperOn = true;
@@ -400,7 +400,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
         }
 
         setDrivePower(0.36);
-        waitForAllianceLine();
+        waitForOnlyAllianceLine();
+        stopDrivetrain();
         stopDrivetrain();
 
         //At this point, robot should straight towards the wall, with color sensor directly above the colored line
@@ -434,9 +435,15 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         else if (path == OTHER_SIDE)
         {
-            if (color == RED) rotateEncoder(10);
-            else if (color == BLUE) rotateEncoder(-10);
-            move (-32);
+            if (color == RED)
+            {
+                rotateEncoder(9.87);
+            }
+            else if (color == BLUE)
+            {
+                rotateEncoder(-23);
+            }
+            move(-32);
 
         }
 
@@ -450,35 +457,55 @@ public class Autonomous_5220_v1 extends OpMode_5220
             if (startPosition == START_RAMP)
             {
                 move(-11.9);
-                rotateEncoder(3.6825);
-                move(-27.3);
+                rotateEncoder(2.392);
+                move(-24.5);
+                driveToLine(-0.37);
+                move(1, 0.4);
+                straightenWithLine();
             }
 
             else if (startPosition == START_CORNER) //untested
             {
-                move(-2.9);
-                rotateEncoder(3.2);
-                move(-28);
-                rotateEncoder(-4.6);
+                /*
+                move(-46);
+                rotateEncoder(3.1);
+                move(-17);
+                rotateEncoder(-6);
+                move (-10);
+                driveToLine(-0.37);
+                move(1, 0.4);
+                straightenWithLine();
+                */
+                move (-69);
+                rotateEncoder(3.1);
+                sleep(400);
+                setDrivePower(-0.5);
+                waitForAllianceLine();
+                stopDrivetrain();
+                move(-1.1, 0.3);
+                rotateEncoder(-8.2);
+                move(3.2, 0.3);
+                driveToLine(-0.3);
+                move(1, 0.3);
+                straightenWithLine();
             }
 
             else if (startPosition == START_STRAIGHT)
             {
                 move (-25); //untested as of yet.
+                driveToLine(-0.37);
+                move(1, 0.4);
+                straightenWithLine();
             }
-
-            driveToLine(-0.3);
-            move(-1.0);
-            turnAcrossLine(0.6);
         }
 
         else if (c == RED)
         {
             if (startPosition == START_RAMP)
             {
-                move (-24.5);
+                move (-30.1);
                 rotateEncoder(-6.312);
-                move(-26.77);
+                move(-35.6);
                 rotateEncoder(-11.3);
                 driveToLine(-0.37);
                 move (1.1);
@@ -487,8 +514,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 //turnAcrossLine (0.6);
             }
 
-            else if (startPosition == START_CORNER) //untested
+            else if (startPosition == START_CORNER)
             {
+                /*
                 move (-3);
                 sleep (200);
                 rotateEncoder(-5.2);
@@ -497,6 +525,31 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 driveToLine(-0.3);
                 move (-0.8);
                 turnAcrossLine (0.6);
+                */
+                //move (-5);
+               // rotateTime(180, -0.7);
+
+                /* THIS WORKS BUT SWITCHED TO NEW THING
+                move (-77.7);
+                rotateEncoder(-11.3);
+                driveToLine(-0.37);
+                move (1.1);
+                straightenWithLine();
+                */
+
+                move (-77);
+                rotateEncoder(-6.1);
+                sleep(400);
+                setDrivePower(-0.4);
+                waitForAllianceLine();
+                stopDrivetrain();
+                move(-1.1, 0.3);
+                rotateEncoder(-8.2);
+                move(5.1, 0.3);
+                driveToLine(-0.3);
+                move(1, 0.3);
+                straightenWithLine();
+
             }
 
             else if (startPosition == START_STRAIGHT) //untested
@@ -548,7 +601,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                     encInit = leftFrontMotor.getCurrentPosition();
                     lastWasWhite = false;
                 }
-                if (Math.abs(leftFrontMotor.getCurrentPosition() - encInit) > 200) break;
+                if (Math.abs(leftFrontMotor.getCurrentPosition() - encInit) > 149) break;
 
                 setLeftDrivePower(-0.2);
                 setRightDrivePower(-0.2);
@@ -559,12 +612,18 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         stopDrivetrain();
     }
+
     private void waitForAllianceLine ()
     {
         waitForColoredLine(color);
     }
 
-    private void waitForColoredLine (boolean c)
+    private void waitForOnlyAllianceLine ()
+    {
+        waitForOnlyColoredLine(color);
+    }
+
+    private void waitForOnlyColoredLine (boolean c)
     {
         while (runConditions())
         {
@@ -576,6 +635,22 @@ public class Autonomous_5220_v1 extends OpMode_5220
             else if (c == BLUE)
             {
                 if (colorSensorDown.blue() > 12 && colorSensorDown.red() < 9) break;
+            }
+        }
+    }
+
+    private void waitForColoredLine (boolean c)
+    {
+        while (runConditions())
+        {
+            if (c == RED)
+            {
+                if (colorSensorDown.red() > 13) break;
+            }
+
+            else if (c == BLUE)
+            {
+                if (colorSensorDown.blue() > 13) break;
             }
         }
     }
@@ -709,9 +784,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
     {
         if (color == RED)
         {
-            rotateEncoder(-13.4);
+            rotateEncoder(-17.3); //CHANGE BACK TO WHAT IT WAS BEFORE, SOON.
             move(-15);
-            rotateEncoder(6);
+            rotateEncoder(3.9);
         }
 
         else if (color == BLUE)
@@ -773,13 +848,14 @@ public class Autonomous_5220_v1 extends OpMode_5220
         new DebuggerDisplayLoop().start();
 
         lineBlockedTime = lineBlockedTime + startWaitTime;
+        if (startPosition == START_CORNER) lineBlockedTime = lineBlockedTime + 2000;
 
         colorSensorDown.enableLed(true);
         waitFullCycle();
         colorSensorDown.enableLed(true);
         waitFullCycle();
 
-        while (gameTimer.time() < startWaitTime)
+        while (gameTimer.time() < (startWaitTime * 1000))
         {
 
         }

@@ -422,7 +422,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //CLIMBER TRIGGER CONTROL:
 
-            double climberOffset = 0.65;
+            double climberOffset = 1.0;
 
             if (gamepad2.left_bumper && !prevLB2)
             {

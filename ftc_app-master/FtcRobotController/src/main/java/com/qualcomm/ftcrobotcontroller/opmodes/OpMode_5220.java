@@ -236,6 +236,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         rightClimberServo.setPosition(1.0);
         buttonServo.setPosition(0.1);
         hookServo.setPosition(1.0);
+        setDoorPosition(UP);
         swivelServo.setPosition(SWIVEL_INIT);
 
         waitFullCycle();
@@ -895,7 +896,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final void setDoorPosition (boolean position)
     {
-        setDoorPosition(position == UP ? 1.0 : 0.0);
+        setDoorPosition(position == UP ? 0.41 : 0.85);
     }
 
     public final void setHookPosition (double position)
@@ -905,7 +906,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final void setHookPosition (boolean position)
     {
-        setHookPosition(position == UP ? 0.5 : 1.0);
+        setHookPosition(position == UP ? 0.0 : 1.0);
     }
 
     public final void moveSlides (int position)
