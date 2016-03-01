@@ -735,8 +735,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
     private void scoreRescueBeacon ()
     {
         if (!runConditions()) return;
-        boolean rescueBeaconColor = getRescueBeaconColor();
+        Boolean rbcWrapper = getRescueBeaconColor();
+        if (rbcWrapper == null) return;
         //writeToLog("Right Rescue Beacon Color: " + (rescueBeaconColor == color));
+        boolean rescueBeaconColor = Boolean.valueOf(rbcWrapper); //make sure this works properly
         if (rescueBeaconColor == color)
         {
             buttonServo.setPosition(0.5);
@@ -840,6 +842,17 @@ public class Autonomous_5220_v1 extends OpMode_5220
         sleep(5);
         stopDrivetrain();
         moveWall(DOWN);
+    }
+
+    public Boolean getRescueBeaconColor () //experimental for the time being
+    {
+        double red = colorSensorFront.red();
+        double blue = colorSensorFront.blue();
+        double green = colorSensorFront.green();
+
+        if (red >= 1) return RED;
+        else if (blue >= 1) return BLUE;
+        else return null;
     }
 
     public void main ()

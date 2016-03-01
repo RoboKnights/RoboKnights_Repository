@@ -90,7 +90,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double WHEEL_DIAMETER = 6.0; //in inches
     protected static final double GEAR_RATIO = 1.0 / 2.0;
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
-    protected static final int ENCODER_COUNTS_PER_ROTATION = 1440;
+    protected static final int ENCODER_COUNTS_PER_ROTATION = 1120; //WAS 1440
 
     protected static final double SWIVEL_INIT = 0.7529; //// may be reset in TeleOp
     protected static final double SWIVEL_90 = 0.4706;
@@ -480,15 +480,15 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final void setLeftDrivePower (double power)
     {
-        setMotorPower (leftFrontMotor, power);
-        setMotorPower (leftBackMotor, power);
+        setMotorPower(leftFrontMotor, power);
+        setMotorPower(leftBackMotor, power);
         //setMotorPower(leftMidMotor, power);
     }
 
     public final void setRightDrivePower (double power)
     {
-        setMotorPower (rightFrontMotor, power);
-        setMotorPower (rightBackMotor, power);
+        setMotorPower(rightFrontMotor, power);
+        setMotorPower(rightBackMotor, power);
        // setMotorPower(rightMidMotor, power);
     }
 
@@ -587,9 +587,38 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         }
     }
 
-    public final boolean driveEncodersHaveReached(int encoderCount) //need to modify this, or just eliminate it and put the condidition stuff in the main move method.
+    public final int getDriveEncoderAverage ()
     {
-        return (hasEncoderReached(leftFrontMotor, encoderCount) && hasEncoderReached(rightFrontMotor, encoderCount));
+        int sum = 0;
+        for (DcMotor dcm: driveMotors)
+        {
+            sum = sum + getEncoderValue(dcm);
+        }
+
+        double average = (sum / 4.0); //make sure double conversion works
+        int intAverage = (int) average;
+        return intAverage;
+    }
+
+    public final boolean driveEncodersHaveReached(int encoderCount)
+    {
+        //return (hasEncoderReached(leftFrontMotor, encoderCount) && hasEncoderReached(rightFrontMotor, encoderCount)); //OLD METHOD
+        if (encoderCount > 0)
+        {
+            if (getDriveEncoderAverage() < encoderCount) return false;
+            else return true;
+        }
+
+        else if (encoderCount < 0)
+        {
+            if (getDriveEncoderAverage() > encoderCount) return false;
+            else return true;
+        }
+
+        else //encoderCount is 0
+        {
+            return (getDriveEncoderAverage() == 0);
+        }
     }
 
 
@@ -693,6 +722,60 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             //waitFullCycle();
 
             //do nothing if mode is NORMAL.
+        }
+        stopDrivetrain();
+        if (!runConditions()) return;
+        //writeToLog("MOVING: Final encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
+        waitFullCycle();
+        //waitFullCycle();
+        sleep(99); //maybe reduce this if it wastes too much time to have this safety interval.
+    }
+
+    public final void moveSmooth (double distance) //untested
+    {
+        if (!runConditions()) return;
+
+        //Main method body:
+
+        int encoderCount = distanceToEncoderCount(distance);
+        writeToLog("MOVING: Distance = " + distance + ", Encoder Count = " + encoderCount);
+        writeToLog("MOVING: UnReset encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
+        //double initialDirection = getGyroDirection();
+
+        resetDriveEncoders();
+        writeToLog("MOVING: Initialized encoder values (should be 0) are LFM: " + getEncoderValue(leftFrontMotor) + ", RFM = " + getEncoderValue(rightFrontMotor));
+        //setDrivePower(power);
+
+        double sign = (distance >= 0 ? 1 : -1);
+
+        double minPower = 0.08;
+        double maxPower = 1.0;
+        double smoothDistance = 5.5;
+        double smoothEncoderCounts = distanceToEncoderCount(smoothDistance);
+
+        while (runConditions() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works, change back to driveEncodersHaveReached if it works
+        {
+            double power = minPower;
+            int dea = Math.abs(getDriveEncoderAverage());
+
+            if (dea <= smoothEncoderCounts)
+            {
+                power = (dea / smoothEncoderCounts) * (maxPower - minPower);
+
+            }
+
+            else if (dea >= Math.abs(encoderCount) - smoothEncoderCounts)
+            {
+                power = maxPower - (((dea - (Math.abs(encoderCount) - smoothEncoderCounts)) / smoothEncoderCounts) * (maxPower - minPower));
+            }
+
+            else
+            {
+                power = maxPower;
+            }
+
+            setDrivePower(power * sign);
+
         }
         stopDrivetrain();
         if (!runConditions()) return;
@@ -960,15 +1043,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     }
 
-    public Boolean getRescueBeaconColor () //experimental for the time being
-    {
-        double red = colorSensorFront.red();
-        double blue = colorSensorFront.blue();
-        double green = colorSensorFront.green();
 
-        if (blue >= 1) return BLUE;
-        else return RED;
-    }
 
     public double getFloorBrightness ()
     {
