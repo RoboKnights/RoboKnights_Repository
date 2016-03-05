@@ -378,7 +378,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
         }
     */
         //driveToLine(-0.37);
-        straightenWithLine();
+        //straightenWithLine();
+        telemetry.addData("1", "Started moving.");
+        moveSmooth(70);
+        sleep(2000);
+        moveSmooth (-70);
+        telemetry.addData("1", "Done moving..");
     }
 
     public void autonomous ()
@@ -858,7 +863,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void main ()
     {
         //new ProgramKiller().start(); //PROGRAM KILLER MESSES UP AUTONOMOUS.
-        new DebuggerDisplayLoop().start();
+        //new DebuggerDisplayLoop().start();
 
         lineBlockedTime = lineBlockedTime + startWaitTime;
         if (startPosition == START_CORNER) lineBlockedTime = lineBlockedTime + 2000;
@@ -872,8 +877,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
 
         }
-
-        //test();
-        autonomous();
+        test();
+        //autonomous();
     }
 }

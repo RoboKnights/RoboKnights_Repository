@@ -748,10 +748,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         double sign = (distance >= 0 ? 1 : -1);
 
-        double minPower = 0.08;
-        double maxPower = 1.0;
-        double smoothDistance = 5.5;
-        double smoothEncoderCounts = distanceToEncoderCount(smoothDistance);
+        double minPower = 0.068;
+        double maxPower = 0.9;
+        double originalMaxPower = maxPower;
+        double smoothDistance = 22;
+        int smoothEncoderCounts = distanceToEncoderCount(smoothDistance);
 
         while (runConditions() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works, change back to driveEncodersHaveReached if it works
         {
@@ -760,20 +761,30 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
             if (dea <= smoothEncoderCounts)
             {
-                power = (dea / smoothEncoderCounts) * (maxPower - minPower);
+                power = minPower + (((double) dea / smoothEncoderCounts) * (maxPower - minPower));
+                telemetry.addData("3", "In ramp up");
 
             }
 
             else if (dea >= Math.abs(encoderCount) - smoothEncoderCounts)
             {
-                power = maxPower - (((dea - (Math.abs(encoderCount) - smoothEncoderCounts)) / smoothEncoderCounts) * (maxPower - minPower));
+                //power = minPower + ((Math.abs(Math.abs(encoderCount) - dea) / (double) smoothEncoderCounts) * (maxPower - minPower));
+                if (maxPower == originalMaxPower) maxPower = maxPower / 2.5;
+                double distanceFromRampDown = dea - (Math.abs(encoderCount) - smoothEncoderCounts);
+                double proportionOfDistance = distanceFromRampDown / (double) smoothEncoderCounts;
+                power = maxPower - (proportionOfDistance * (maxPower - minPower));
+                telemetry.addData("3", "In ramp down");
+                telemetry.addData("5", "proportion: " + proportionOfDistance);
             }
 
             else
             {
                 power = maxPower;
+                telemetry.addData("3", "In middle");
             }
 
+            telemetry.addData("2", "Power = " + power);
+            telemetry.addData("4", "DEA: " + dea + " Target: " + encoderCount);
             setDrivePower(power * sign);
 
         }
