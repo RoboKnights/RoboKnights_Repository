@@ -88,7 +88,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double GYRO = 4;
 
     protected static final double WHEEL_DIAMETER = 6.0; //in inches
-    protected static final double GEAR_RATIO = 1.0 / 2.0;
+    protected static final double GEAR_RATIO = (2.0 / 3.0) * (6.0 / 5.0);
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1120; //WAS 1440
 
@@ -164,6 +164,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     protected FtcRobotControllerActivity ftcRCA;
     protected boolean programFinished = false; //allows manual termination of the program in an orderly fashion, especially for autonomous
+    protected boolean debugLoopOn = false;
     protected Stopwatch gameTimer;
     protected boolean isArmMoving = false;
     protected int phase = HAS_NOT_STARTED;
@@ -316,7 +317,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         public void run()
         {
-            while (opModeIsActive())
+            debugLoopOn = true;
+            while (debugLoopOn && opModeIsActive())
             {
                 telemetry.addData("1", "LFM: " + leftFrontMotor.getCurrentPosition() + ", RFM: " + rightFrontMotor.getCurrentPosition());
                 telemetry.addData("2", "LBM: " + leftBackMotor.getCurrentPosition() + ", RBM: " + rightBackMotor.getCurrentPosition());
@@ -587,8 +589,16 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         }
     }
 
+    {
+        int addon = (side == RIGHT ? 1 : 0);
+        int sum = getEncoderValue(driveMotors[0 + addon]) + getEncoderValue(driveMotors[2 + addon]);
+        int average = (int) (1.0 * sum / 2.0);
+        return average;
+    }
+
     public final int getDriveEncoderAverage ()
     {
+        /*
         int sum = 0;
         for (DcMotor dcm: driveMotors)
         {
@@ -598,7 +608,17 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         double average = (sum / 4.0); //make sure double conversion works
         int intAverage = (int) average;
         return intAverage;
+        */
+        double doubleAverage = (1.0 * (getSideEncoderAverage(LEFT) + getSideEncoderAverage(RIGHT))) / 2.0;
+        return (int) doubleAverage;
     }
+
+    public final int getTurnEncoderAverage ()
+    {
+        double doubleAverage = (1.0 * (getSideEncoderAverage(LEFT) - getSideEncoderAverage(RIGHT))) / 2.0;
+        return (int) doubleAverage;
+    }
+
 
     public final boolean driveEncodersHaveReached(int encoderCount)
     {
@@ -624,7 +644,23 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final boolean turnEncodersHaveReached(int encoderCount)
     {
-        return (hasEncoderReached(leftFrontMotor, encoderCount) && hasEncoderReached(rightFrontMotor, -encoderCount)); //make sure the minus sign on rightFrontMotor works.
+        //return (hasEncoderReached(leftFrontMotor, encoderCount) && hasEncoderReached(rightFrontMotor, -encoderCount)); //make sure the minus sign on rightFrontMotor works.
+        if (encoderCount > 0)
+        {
+            if (getTurnEncoderAverage() < encoderCount) return false;
+            else return true;
+        }
+
+        else if (encoderCount < 0)
+        {
+            if (getTurnEncoderAverage() > encoderCount) return false;
+            else return true;
+        }
+
+        else //encoderCount is 0
+        {
+            return (getTurnEncoderAverage() == 0);
+        }
     }
 
     public String getModeText (double mode)
@@ -749,9 +785,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         double sign = (distance >= 0 ? 1 : -1);
 
         double minPower = 0.068;
-        double maxPower = 0.9;
+        double maxPower = 0.75;
         double originalMaxPower = maxPower;
-        double smoothDistance = 22;
+        double smoothDistance = distance / 3;
         int smoothEncoderCounts = distanceToEncoderCount(smoothDistance);
 
         while (runConditions() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works, change back to driveEncodersHaveReached if it works
@@ -769,7 +805,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             else if (dea >= Math.abs(encoderCount) - smoothEncoderCounts)
             {
                 //power = minPower + ((Math.abs(Math.abs(encoderCount) - dea) / (double) smoothEncoderCounts) * (maxPower - minPower));
-                if (maxPower == originalMaxPower) maxPower = maxPower / 2.5;
+                if (maxPower == originalMaxPower) maxPower = maxPower / 4;
                 double distanceFromRampDown = dea - (Math.abs(encoderCount) - smoothEncoderCounts);
                 double proportionOfDistance = distanceFromRampDown / (double) smoothEncoderCounts;
                 power = maxPower - (proportionOfDistance * (maxPower - minPower));

@@ -380,9 +380,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
         //driveToLine(-0.37);
         //straightenWithLine();
         telemetry.addData("1", "Started moving.");
-        moveSmooth(70);
+        moveSmooth(-50);
         sleep(2000);
-        moveSmooth (-70);
+        moveSmooth(50);
         telemetry.addData("1", "Done moving..");
     }
 
@@ -508,12 +508,18 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             if (startPosition == START_RAMP)
             {
-                move (-30.1);
-                rotateEncoder(-6.312);
-                move(-35.6);
-                rotateEncoder(-11.3);
-                driveToLine(-0.37);
-                move (1.1);
+                moveSmooth(-45.5);
+                rotateEncoder(-9.2);
+                moveSmooth(-39.1);
+                rotateEncoder(-9.2);
+                setDrivePower(-0.4);
+                waitForAllianceLine();
+                stopDrivetrain();
+                move(-1.1, 0.3);
+                rotateEncoder(-18.2);
+                move(5.1, 0.2);
+                driveToLine(-0.3);
+                move(1, 0.3);
                 straightenWithLine();
                // rotateEncoder(3.89);
                 //turnAcrossLine (0.6);
@@ -877,7 +883,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
 
         }
-        test();
-        //autonomous();
+        //test();
+        autonomous();
     }
 }
