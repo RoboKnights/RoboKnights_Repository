@@ -589,6 +589,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         }
     }
 
+    public final int getSideEncoderAverage (boolean side)
     {
         int addon = (side == RIGHT ? 1 : 0);
         int sum = getEncoderValue(driveMotors[0 + addon]) + getEncoderValue(driveMotors[2 + addon]);
