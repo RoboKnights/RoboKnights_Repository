@@ -57,7 +57,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int COLLECTION = 1;
     public static final int RAMP = 2;
     public static final int OTHER_SIDE = 3;
-    public static final int NUM_PATHS = 4;
+    public static final int CLEAR = 4;
+    public static final int NUM_PATHS = 5;
 
     public static final int START_RAMP = 0;
     public static final int START_CORNER = 1;
@@ -289,6 +290,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 case COLLECTION: return "COLLECTION";
                 case RAMP: return "RAMP";
                 case OTHER_SIDE: return "OTHER_SIDE";
+                case CLEAR: return "CLEAR";
                 default: return "Error: Invalid Path Number.";
             }
         }
@@ -402,6 +404,13 @@ public class Autonomous_5220_v1 extends OpMode_5220
             flingClimbers();
             sleep(200);
             if (beaconScoringOn)scoreRescueBeacon();
+        }
+
+        if (path == CLEAR)
+        {
+            swingTurn(28, RIGHT, 0.7);
+            move (19);
+            return;
         }
 
         setDrivePower(0.36);
@@ -766,7 +775,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             sleep(1350);
             moveTime(1000, -0.2);
             sleep(150);
-            move(2.8, 0.4);
+            move(1.0, 0.4);
             moveSwivel(SWIVEL_INIT);
             /*
             setDrivePower(-0.2);
