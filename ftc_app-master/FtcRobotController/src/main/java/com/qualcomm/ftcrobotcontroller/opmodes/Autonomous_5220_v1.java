@@ -65,7 +65,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int START_STRAIGHT = 2;
     public static final int NUM_STARTS = 3;
 
-    public double lineBlockedTime = 17000;
+    public double lineBlockedTime = 19000;
     private boolean lineBlocked = false;
 
     public static final int OFF_RAMP_STALL_TIME = 4000;
@@ -73,7 +73,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     private boolean color = RED; //arbitrary default
     private int startPosition = START_RAMP;
-    private int path = OTHER_SIDE;
+    private int path = PARK;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean beaconScoringOn = true;
     private boolean sweeperOn = true;
@@ -382,7 +382,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         //driveToLine(-0.37);
         //straightenWithLine();
         telemetry.addData("1", "Started moving.");
-        moveSmooth(-50);
+        move(-50, ENCODER);
         sleep(2000);
         moveSmooth(50);
         telemetry.addData("1", "Done moving..");
@@ -515,21 +515,31 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         else if (c == RED)
         {
+
             if (startPosition == START_RAMP)
             {
-                moveSmooth(-45.5);
-                rotateEncoder(-9.2);
-                moveSmooth(-39.1);
-                rotateEncoder(-9.2);
+                /*
+                move (-48.5, ENCODER);
+                rotateEncoder(-9);
+                move(-34.1, ENCODER);
+                rotateEncoder(-7.3);
                 setDrivePower(-0.4);
                 waitForAllianceLine();
                 stopDrivetrain();
                 move(-1.1, 0.3);
-                rotateEncoder(-18.2);
-                move(5.1, 0.2);
+                rotateEncoder(-12.8);
+                move(5.1, 0.1);
                 driveToLine(-0.3);
                 move(1, 0.3);
                 straightenWithLine();
+                */
+                move (-49, ENCODER);
+                rotateEncoder(-9.5);
+                move (-42.1, ENCODER);
+                rotateEncoder(-12);
+                driveToLine(-0.1);
+                move(-1.0, 0.28);
+                turnAcrossLine(0.7);
                // rotateEncoder(3.89);
                 //turnAcrossLine (0.6);
             }
@@ -602,31 +612,27 @@ public class Autonomous_5220_v1 extends OpMode_5220
         boolean lastWasWhite = false;
         while (runConditions())
         {
+            if (touchSensorFront.getValue() > 0.04) break;
+
             if (getFloorBrightness() > LINE_WHITE_THRESHOLD)
             {
-                //darkTime = null;
-                //encInit = getEncoderValue(rightFrontMotor);
                 lastWasWhite = true;
 
-                setLeftDrivePower(0.42);
+                setLeftDrivePower(0.28);
                 setRightDrivePower(-0.03);
             }
 
             else
             {
-                //if (Math.abs(getGyroDirection() - gyroInit) < 3) break; //not sure if gyro will work for this, or if I need to use time or encoder.
-                //if (darkTime == null) darkTime = new Stopwatch();
                 if (lastWasWhite)
                 {
                     encInit = leftFrontMotor.getCurrentPosition();
                     lastWasWhite = false;
                 }
-                if (Math.abs(leftFrontMotor.getCurrentPosition() - encInit) > 149) break;
+                if (Math.abs(leftFrontMotor.getCurrentPosition() - encInit) > 160) break;
 
-                setLeftDrivePower(-0.2);
-                setRightDrivePower(-0.2);
-                //gyroInit = getGyroDirection();
-                //if (darkTime.time() > 1000) break;
+                setLeftDrivePower(-0.1);
+                setRightDrivePower(-0.1);
             }
         }
 
@@ -723,12 +729,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
             if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
             {
                 setRightDrivePower(0);
-                setLeftDrivePower(-0.30);
+                setLeftDrivePower(-0.15);
             }
 
             else
             {
-                setRightDrivePower(-0.48);
+                setRightDrivePower(-0.28);
                 setLeftDrivePower(0.07);
             }
 
@@ -773,7 +779,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             move(2);
             moveSwivel(SWIVEL_INIT + 0.1);
             sleep(1350);
-            moveTime(1000, -0.2);
+            moveTime(1350, -0.12);
             sleep(150);
             move(1.0, 0.4);
             moveSwivel(SWIVEL_INIT);
@@ -878,7 +884,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void main ()
     {
         //new ProgramKiller().start(); //PROGRAM KILLER MESSES UP AUTONOMOUS.
-        //new DebuggerDisplayLoop().start();
+        new DebuggerDisplayLoop().start();
 
         lineBlockedTime = lineBlockedTime + startWaitTime;
         if (startPosition == START_CORNER) lineBlockedTime = lineBlockedTime + 2000;

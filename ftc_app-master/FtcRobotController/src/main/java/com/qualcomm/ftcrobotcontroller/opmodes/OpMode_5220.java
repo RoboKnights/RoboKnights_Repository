@@ -88,7 +88,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double GYRO = 4;
 
     protected static final double WHEEL_DIAMETER = 6.0; //in inches
-    protected static final double GEAR_RATIO = (2.0 / 3.0) * (6.0 / 5.0);
+    protected static final double GEAR_RATIO = 3.0 / 4.0;
     protected static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
     protected static final int ENCODER_COUNTS_PER_ROTATION = 1120; //WAS 1440
 
@@ -591,6 +591,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final int getSideEncoderAverage (boolean side)
     {
+        if (side == RIGHT) return getEncoderValue(rightBackMotor);
         int addon = (side == RIGHT ? 1 : 0);
         int sum = getEncoderValue(driveMotors[0 + addon]) + getEncoderValue(driveMotors[2 + addon]);
         int average = (int) (1.0 * sum / 2.0);
@@ -735,7 +736,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                     double frontDifference = getEncoderValue(leftFrontMotor) - getEncoderValue(rightFrontMotor);
                     double backDifference = getEncoderValue(leftBackMotor) - getEncoderValue(rightBackMotor);
                     double averageDifference = (frontDifference + backDifference) / 2;
-                    powerChange = averageDifference * ENCODER_SYNC_PROPORTIONALITY_CONSTANT;
+                    powerChange = backDifference * ENCODER_SYNC_PROPORTIONALITY_CONSTANT;
                 }
 
                 else if (mode == GYRO)
@@ -788,7 +789,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         double minPower = 0.068;
         double maxPower = 0.75;
         double originalMaxPower = maxPower;
-        double smoothDistance = distance / 3;
+        double smoothDistance = Math.abs(distance / 2.3);
         int smoothEncoderCounts = distanceToEncoderCount(smoothDistance);
 
         while (runConditions() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works, change back to driveEncodersHaveReached if it works
@@ -806,7 +807,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             else if (dea >= Math.abs(encoderCount) - smoothEncoderCounts)
             {
                 //power = minPower + ((Math.abs(Math.abs(encoderCount) - dea) / (double) smoothEncoderCounts) * (maxPower - minPower));
-                if (maxPower == originalMaxPower) maxPower = maxPower / 4;
+                if (maxPower == originalMaxPower) maxPower = maxPower / 2;
                 double distanceFromRampDown = dea - (Math.abs(encoderCount) - smoothEncoderCounts);
                 double proportionOfDistance = distanceFromRampDown / (double) smoothEncoderCounts;
                 power = maxPower - (proportionOfDistance * (maxPower - minPower));
