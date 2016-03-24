@@ -163,6 +163,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     //OTHER GLOBAL VARIABLES:
 
     protected FtcRobotControllerActivity ftcRCA;
+    protected boolean pinOn = true;
     protected boolean programFinished = false; //allows manual termination of the program in an orderly fashion, especially for autonomous
     protected boolean debugLoopOn = false;
     protected Stopwatch gameTimer;
@@ -278,7 +279,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         phase = RUNNING;
         gameTimer = new Stopwatch();
-        releasePin();
+        if (pinOn) releasePin();
 
         main();
         end();
@@ -1018,7 +1019,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public final void setLiftPower (double power)
     {
         liftMotor1.setPower(power);
-        liftMotor2.setPower(power);
+        liftMotor2.setPower(-power);
     }
 
     public final void setDoorPosition (double position)

@@ -405,6 +405,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             }
 
             //LIFT MOTOR CONTROL:
+            /*
             if (gamepad2.left_stick_y > 0.7) //up
             {
                 setLiftPower(1.0);
@@ -418,7 +419,12 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             else
             {
                 setLiftPower(0);
-            }
+            }4*/
+
+            double liftPower = gamepad2.left_stick_y;
+            if (liftPower < -1) liftPower = -1;
+            if (liftPower > 1) liftPower = 1;
+            setLiftPower(liftPower);
 
             //CLIMBER TRIGGER CONTROL:
 

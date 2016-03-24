@@ -72,7 +72,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int ON_RAMP_STALL_TIME = 3500;
 
     private boolean color = RED; //arbitrary default
-    private int startPosition = START_RAMP;
+    private int startPosition = START_CORNER;
     private int path = PARK;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean beaconScoringOn = true;
@@ -408,8 +408,28 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         if (path == CLEAR)
         {
-            swingTurn(28, RIGHT, 0.7);
-            move (19);
+            if (color == BLUE)
+            {
+                move(3);
+                rotateEncoder(-14, 0.5);
+                //swingTurn(28, RIGHT, 0.7);
+                move(-27);
+                while (gameTimer.time() < 27000);
+                moveTime(30000 - gameTimer.time() - 400, 0.10);
+                stopDrivetrain();
+            }
+
+            if (color == RED)
+            {
+                move(3);
+                rotateEncoder(13.2, 0.5);
+                //swingTurn(28, RIGHT, 0.7);
+                move(-31.15);
+                while (gameTimer.time() < 27000);
+                moveTime(30000 - gameTimer.time() - 400, 0.10);
+                stopDrivetrain();
+            }
+
             return;
         }
 
@@ -422,7 +442,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         if (path == PARK)
         {
-            move(-2.0);
+            move(-5.6);
         }
 
         else if (path == COLLECTION)
@@ -451,13 +471,13 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             if (color == RED)
             {
-                rotateEncoder(9.87);
+                rotateEncoder(27, 0.6);
             }
             else if (color == BLUE)
             {
-                rotateEncoder(-23);
+                rotateEncoder(-29.5);
             }
-            move(-32);
+            move(-77);
 
         }
 
@@ -469,13 +489,21 @@ public class Autonomous_5220_v1 extends OpMode_5220
         if (c == BLUE)
         {
             if (startPosition == START_RAMP)
-            {
+            {/*
                 move(-11.9);
                 rotateEncoder(2.392);
                 move(-24.5);
                 driveToLine(-0.37);
                 move(1, 0.4);
                 straightenWithLine();
+                */
+                move (-32, ENCODER);
+                rotateEncoder(7.5);
+                move(-46, ENCODER);
+                driveToLine(-0.24);
+                move(-2.0, 0.14);
+                turnAcrossLine(0.7);
+                turnToLine(-0.25);
             }
 
             else if (startPosition == START_CORNER) //untested
@@ -490,6 +518,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move(1, 0.4);
                 straightenWithLine();
                 */
+                /*
                 move (-69);
                 rotateEncoder(3.1);
                 sleep(400);
@@ -502,6 +531,16 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 driveToLine(-0.3);
                 move(1, 0.3);
                 straightenWithLine();
+                */
+
+                move (-84, ENCODER);
+                rotateEncoder(7.0, 0.5);
+                move(-21, ENCODER);
+                rotateEncoder(-8.0, 0.5);
+                driveToLine(-0.24);
+                move(-2.0, 0.14);
+                turnAcrossLine(0.7);
+                turnToLine(-0.25);
             }
 
             else if (startPosition == START_STRAIGHT)
@@ -535,11 +574,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 */
                 move (-49, ENCODER);
                 rotateEncoder(-9.5);
-                move (-42.1, ENCODER);
+                move(-42.1, ENCODER);
                 rotateEncoder(-12);
                 driveToLine(-0.1);
-                move(-1.0, 0.28);
+                move(-2.1, 0.14);
                 turnAcrossLine(0.7);
+                turnToLine(-0.25);
                // rotateEncoder(3.89);
                 //turnAcrossLine (0.6);
             }
@@ -566,7 +606,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move (1.1);
                 straightenWithLine();
                 */
-
+/*
                 move (-77);
                 rotateEncoder(-6.1);
                 sleep(400);
@@ -579,6 +619,15 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 driveToLine(-0.3);
                 move(1, 0.3);
                 straightenWithLine();
+
+                */
+
+                move (-109.64, ENCODER);
+                rotateEncoder(-14.15, 0.5);
+                driveToLine(-0.24);
+                move(-2.0, 0.14);
+                turnAcrossLine(0.7);
+                turnToLine(-0.25);
 
             }
 
@@ -728,14 +777,14 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
             {
-                setRightDrivePower(0);
-                setLeftDrivePower(-0.15);
+                setRightDrivePower(0.02);
+                setLeftDrivePower(-0.22);
             }
 
             else
             {
-                setRightDrivePower(-0.28);
-                setLeftDrivePower(0.07);
+                setRightDrivePower(-0.22);
+                setLeftDrivePower(0.02);
             }
 
             if (gameTimer.time() > lineBlockedTime)
@@ -872,12 +921,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public Boolean getRescueBeaconColor () //experimental for the time being
     {
-        double red = colorSensorFront.red();
-        double blue = colorSensorFront.blue();
-        double green = colorSensorFront.green();
+        int red = colorSensorFront.red();
+        int blue = colorSensorFront.blue();
+        int green = colorSensorFront.green();
 
-        if (red >= 1) return RED;
-        else if (blue >= 1) return BLUE;
+        if (red > blue) return RED;
+        else if (blue > red) return BLUE;
         else return null;
     }
 
