@@ -74,7 +74,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     private Autonomous_5220_v1 opMode = this;
 
     private boolean color = RED; //arbitrary default
-    private int startPosition = START_CORNER;
+    private int startPosition = START_RAMP;
     private int path = PARK;
     private int startWaitTime = 0; //in seconds, no need for non-integer numbers.
     private boolean beaconScoringOn = true;

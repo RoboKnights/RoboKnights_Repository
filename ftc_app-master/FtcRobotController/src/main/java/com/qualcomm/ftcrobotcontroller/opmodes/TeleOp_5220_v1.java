@@ -402,7 +402,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 slideMotor.setPower(-1);
             }
 
-            else if (scoringAutomationOn && getSlidePosition() < ((50 / (3.0 * Math.PI)) * (1120)))
+            else if (scoringAutomationOn && getSlidePosition() < ((22 / (3.0 * Math.PI)) * (1120)))
             {
                 slideMotor.setPower(1);
             }
