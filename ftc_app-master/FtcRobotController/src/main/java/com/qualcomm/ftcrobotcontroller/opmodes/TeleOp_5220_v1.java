@@ -66,7 +66,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private boolean slowDriveOn = false;
     private boolean polarOn = false;
     private boolean resetAutomationOn = false;
-    private boolean climbingAutomationOn = false;
+    private boolean scoringAutomationOn = false;
 
     public ProgramType getProgramType ()
     {
@@ -148,6 +148,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         boolean prevLT = false;
         boolean prevBack = false;
         boolean prevY2 = false;
+        boolean prevX2 = false;
         boolean prevB2 = false;
         boolean prevA2 = false;
         boolean prevLB2 = false;
@@ -267,6 +268,13 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             if (gamepad2.a && !prevA2)
             {
                 resetAutomationOn = !resetAutomationOn;
+                scoringAutomationOn = false;
+            }
+
+            if (gamepad2.y && !prevY2)
+            {
+                scoringAutomationOn = !scoringAutomationOn;
+                resetAutomationOn = false;
             }
 
             //SWIVEL CONTROL:
@@ -301,6 +309,11 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                     else
                     {
                         polarOn = false;
+
+                        if (gamepad2.y)
+                        {
+                            moveSwivel(SWIVEL_INIT + 0.1);
+                        }
                     }
                 }
 
@@ -360,7 +373,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             }
 
             //HOOK CONTROL:
-            if (gamepad2.b && !prevB2)
+            if (gamepad2.x && !prevX2)
             {
                 setHookPosition(hookServo.getPosition() == 1.0 ? UP : DOWN);
             }
@@ -387,6 +400,11 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             if (resetAutomationOn && Math.abs(getSlidePosition()) > 70)
             {
                 slideMotor.setPower(-1);
+            }
+
+            else if (scoringAutomationOn && getSlidePosition() < ((50 / (3.0 * Math.PI)) * (1120)))
+            {
+                slideMotor.setPower(1);
             }
 
             else if (gamepad1.y || (polarOn && gamepad1.right_bumper) || gamepad2.right_stick_y < -0.7) //up
@@ -428,16 +446,16 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             //CLIMBER TRIGGER CONTROL:
 
-            double climberOffset = 1.0;
-
             if (gamepad2.left_bumper && !prevLB2)
             {
-                rightClimberServo.setPosition(rightClimberServo.getPosition() == 1.0 ? 1.0 - climberOffset : 1.0);
+                rightClimberServo.setPosition(rightClimberServo.getPosition() > 0.5 ? RIGHT_CLIMBER_INIT - CLIMBER_OFFSET : RIGHT_CLIMBER_INIT);
+                //colorSensorFront.enableLed(false);
             }
 
             if (gamepad2.right_bumper && !prevRB2)
             {
-                leftClimberServo.setPosition(leftClimberServo.getPosition() == 0.0 ? climberOffset : 0.0);
+                leftClimberServo.setPosition(leftClimberServo.getPosition() < 0.5 ? LEFT_CLIMBER_INIT + CLIMBER_OFFSET : LEFT_CLIMBER_INIT);
+                //colorSensorFront.enableLed(true);
             }
 
             //PREVIOUS VALUE SETTINGS
@@ -459,6 +477,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             prevBack = gamepad1.back;
 
             prevY2 = gamepad2.y;
+            prevX2 = gamepad2.x;
             prevB2 = gamepad2.b;
             prevA2 = gamepad2.a;
             prevLB2 = gamepad2.left_bumper;

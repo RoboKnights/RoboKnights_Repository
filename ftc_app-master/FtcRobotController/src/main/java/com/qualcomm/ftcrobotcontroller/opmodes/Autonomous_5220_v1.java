@@ -65,11 +65,13 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int START_STRAIGHT = 2;
     public static final int NUM_STARTS = 3;
 
-    public double lineBlockedTime = 19000;
+    public double lineBlockedTime = 15000;
     private boolean lineBlocked = false;
 
     public static final int OFF_RAMP_STALL_TIME = 4000;
     public static final int ON_RAMP_STALL_TIME = 3500;
+
+    private Autonomous_5220_v1 opMode = this;
 
     private boolean color = RED; //arbitrary default
     private int startPosition = START_CORNER;
@@ -315,6 +317,17 @@ public class Autonomous_5220_v1 extends OpMode_5220
         colorSensorDown.enableLed(true);
     }
 
+    private class HookRetractor extends Thread
+    {
+        public void run ()
+        {
+            setLiftPower(0.2);
+            opMode.sleep(1400);
+            setLiftPower(0);
+            setLiftPower(0);
+        }
+    }
+
     public void test() //for debug, whenever we want to test something independent of the rest of the autonomous program
     {
         //move (25);
@@ -390,6 +403,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void autonomous ()
     {
+        new HookRetractor().start();
         startToLine(color);
 
         followLineUntilTouch();
@@ -497,8 +511,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move(1, 0.4);
                 straightenWithLine();
                 */
-                move (-32, ENCODER);
-                rotateEncoder(7.5);
+                move (-29.5, ENCODER);
+                rotateEncoder(7.7);
                 move(-46, ENCODER);
                 driveToLine(-0.24);
                 move(-2.0, 0.14);
@@ -623,7 +637,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 */
 
                 move (-109.64, ENCODER);
+                sleep(250);
                 rotateEncoder(-14.15, 0.5);
+                sleep(250);
                 driveToLine(-0.24);
                 move(-2.0, 0.14);
                 turnAcrossLine(0.7);
@@ -936,7 +952,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         new DebuggerDisplayLoop().start();
 
         lineBlockedTime = lineBlockedTime + startWaitTime;
-        if (startPosition == START_CORNER) lineBlockedTime = lineBlockedTime + 2000;
+        if (startPosition == START_CORNER) lineBlockedTime = lineBlockedTime + 12; //tiny value is intentional, blue is about as fast as red.
 
         colorSensorDown.enableLed(true);
         waitFullCycle();

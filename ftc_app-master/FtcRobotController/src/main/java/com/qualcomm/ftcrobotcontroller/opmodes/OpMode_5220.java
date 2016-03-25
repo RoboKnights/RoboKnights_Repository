@@ -97,6 +97,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double SWIVEL_180 = SWIVEL_90 * 2;
     protected static final double SWIVEL_360 = SWIVEL_180 * 2;
 
+    protected static final double LEFT_CLIMBER_INIT = 0.0;
+    protected static final double RIGHT_CLIMBER_INIT = 0.9;
+    protected static final double CLIMBER_OFFSET = 0.7;
+
     //CONFIGURABLE CONSTANTS:
 
     protected static final boolean TIMER_ON = false;
@@ -218,8 +222,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         leftDumpServo = hardwareMap.servo.get("ldServo");
         rightDumpServo = hardwareMap.servo.get("rdServo");
         leftClimberServo = hardwareMap.servo.get("lcServo");
-        rightClimberServo = hardwareMap.servo.get("rcServo");
-        doorServo = hardwareMap.servo.get("dServo");
+        rightClimberServo = hardwareMap.servo.get("dServo");
+        doorServo = hardwareMap.servo.get("rcServo");
         hookServo = hardwareMap.servo.get("hServo");
 
         colorSensorDown = hardwareMap.colorSensor.get("cSensor1");
@@ -234,8 +238,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public void initialize()
     {
         moveDumper(DOWN);
-        leftClimberServo.setPosition(0.0);
-        rightClimberServo.setPosition(1.0);
+        leftClimberServo.setPosition(LEFT_CLIMBER_INIT);
+        rightClimberServo.setPosition(RIGHT_CLIMBER_INIT);
         buttonServo.setPosition(0.1);
         hookServo.setPosition(1.0);
         setDoorPosition(UP);
