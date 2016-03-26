@@ -65,7 +65,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int START_STRAIGHT = 2;
     public static final int NUM_STARTS = 3;
 
-    public double lineBlockedTime = 15000;
+    public double lineBlockedTime = 15500;
     private boolean lineBlocked = false;
 
     public static final int OFF_RAMP_STALL_TIME = 4000;
@@ -512,7 +512,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 straightenWithLine();
                 */
                 move (-29.5, ENCODER);
-                rotateEncoder(7.7);
+                rotateEncoder(7.45);
                 move(-46, ENCODER);
                 driveToLine(-0.24);
                 move(-2.0, 0.14);
@@ -589,8 +589,13 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move (-49, ENCODER);
                 rotateEncoder(-9.5);
                 move(-42.1, ENCODER);
+                sleep(250);
+                waitFullCycle();
                 rotateEncoder(-12);
+                sleep(250);
+                waitFullCycle();
                 driveToLine(-0.1);
+                waitFullCycle();
                 move(-2.1, 0.14);
                 turnAcrossLine(0.7);
                 turnToLine(-0.25);
@@ -638,9 +643,12 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
                 move (-109.64, ENCODER);
                 sleep(250);
+                waitFullCycle();
                 rotateEncoder(-14.15, 0.5);
                 sleep(250);
+                waitFullCycle();
                 driveToLine(-0.24);
+                waitFullCycle();
                 move(-2.0, 0.14);
                 turnAcrossLine(0.7);
                 turnToLine(-0.25);
