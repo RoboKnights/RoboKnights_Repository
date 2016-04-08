@@ -154,6 +154,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         boolean prevLB2 = false;
         boolean prevLT2 = false;
         boolean prevRB2 = false;
+        boolean prevRT2 = false;
 
         while (runConditions())
         {
@@ -361,7 +362,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             }
 
             //DOOR CONTROL:
-
+/*
             if (gamepad1.dpad_left)
             {
                 setDoorPosition(UP);
@@ -371,7 +372,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             {
                 setDoorPosition(DOWN);
             }
-
+*/
             //HOOK CONTROL:
             if (gamepad2.x && !prevX2)
             {
@@ -458,6 +459,21 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
                 //colorSensorFront.enableLed(true);
             }
 
+            //HOOK ADJUST CONTROL:
+
+            if (gamepad2.right_trigger > 0.7 && !prevRT2)
+            {
+                leftHookAdjustServo.setPosition(leftHookAdjustServo.getPosition() > 0.5 ? LEFT_HOOK_ADJUST_INIT - HOOK_ADJUST_OFFSET : LEFT_HOOK_ADJUST_INIT);
+                //colorSensorFront.enableLed(false);
+            }
+
+            if (gamepad2.left_trigger > 0.7 && !prevLT2)
+            {
+                rightHookAdjustServo.setPosition(rightHookAdjustServo.getPosition() < 0.5 ? RIGHT_HOOK_ADJUST_INIT + HOOK_ADJUST_OFFSET : RIGHT_HOOK_ADJUST_INIT);
+                //colorSensorFront.enableLed(false);
+            }
+
+
             //PREVIOUS VALUE SETTINGS
 
             prevTopHatUp1 = gamepad1.dpad_up;
@@ -483,6 +499,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
             prevLB2 = gamepad2.left_bumper;
             prevLT2 = gamepad2.left_trigger > 0.7;
             prevRB2 = gamepad2.right_bumper;
+            prevRT2 = gamepad2.right_trigger > 0.7;
 
            // telemetry.addData("9", "RSA: " + resetAutomationOn);
             waitNextCycle();

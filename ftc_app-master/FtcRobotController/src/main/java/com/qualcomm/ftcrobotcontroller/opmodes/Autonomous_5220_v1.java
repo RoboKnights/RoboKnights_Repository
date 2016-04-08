@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.ftccommon.DbgLog;
+import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
@@ -478,6 +479,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         if (path == PARK)
         {
             move(-5.6);
+            playMusic(R.raw.all_i_do_is_win);
         }
 
         else if (path == COLLECTION)
@@ -979,6 +981,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
     {
         //new ProgramKiller().start(); //PROGRAM KILLER MESSES UP AUTONOMOUS.
         new DebuggerDisplayLoop().start();
+        waitFullCycle();
+
+        navX.zeroYaw();
+        waitFullCycle();
 
         lineBlockedTime = lineBlockedTime + startWaitTime;
         if (startPosition == START_CORNER) lineBlockedTime = lineBlockedTime + 12; //tiny value is intentional, blue is about as fast as red.
@@ -994,5 +1000,6 @@ public class Autonomous_5220_v1 extends OpMode_5220
         }
         //test();
         autonomous();
+        stopMusic();
     }
 }

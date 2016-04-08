@@ -33,6 +33,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.view.View;
 
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
@@ -41,6 +42,10 @@ import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.util.*;
+
+import com.kauailabs.navx.ftc.AHRS;
+
+import java.text.DecimalFormat;
 //hello!
 
 //Currently using FTC SDK released 11-4-2015
@@ -101,6 +106,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double RIGHT_CLIMBER_INIT = 0.9;
     protected static final double CLIMBER_OFFSET = 0.7;
 
+    protected static final double LEFT_HOOK_ADJUST_INIT = 1.0;
+    protected static final double RIGHT_HOOK_ADJUST_INIT = 0.0;
+    protected static final double HOOK_ADJUST_OFFSET = 1.0;
+
+
     //CONFIGURABLE CONSTANTS:
 
     protected static final boolean TIMER_ON = false;
@@ -151,12 +161,18 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected Servo rightDumpServo;
     protected Servo leftClimberServo;
     protected Servo rightClimberServo;
-    protected Servo doorServo;
+    //protected Servo doorServo;
     protected Servo hookServo;
+    protected Servo leftHookAdjustServo;
+    protected Servo rightHookAdjustServo;
 
     protected double swivelServoInit;
 
     //SENSORS:
+
+    public static final int NAVX_DIM_I2C_PORT = 5;
+
+    protected AHRS navX;
     protected ColorSensor colorSensorFront;
     protected ColorSensor colorSensorDown;
     protected GyroSensor gyroSensor;
@@ -174,6 +190,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected boolean isArmMoving = false;
     protected int phase = HAS_NOT_STARTED;
     protected double swivelPosition;
+
+    protected MediaPlayer mediaPlayer;
+    public static final boolean MUSIC_ON = true;
 
     public void setup()//this and the declarations above are the equivalent of the pragmas in RobotC
     {
@@ -222,9 +241,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         leftDumpServo = hardwareMap.servo.get("ldServo");
         rightDumpServo = hardwareMap.servo.get("rdServo");
         leftClimberServo = hardwareMap.servo.get("lcServo");
-        rightClimberServo = hardwareMap.servo.get("dServo");
-        doorServo = hardwareMap.servo.get("rcServo");
+        rightClimberServo = hardwareMap.servo.get("rcServo");
         hookServo = hardwareMap.servo.get("hServo");
+        leftHookAdjustServo = hardwareMap.servo.get("laServo");
+        rightHookAdjustServo = hardwareMap.servo.get("raServo");
 
         colorSensorDown = hardwareMap.colorSensor.get("cSensor1");
         colorSensorFront = hardwareMap.colorSensor.get("cSensor2");
@@ -233,6 +253,10 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         colorSensorDown.enableLed(false); //make sure this method works as it's supposed to
         gyroSensor = hardwareMap.gyroSensor.get("gSensor");
         touchSensorFront = hardwareMap.touchSensor.get("tSensor1");
+
+        navX = AHRS.getInstance(hardwareMap.deviceInterfaceModule.get("Device Interface Module 4"),
+                NAVX_DIM_I2C_PORT,
+                AHRS.DeviceDataType.kProcessedData);
     }
 
     public void initialize()
@@ -242,8 +266,9 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         rightClimberServo.setPosition(RIGHT_CLIMBER_INIT);
         buttonServo.setPosition(0.1);
         hookServo.setPosition(1.0);
-        setDoorPosition(UP);
         swivelServo.setPosition(SWIVEL_INIT);
+        leftHookAdjustServo.setPosition(LEFT_HOOK_ADJUST_INIT);
+        rightHookAdjustServo.setPosition(RIGHT_HOOK_ADJUST_INIT);
 
         waitFullCycle();
 
@@ -255,6 +280,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         waitFullCycle();
         gyroSensor.resetZAxisIntegrator();
         waitFullCycle();
+
+        navX.zeroYaw();
 
         moveWall(DOWN);
         phase = INIT;
@@ -322,23 +349,32 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     {
         public void run()
         {
+            DecimalFormat df = new DecimalFormat("#.##");
+            String yaw;
+            String pitch;
+            String roll;
+            String fh;
+            String yprf;
             debugLoopOn = true;
             while (debugLoopOn && opModeIsActive())
             {
-                telemetry.addData("1", "LFM: " + leftFrontMotor.getCurrentPosition() + ", RFM: " + rightFrontMotor.getCurrentPosition());
-                telemetry.addData("2", "LBM: " + leftBackMotor.getCurrentPosition() + ", RBM: " + rightBackMotor.getCurrentPosition());
-                telemetry.addData("3", "Swivel: " + swivelServo.getPosition());
-                telemetry.addData("4", "Dumper: " + leftDumpServo.getPosition());
+                yaw = df.format(navX.getYaw());
+                pitch = df.format(navX.getPitch());
+                roll = df.format(navX.getRoll());
+                fh = df.format(navX.getFusedHeading());
+                yprf = yaw + ", " + pitch + ", " + roll + ", " + fh;
 
-                //telemetry.addData("5", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue());
-                 telemetry.addData("5", "Down: R = " + colorSensorDown.red() + ", G = " + colorSensorDown.green() + ", B = " + colorSensorDown.blue() + ", A = " +  colorSensorDown.alpha());
-                 telemetry.addData("6", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue() + ", A = " +  colorSensorFront.alpha());
-                //telemetry.addData("7", "Gyro H: " + getGyroDirection() /*+ ", Front Touch: " + touchSensorFront.isPressed()*/);
-                //telemetry.addData("7", "Touch: " + touchSensor1.isPressed());
-                telemetry.addData("7", "Slides:" + getSlidePosition());
-                //telemetry.addData("7", "Beacon: " + getRescueBeaconColor());
+                telemetry.addData("1", "Time Elapsed:" + gameTimer.time());
 
-                telemetry.addData("8", "Time Elapsed:" + gameTimer.time());
+                telemetry.addData("2", "LFM: " + leftFrontMotor.getCurrentPosition() + ", RFM: " + rightFrontMotor.getCurrentPosition());
+                telemetry.addData("3", "LBM: " + leftBackMotor.getCurrentPosition() + ", RBM: " + rightBackMotor.getCurrentPosition());
+                telemetry.addData("4", "Swivel: " + df.format(swivelServo.getPosition()) + ", Dumper: " + df.format(leftDumpServo.getPosition()));
+                telemetry.addData("5", "Slides:" + getSlidePosition());
+
+                telemetry.addData("6", "Down: R = " + colorSensorDown.red() + ", G = " + colorSensorDown.green() + ", B = " + colorSensorDown.blue() + ", A = " +  colorSensorDown.alpha());
+                telemetry.addData("7", "Front: R = " + colorSensorFront.red() + ", G = " + colorSensorFront.green() + ", B = " + colorSensorFront.blue() + ", A = " +  colorSensorFront.alpha());
+                telemetry.addData ("8", "Y,P,R,FH: " + yprf);
+
                 //waitOneFullHardwareCycle();
             }
         }
@@ -1026,22 +1062,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         liftMotor2.setPower(-power);
     }
 
-    public final void setDoorPosition (double position)
-    {
-        doorServo.setPosition(position);
-    }
-
-    public final void setDoorPosition (boolean position)
-    {
-        setDoorPosition(position == UP ? 0.41 : 0.85);
-    }
-
-    public final void setHookPosition (double position)
+    public final void setHookPosition(double position)
     {
         hookServo.setPosition(position);
     }
 
-    public final void setHookPosition (boolean position)
+    public final void setHookPosition(boolean position)
     {
         setHookPosition(position == UP ? 0.0 : 1.0);
     }
@@ -1097,11 +1123,24 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     }
 
-
-
     public double getFloorBrightness ()
     {
         return (colorSensorDown.red() + colorSensorDown.green() + colorSensorDown.blue());
     }
 
+    //JUST FOR FUN:
+
+    public void playMusic (int resid)
+    {
+        if (runConditions() && !MUSIC_ON) return;
+        mediaPlayer = MediaPlayer.create(ftcRCA, resid);
+        mediaPlayer.start();
+    }
+
+    public void stopMusic ()
+    {
+        if (mediaPlayer == null) return;
+        mediaPlayer.stop();
+        mediaPlayer = null;
+    }
 }
