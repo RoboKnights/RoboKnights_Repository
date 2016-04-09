@@ -931,6 +931,27 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         }
     }
 
+    public final void waitForIMURotation (double degrees) //degrees must be less than 355
+    {
+        //convert degrees to proper value for this method
+        sleep(500);
+        if (navX.getFusedHeading() > degrees)
+        {
+            while (runConditions() && navX.getFusedHeading() > (degrees))
+            {
+
+            }
+        }
+
+        else
+        {
+            while (runConditions() && navX.getFusedHeading() < degrees)
+            {
+
+            }
+        }
+    }
+
     public final void waitForAbsoluteGyroRotation (double degrees)
     {
         //finish later
@@ -963,9 +984,24 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
     public final void rotate (double degrees, double power) //gyro rotation, add thing to make negative degrees = negative power.
     {
+        while (navX.isMoving());
         if (power * degrees < 0) power = -power;
+        navX.zeroYaw();
         setTurnPower(power);
         waitForGyroRotation (degrees);
+        stopDrivetrain();
+    }
+
+    public final void rotateIMU (double degrees, double power) //gyro rotation, add thing to make negative degrees = negative power.
+    {
+        if (power * degrees < 0) power = -power;
+        waitFullCycle();
+        navX.zeroYaw();
+        waitFullCycle();
+        setTurnPower(power);
+        waitForIMURotation(degrees);
+        setTurnPower((power < 0 ? 1 : -1) * 0.12);
+        waitForIMURotation(degrees);
         stopDrivetrain();
     }
 
