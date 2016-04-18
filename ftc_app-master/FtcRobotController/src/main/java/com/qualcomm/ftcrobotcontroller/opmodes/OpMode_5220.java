@@ -119,11 +119,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double DEFAULT_DRIVE_POWER = 1.0;
     protected static final double DEFAULT_SYNC_POWER = 0.56;
     protected static final double DEFAULT_TURN_POWER = 0.30;
-    protected static final double DEFAULT_TURN_POWER_HIGH = 0.80;
+    protected static final double DEFAULT_TURN_POWER_HIGH = 1.0;
     protected static final double INIT_SERVO_POSITION = 0.5;
 
     protected static final double ENCODER_SYNC_PROPORTIONALITY_CONSTANT = 0.001; //0.001 means 50 encoder counts --> 5% power difference
-    protected static final double GYRO_SYNC_PROPORTIONALITY_CONSTANT = 0.02; //this times 100 is the motor power difference per degree off.
+    protected static final double GYRO_SYNC_PROPORTIONALITY_CONSTANT = 0.2; //this times 100 is the motor power difference per degree off.
     protected static final double ENCODER_SYNC_UPDATE_TIME = 20; //in milliseconds for convenience
     protected static final double GYRO_SYNC_UPDATE_TIME = 20; //in milliseconds for convenience
 
@@ -504,6 +504,14 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         //return 42.0; //testing
     }
 
+    public double getIMUHeading ()
+    {
+        double yaw = navX.getYaw();
+        double toReturn = yaw;
+        if (yaw < 0.0) toReturn = 360 + yaw;
+        return toReturn;
+    }
+
     public void restartRobot()
     {
         ftcRCA.requestRobotRestart();
@@ -759,7 +767,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         int encoderCount = distanceToEncoderCount(distance);
         writeToLog("MOVING: Distance = " + distance + ", Encoder Count = " + encoderCount + ", Mode = " + getModeText(mode) + ", Power = " + power);
         writeToLog("MOVING: UnReset encoder values are LFM: " + getEncoderValue(leftFrontMotor) + ", " + getEncoderValue(rightFrontMotor));
-        double initialDirection = getGyroDirection();
+        navX.zeroYaw();
 
         double powerChange = 0;
         double updateTime = ((mode == ENCODER) ? ENCODER_SYNC_UPDATE_TIME : GYRO_SYNC_UPDATE_TIME);
@@ -782,7 +790,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
                 else if (mode == GYRO)
                 {
-                   powerChange = (getGyroDirection() - initialDirection) * GYRO_SYNC_PROPORTIONALITY_CONSTANT;
+                   powerChange = (navX.getYaw()) * GYRO_SYNC_PROPORTIONALITY_CONSTANT;
                 }
 
                 setLeftDrivePower(power - powerChange);
@@ -934,6 +942,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public final void waitForIMURotation (double degrees) //degrees must be less than 355
     {
         //convert degrees to proper value for this method
+        /*
         sleep(500);
         if (navX.getFusedHeading() > degrees)
         {
@@ -948,6 +957,27 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             while (runConditions() && navX.getFusedHeading() < degrees)
             {
 
+            }
+        }*/
+
+        waitFullCycle();
+        navX.zeroYaw();
+        while (runConditions() && navX.isCalibrating());
+        sleep(50);
+        waitFullCycle();
+        if (degrees < 0)
+        {
+            while (runConditions() && (getIMUHeading() > (360 + degrees) || getIMUHeading() < 2))
+            {
+                waitNextCycle();
+            }
+        }
+
+        else
+        {
+            while (runConditions() && (getIMUHeading() < degrees || getIMUHeading() > 358))
+            {
+                waitNextCycle();
             }
         }
     }
@@ -988,11 +1018,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         if (power * degrees < 0) power = -power;
         navX.zeroYaw();
         setTurnPower(power);
-        waitForGyroRotation (degrees);
+        waitForGyroRotation(degrees);
         stopDrivetrain();
     }
 
-    public final void rotateIMU (double degrees, double power) //gyro rotation, add thing to make negative degrees = negative power.
+    public final void rotateIMU (double degrees, double power) //Do NOT give degrees more than ~350
     {
         if (power * degrees < 0) power = -power;
         waitFullCycle();
@@ -1000,9 +1030,98 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         waitFullCycle();
         setTurnPower(power);
         waitForIMURotation(degrees);
-        setTurnPower((power < 0 ? 1 : -1) * 0.12);
-        waitForIMURotation(degrees);
         stopDrivetrain();
+        waitFullCycle();
+        /*
+        if (degrees > 0)
+        {
+            double overshoot = 0.7;
+            setTurnPower(-0.16);
+            while (runConditions() && getIMUHeading() > (degrees - overshoot))
+            {
+                waitNextCycle();
+            }
+        }
+
+        else if (degrees < 0)
+        {
+            double overshoot = 0.7;
+            setTurnPower(0.16);
+            while (runConditions() && getIMUHeading() <  (degrees + overshoot))
+            {
+                waitNextCycle();
+            }
+        }
+*/
+        final double correctionBasePower = 0.12;
+        final double powerMultiplier = 0.06;
+        final double margin = 0.4;
+        final int correctionInterval = 100;
+
+        if (degrees > 0)
+        {
+
+            while (runConditions() && Math.abs(getIMUHeading() - degrees) > margin)
+            {
+                while (runConditions() && Math.abs(getIMUHeading() - degrees) > margin)
+                {
+                    double difference = Math.abs(getIMUHeading() - degrees);
+                    double powerAddition = difference * powerMultiplier;
+                    double correctionPower = correctionBasePower + powerAddition;
+                    correctionPower = Math.max(correctionPower, 0);
+                    correctionPower = Math.min(correctionPower, 1);
+
+                    if (getIMUHeading() < degrees) setTurnPower(correctionBasePower);
+                    else if (getIMUHeading() > degrees) setTurnPower(-correctionBasePower);
+                    waitNextCycle();
+                }
+
+                waitFullCycle();
+                stopDrivetrain();
+                sleep(correctionInterval);
+                waitFullCycle();
+            }
+        }
+
+        else if (degrees < 0)
+        {
+            while (runConditions() && Math.abs(getIMUHeading() - (360 + degrees)) > margin)
+            {
+                while (runConditions() && Math.abs(getIMUHeading() - (360 + degrees)) > margin)
+                {
+                    double difference = Math.abs(getIMUHeading() - (360 + degrees));
+                    double powerAddition = difference * powerMultiplier;
+                    double correctionPower = correctionBasePower + powerAddition;
+
+                    if (getIMUHeading() < 360 + degrees) setTurnPower(correctionBasePower);
+                    else if (getIMUHeading() > 360 + degrees) setTurnPower(-correctionBasePower);
+                    waitNextCycle();
+                }
+
+                waitFullCycle();
+                stopDrivetrain();
+                sleep(correctionInterval);
+                waitFullCycle();
+            }
+        }
+
+
+        stopDrivetrain();
+        waitFullCycle();
+        navX.zeroYaw();
+        waitFullCycle();
+
+        /*
+        navX.zeroYaw();
+        setTurnPower((power < 0 ? 1 : -1) * 0.12);
+        waitForIMURotation(difference);
+        stopDrivetrain();
+        waitFullCycle();\*/
+    }
+
+    public final void rotateIMU (double degrees) //gyro rotation, add thing to make negative degrees = negative power.
+    {
+        rotateIMU(degrees, DEFAULT_TURN_POWER_HIGH);
     }
 
     public final void rotate (double degrees)

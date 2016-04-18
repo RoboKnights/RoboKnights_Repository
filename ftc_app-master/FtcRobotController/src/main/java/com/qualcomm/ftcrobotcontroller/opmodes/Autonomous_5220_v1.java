@@ -333,80 +333,16 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
     public void test() //for debug, whenever we want to test something independent of the rest of the autonomous program
     {
-        //move (25);
-        /*
-        buttonServo.setPosition(0.5);
-        sleep(1000);
-        buttonServo.setPosition(0.1);
-        */
-        /*
-
-        colorSensorDown.enableLed(true);
-        waitFullCycle();
-        colorSensorDown.enableLed(true);
-        waitFullCycle();
-
-        while (runConditions())
-        {
-            moveWall(UP);
-            setDrivePower(-0.35);
-            while (runConditions() && colorSensorDown.blue() + colorSensorDown.green() >= 3)
-            {
-
-            }
-            telemetry.addData("10", "on ramp");
-            sleep(100);
-            while (runConditions() && colorSensorDown.red() > 3)
-            {
-
-            }
-            sleep(5);
-            stopDrivetrain();
-            moveWall(DOWN);
-            telemetry.addData("10", "latched on");
-            sleep(400);
-            moveSwivel(SWIVEL_INIT - 0.12);
-            sleep(2500);
-            moveSwivel(SWIVEL_INIT);
-            sleep(2500);
-            setDrivePower(-0.24);
-            while (runConditions() && colorSensorDown.red() > 3)
-            {
-
-            }
-            moveWall(UP);
-            sleep(250);
-            telemetry.addData("10", "unlatched driving down");
-            move(22, 0.4);
-            //setDrivePower(0.6);
-            /*
-            while (runConditions() && colorSensorDown.green() + colorSensorDown.blue() < 3)
-            {
-
-            }
-
-            sleep(700);
-
-            stopDrivetrain();
-            telemetry.addData("10", "on floor");
-            sleep(2000);
-
-
-
-        }
-    */
-        //driveToLine(-0.37);
-        //straightenWithLine();
         telemetry.addData("1", "Started moving.");
-        move(-50, ENCODER);
-        sleep(2000);
-        moveSmooth(50);
+        rotateIMU(-180);
+        sleep(2500);
+        rotateIMU(180);
         telemetry.addData("1", "Done moving..");
     }
 
     public void autonomous ()
     {
-        new HookRetractor().start();
+        //new HookRetractor().start();
         startToLine(color);
 
         followLineUntilTouch();
@@ -998,8 +934,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
 
         }
-        //test();
-        autonomous();
+        test();
+        //autonomous();
         stopMusic();
     }
 }
