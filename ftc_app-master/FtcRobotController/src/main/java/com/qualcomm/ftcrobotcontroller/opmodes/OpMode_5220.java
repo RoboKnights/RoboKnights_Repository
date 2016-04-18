@@ -961,13 +961,14 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         }*/
 
         waitFullCycle();
-        navX.zeroYaw();
+        /*
         while (runConditions() && navX.isCalibrating());
         sleep(50);
         waitFullCycle();
+        */
         if (degrees < 0)
         {
-            while (runConditions() && (getIMUHeading() > (360 + degrees) || getIMUHeading() < 2))
+            while (runConditions() && (getIMUHeading() > (360 + degrees) || getIMUHeading() < 4))
             {
                 waitNextCycle();
             }
@@ -975,7 +976,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
         else
         {
-            while (runConditions() && (getIMUHeading() < degrees || getIMUHeading() > 358))
+            while (runConditions() && (getIMUHeading() < degrees || getIMUHeading() > 356))
             {
                 waitNextCycle();
             }
@@ -1028,8 +1029,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         waitFullCycle();
         navX.zeroYaw();
         waitFullCycle();
+        sleep(100);
+        writeToLog("Starting high power rotation");
         setTurnPower(power);
         waitForIMURotation(degrees);
+        writeToLog("Done with high power rotation");
         stopDrivetrain();
         waitFullCycle();
         /*
@@ -1053,10 +1057,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
             }
         }
 */
-        final double correctionBasePower = 0.12;
+
+        final double correctionBasePower = 0.108;
         final double powerMultiplier = 0.06;
         final double margin = 0.4;
         final int correctionInterval = 100;
+        double correctionPower = correctionBasePower;
 
         if (degrees > 0)
         {
@@ -1066,13 +1072,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 while (runConditions() && Math.abs(getIMUHeading() - degrees) > margin)
                 {
                     double difference = Math.abs(getIMUHeading() - degrees);
-                    double powerAddition = difference * powerMultiplier;
-                    double correctionPower = correctionBasePower + powerAddition;
-                    correctionPower = Math.max(correctionPower, 0);
-                    correctionPower = Math.min(correctionPower, 1);
+                    //if (difference > 4) correctionPower = DEFAULT_TURN_POWER_HIGH;
+                    //else correctionPower = correctionBasePower;
 
-                    if (getIMUHeading() < degrees) setTurnPower(correctionBasePower);
-                    else if (getIMUHeading() > degrees) setTurnPower(-correctionBasePower);
+                    if (getIMUHeading() < degrees) setTurnPower(correctionPower);
+                    else if (getIMUHeading() > degrees) setTurnPower(-correctionPower);
                     waitNextCycle();
                 }
 
@@ -1090,11 +1094,11 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                 while (runConditions() && Math.abs(getIMUHeading() - (360 + degrees)) > margin)
                 {
                     double difference = Math.abs(getIMUHeading() - (360 + degrees));
-                    double powerAddition = difference * powerMultiplier;
-                    double correctionPower = correctionBasePower + powerAddition;
+                    //if (difference > 4) correctionPower = DEFAULT_TURN_POWER_HIGH;
+                    //else correctionPower = correctionBasePower;
 
-                    if (getIMUHeading() < 360 + degrees) setTurnPower(correctionBasePower);
-                    else if (getIMUHeading() > 360 + degrees) setTurnPower(-correctionBasePower);
+                    if (getIMUHeading() < 360 + degrees) setTurnPower(correctionPower);
+                    else if (getIMUHeading() > 360 + degrees) setTurnPower(-correctionPower);
                     waitNextCycle();
                 }
 
@@ -1110,6 +1114,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         waitFullCycle();
         navX.zeroYaw();
         waitFullCycle();
+
 
         /*
         navX.zeroYaw();

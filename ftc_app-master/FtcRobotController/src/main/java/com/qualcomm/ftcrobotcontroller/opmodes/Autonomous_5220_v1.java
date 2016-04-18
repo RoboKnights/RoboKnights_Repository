@@ -334,9 +334,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void test() //for debug, whenever we want to test something independent of the rest of the autonomous program
     {
         telemetry.addData("1", "Started moving.");
-        rotateIMU(-180);
+        rotateIMU(-45);
         sleep(2500);
-        rotateIMU(180);
+        rotateIMU(45);
         telemetry.addData("1", "Done moving..");
     }
 
@@ -472,6 +472,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 */
                 move (-29.5, ENCODER);
                 rotateEncoder(7.45);
+                //rotateEncoder(45);
                 move(-46, ENCODER);
                 driveToLine(-0.24);
                 move(-2.0, 0.14);
@@ -545,12 +546,15 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move(1, 0.3);
                 straightenWithLine();
                 */
-                move (-49, ENCODER);
-                rotateEncoder(-9.5);
-                move(-42.1, ENCODER);
+                move(-49, ENCODER);
+                //rotateEncoder(-9.5);
+                rotateIMU(-49);
+                //move(-42.1, ENCODER);
+                move(-44.1, ENCODER);
                 sleep(250);
                 waitFullCycle();
-                rotateEncoder(-12);
+                //rotateEncoder(-12);
+                rotateIMU(-85);
                 sleep(250);
                 waitFullCycle();
                 driveToLine(-0.1);
@@ -934,8 +938,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
 
         }
-        test();
-        //autonomous();
+
+        lineBlockedTime = 100000; //just for debug
+        //test();
+        autonomous();
         stopMusic();
     }
 }
