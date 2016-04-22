@@ -324,20 +324,35 @@ public class Autonomous_5220_v1 extends OpMode_5220
     {
         public void run ()
         {
-            setLiftPower(0.2);
+            setHookAdjustPosition(0.5);
             opMode.sleep(1400);
-            setLiftPower(0);
-            setLiftPower(0);
+            setHookAdjustPosition(0.0);
+
         }
     }
 
     public void test() //for debug, whenever we want to test something independent of the rest of the autonomous program
     {
         telemetry.addData("1", "Started moving.");
+        /*
         rotateIMU(-45);
         sleep(2500);
         rotateIMU(45);
+        */
+        /*
+
+        move (50, ENCODER);
+        sleep(2000);
+        move (-50, ENCODER);
         telemetry.addData("1", "Done moving..");
+        */
+
+        driveToLine(-0.24);
+        waitFullCycle();
+        move(-0.9, 0.14);
+        turnAcrossLine(0.7);
+        turnToLine(-0.25);
+        followLineUntilTouch();
     }
 
     public void autonomous ()
@@ -547,19 +562,19 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 straightenWithLine();
                 */
                 move(-49, ENCODER);
-                //rotateEncoder(-9.5);
-                rotateIMU(-49);
+                rotateEncoder(-9.5);
+                //rotateIMU(-49);
                 //move(-42.1, ENCODER);
                 move(-44.1, ENCODER);
                 sleep(250);
                 waitFullCycle();
-                //rotateEncoder(-12);
-                rotateIMU(-85);
+                rotateEncoder(-12.2);
+                //rotateIMU(-85);
                 sleep(250);
                 waitFullCycle();
                 driveToLine(-0.1);
                 waitFullCycle();
-                move(-2.1, 0.14);
+                move(-1.0, 0.14);
                 turnAcrossLine(0.7);
                 turnToLine(-0.25);
                // rotateEncoder(3.89);
@@ -612,7 +627,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 waitFullCycle();
                 driveToLine(-0.24);
                 waitFullCycle();
-                move(-2.0, 0.14);
+                move(-1.6, 0.14);
                 turnAcrossLine(0.7);
                 turnToLine(-0.25);
 

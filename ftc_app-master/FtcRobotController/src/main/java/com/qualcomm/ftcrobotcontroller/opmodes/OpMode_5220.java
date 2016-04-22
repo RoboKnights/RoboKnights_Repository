@@ -46,6 +46,7 @@ import com.qualcomm.robotcore.util.*;
 import com.kauailabs.navx.ftc.AHRS;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 //hello!
 
 //Currently using FTC SDK released 11-4-2015
@@ -123,9 +124,16 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     protected static final double INIT_SERVO_POSITION = 0.5;
 
     protected static final double ENCODER_SYNC_PROPORTIONALITY_CONSTANT = 0.001; //0.001 means 50 encoder counts --> 5% power difference
-    protected static final double GYRO_SYNC_PROPORTIONALITY_CONSTANT = 0.2; //this times 100 is the motor power difference per degree off.
+    protected static final double GYRO_SYNC_PROPORTIONALITY_CONSTANT = 0.14; //this times 100 is the motor power difference per degree off.
+    protected static final double GYRO_SYNC_DIFFERENTIAL_CONSTANT = 0.0;
+    protected static final double GYRO_SYNC_INTEGRAL_CONSTANT = 0;
     protected static final double ENCODER_SYNC_UPDATE_TIME = 20; //in milliseconds for convenience
-    protected static final double GYRO_SYNC_UPDATE_TIME = 20; //in milliseconds for convenience
+    protected static final double GYRO_SYNC_UPDATE_TIME = 32; //in milliseconds for convenience
+
+    protected static final double ROTATE_IMU_UPDATE_TIME = 32; //in milliseconds for convenience
+    protected static final double ROTATE_IMU_PROPORTIONALITY_CONSTANT = 32;
+    protected static final double ROTATE_IMU_DIFFERENTIAL_CONSTANT = 0;
+
 
     protected static final double CLIMBER_FLING_TIME = 1.0;
 
@@ -776,8 +784,18 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         writeToLog("MOVING: Initialized encoder values (should be 0) are LFM: " + getEncoderValue(leftFrontMotor) + ", RFM = " + getEncoderValue(rightFrontMotor));
         setDrivePower(power);
 
+        int i = 0;
+        int prevYawsSize = 7;
+        ArrayList<Double> prevYaws = new ArrayList<Double>(prevYawsSize);
+        for (int j = 0; j < prevYawsSize; j++) prevYaws.add(0.0);
+
+
+        //double prevYaw;
+
         while (runConditions() && !driveEncodersHaveReached(encoderCount)) //change back to runConditions if it works, change back to driveEncodersHaveReached if it works
         {
+            if (i >= 2) i = 0;
+
             if (mode != NORMAL)
             {
                 if (mode == ENCODER)
@@ -790,11 +808,28 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
                 else if (mode == GYRO)
                 {
-                   powerChange = (navX.getYaw()) * GYRO_SYNC_PROPORTIONALITY_CONSTANT;
+                    double yaw = navX.getYaw();
+                    if (prevYaws.size() >= prevYawsSize) prevYaws.remove(0);
+                    prevYaws.add(yaw);
+                    powerChange = yaw * GYRO_SYNC_PROPORTIONALITY_CONSTANT;
+                    if (prevYaws.size() >= prevYawsSize)
+                    {
+                        double roc = (yaw - prevYaws.get(prevYaws.size() - 2)) / updateTime;
+                        powerChange = powerChange - (GYRO_SYNC_DIFFERENTIAL_CONSTANT * roc);
+
+                        double sum = 0;
+                        for (Double d: prevYaws)
+                        {
+                            sum += d;
+                        }
+
+                        powerChange = powerChange + (sum * GYRO_SYNC_INTEGRAL_CONSTANT);
+                    }
+
                 }
 
-                setLeftDrivePower(power - powerChange);
-                setRightDrivePower(power + powerChange);
+                setLeftDrivePower(Range.clip(power - powerChange, -1.0, 1.0));
+                setRightDrivePower(Range.clip(power + powerChange, -1.0, 1.0));
 
                 double initTime = gameTimer.time();
                 while ((gameTimer.time() - initTime) < updateTime)
@@ -804,6 +839,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
                         break;
                     }
                 }
+                if (i == 0) writeToLog("IMU YAW: " + navX.getYaw());
+                i++;
             }
 
             //waitFullCycle();
@@ -1032,7 +1069,28 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         sleep(100);
         writeToLog("Starting high power rotation");
         setTurnPower(power);
-        waitForIMURotation(degrees);
+        //waitForIMURotation(degrees);
+        waitFullCycle();
+        /*
+        while (runConditions() && navX.isCalibrating());
+        sleep(50);
+        waitFullCycle();
+        */
+        if (degrees < 0)
+        {
+            while (runConditions() && (getIMUHeading() > (360 + degrees) || getIMUHeading() < 4))
+            {
+                waitNextCycle();
+            }
+        }
+
+        else
+        {
+            while (runConditions() && (getIMUHeading() < degrees || getIMUHeading() > 356))
+            {
+                waitNextCycle();
+            }
+        }
         writeToLog("Done with high power rotation");
         stopDrivetrain();
         waitFullCycle();
@@ -1230,6 +1288,12 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public final void setHookPosition(boolean position)
     {
         setHookPosition(position == UP ? 0.0 : 1.0);
+    }
+
+    public final void setHookAdjustPosition (double position)
+    {
+        leftHookAdjustServo.setPosition(LEFT_HOOK_ADJUST_INIT - position);
+        leftHookAdjustServo.setPosition(RIGHT_HOOK_ADJUST_INIT + position);
     }
 
     public final void moveSlides (int position)
