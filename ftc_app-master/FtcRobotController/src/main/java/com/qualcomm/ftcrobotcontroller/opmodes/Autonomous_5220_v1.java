@@ -334,11 +334,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void test() //for debug, whenever we want to test something independent of the rest of the autonomous program
     {
         telemetry.addData("1", "Started moving.");
-        /*
-        rotateIMU(-45);
+
+        rotateIMU(-180);
         sleep(2500);
-        rotateIMU(45);
-        */
+        rotateIMU(180);
+
         /*
 
         move (50, ENCODER);
@@ -346,13 +346,14 @@ public class Autonomous_5220_v1 extends OpMode_5220
         move (-50, ENCODER);
         telemetry.addData("1", "Done moving..");
         */
-
+/*
         driveToLine(-0.24);
         waitFullCycle();
         move(-0.9, 0.14);
         turnAcrossLine(0.7);
         turnToLine(-0.25);
         followLineUntilTouch();
+        */
     }
 
     public void autonomous ()
@@ -371,7 +372,15 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             flingClimbers();
             sleep(200);
+            while (runConditions() && touchSensorFront.getValue() < 0.02) setDrivePower(-0.35);
             if (beaconScoringOn)scoreRescueBeacon();
+        }
+
+        if (path == PARK)
+        {
+            move(2, 0.4);
+            playMusic(R.raw.all_i_do_is_win);
+            return;
         }
 
         if (path == BACK_CLEAR)
@@ -401,7 +410,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 rotateEncoder(-14, 0.5);
                 //swingTurn(28, RIGHT, 0.7);
                 move(-27);
-                while (gameTimer.time() < 27000);
+                while (runConditions() && gameTimer.time() < 27000);
                 moveTime(30000 - gameTimer.time() - 400, 0.10);
                 stopDrivetrain();
             }
@@ -412,7 +421,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 rotateEncoder(13.2, 0.5);
                 //swingTurn(28, RIGHT, 0.7);
                 move(-31.15);
-                while (gameTimer.time() < 27000);
+                while (runConditions() && gameTimer.time() < 27000);
                 moveTime(30000 - gameTimer.time() - 400, 0.10);
                 stopDrivetrain();
             }
@@ -427,13 +436,9 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         //At this point, robot should straight towards the wall, with color sensor directly above the colored line
 
-        if (path == PARK)
-        {
-            move(-5.6);
-            playMusic(R.raw.all_i_do_is_win);
-        }
 
-        else if (path == COLLECTION)
+
+        if (path == COLLECTION)
         {
             move(5.6);
             if (sweeperOn) setSweeperPower(1.0);
@@ -486,11 +491,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 straightenWithLine();
                 */
                 move (-29.5, ENCODER);
-                rotateEncoder(7.45);
+                rotateEncoder(6.4); //was 7.3
                 //rotateEncoder(45);
                 move(-46, ENCODER);
                 driveToLine(-0.24);
-                move(-2.0, 0.14);
+                move(-0.8, 0.14);
                 turnAcrossLine(0.7);
                 turnToLine(-0.25);
             }
@@ -524,11 +529,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
                 move (-84, ENCODER);
                 rotateEncoder(7.0, 0.5);
-                move(-21, ENCODER);
+                move(-17.6, ENCODER);
                 rotateEncoder(-8.0, 0.5);
                 driveToLine(-0.24);
-                move(-2.0, 0.14);
-                turnAcrossLine(0.7);
+                move(-1.0, 0.14);
+                turnAcrossLine(0.92);
                 turnToLine(-0.25);
             }
 
@@ -627,7 +632,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 waitFullCycle();
                 driveToLine(-0.24);
                 waitFullCycle();
-                move(-1.6, 0.14);
+                move(-1.0, 0.14);
                 turnAcrossLine(0.7);
                 turnToLine(-0.25);
 
@@ -805,6 +810,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         sleep(50);
         stopDrivetrain();
+        moveTime(200, 0.32);
         stopDrivetrain();
         //
     }

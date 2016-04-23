@@ -49,7 +49,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 //hello!
 
-//Currently using FTC SDK released 11-4-2015
+//Currently using FTC SDK released 2-9-2015
 
 //add program off switch for using any one particular motor
 
