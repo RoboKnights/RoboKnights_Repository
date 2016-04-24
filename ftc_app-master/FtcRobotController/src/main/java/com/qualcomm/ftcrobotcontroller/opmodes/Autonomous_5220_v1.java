@@ -353,7 +353,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
         turnAcrossLine(0.7);
         turnToLine(-0.25);
         followLineUntilTouch();
-        
+
     }
 
     public void autonomous ()
@@ -581,7 +581,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 waitFullCycle();
                 driveToLine(-0.18);
                 waitFullCycle();
-                move(-1.2, 0.14);
+                move(-1.75, 0.14);
                 turnAcrossLine(0.7);
                 turnToLine(-0.25);
                // rotateEncoder(3.89);
@@ -634,7 +634,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 waitFullCycle();
                 driveToLine(-0.24);
                 waitFullCycle();
-                move(-1.0, 0.14);
+                move(-1.5, 0.14);
                 turnAcrossLine(0.7);
                 turnToLine(-0.25);
 
@@ -786,14 +786,14 @@ public class Autonomous_5220_v1 extends OpMode_5220
         {
             if (getFloorBrightness() < LINE_WHITE_THRESHOLD)
             {
-                setRightDrivePower(0.02);
+                setRightDrivePower(0.00);
                 setLeftDrivePower(-0.22);
             }
 
             else
             {
-                setRightDrivePower(-0.22);
-                setLeftDrivePower(0.02);
+                setRightDrivePower(-0.28);
+                setLeftDrivePower(0.04);
             }
 
             if (gameTimer.time() > lineBlockedTime)
