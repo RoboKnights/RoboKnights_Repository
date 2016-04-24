@@ -324,7 +324,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     {
         public void run ()
         {
-            setHookAdjustPosition(0.5);
+            setHookAdjustPosition(0.68);
             opMode.sleep(1400);
             setHookAdjustPosition(0.0);
 
@@ -334,11 +334,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void test() //for debug, whenever we want to test something independent of the rest of the autonomous program
     {
         telemetry.addData("1", "Started moving.");
-
+/*
         rotateIMU(-180);
         sleep(2500);
         rotateIMU(180);
-
+*/
         /*
 
         move (50, ENCODER);
@@ -346,19 +346,19 @@ public class Autonomous_5220_v1 extends OpMode_5220
         move (-50, ENCODER);
         telemetry.addData("1", "Done moving..");
         */
-/*
+
         driveToLine(-0.24);
         waitFullCycle();
-        move(-0.9, 0.14);
+        move(-1.5, 0.14);
         turnAcrossLine(0.7);
         turnToLine(-0.25);
         followLineUntilTouch();
-        */
+        
     }
 
     public void autonomous ()
     {
-        //new HookRetractor().start();
+        new HookRetractor().start();
         startToLine(color);
 
         followLineUntilTouch();
@@ -371,8 +371,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
         else
         {
             flingClimbers();
-            sleep(200);
-            while (runConditions() && touchSensorFront.getValue() < 0.02) setDrivePower(-0.35);
+            sleep(250);
+            while (runConditions() && touchSensorFront.getValue() < 0.04) setDrivePower(-0.12);
+            stopDrivetrain();
+            sleep(500);
             if (beaconScoringOn)scoreRescueBeacon();
         }
 
@@ -491,11 +493,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 straightenWithLine();
                 */
                 move (-29.5, ENCODER);
-                rotateEncoder(6.4); //was 7.3
+                rotateEncoder(7.1); //was 7.3
                 //rotateEncoder(45);
-                move(-46, ENCODER);
+                move(-44, ENCODER);
                 driveToLine(-0.24);
-                move(-0.8, 0.14);
+                move(-1.5, 0.14);
                 turnAcrossLine(0.7);
                 turnToLine(-0.25);
             }
@@ -527,13 +529,13 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 straightenWithLine();
                 */
 
-                move (-84, ENCODER);
+                move(-84, ENCODER);
                 rotateEncoder(7.0, 0.5);
-                move(-17.6, ENCODER);
+                move(-19, ENCODER);
                 rotateEncoder(-8.0, 0.5);
                 driveToLine(-0.24);
-                move(-1.0, 0.14);
-                turnAcrossLine(0.92);
+                move(-1.5, 0.14);
+                turnAcrossLine(0.7);
                 turnToLine(-0.25);
             }
 
@@ -566,20 +568,20 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move(1, 0.3);
                 straightenWithLine();
                 */
-                move(-49, ENCODER);
+                move(-51.4, ENCODER);
                 rotateEncoder(-9.5);
                 //rotateIMU(-49);
                 //move(-42.1, ENCODER);
-                move(-44.1, ENCODER);
+                move(-41.1, ENCODER);
                 sleep(250);
                 waitFullCycle();
                 rotateEncoder(-12.2);
                 //rotateIMU(-85);
                 sleep(250);
                 waitFullCycle();
-                driveToLine(-0.1);
+                driveToLine(-0.18);
                 waitFullCycle();
-                move(-1.0, 0.14);
+                move(-1.2, 0.14);
                 turnAcrossLine(0.7);
                 turnToLine(-0.25);
                // rotateEncoder(3.89);
@@ -624,7 +626,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
                 */
 
-                move (-109.64, ENCODER);
+                move (-111, ENCODER);
                 sleep(250);
                 waitFullCycle();
                 rotateEncoder(-14.15, 0.5);

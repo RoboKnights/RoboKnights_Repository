@@ -1293,7 +1293,7 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
     public final void setHookAdjustPosition (double position)
     {
         leftHookAdjustServo.setPosition(LEFT_HOOK_ADJUST_INIT - position);
-        leftHookAdjustServo.setPosition(RIGHT_HOOK_ADJUST_INIT + position);
+        rightHookAdjustServo.setPosition(RIGHT_HOOK_ADJUST_INIT + position);
     }
 
     public final void moveSlides (int position)
