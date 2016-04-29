@@ -99,6 +99,7 @@ public class FtcOpModeRegister implements OpModeRegister {
       manager.register("TeleOp_5220_v1", TeleOp_5220_v1.class);
       manager.register("Drive_Control_5220_v1", Drive_Control_5220_v1.class);
       manager.register("Check_OpMode", Check_OpMode.class);
+      manager.register("WiggleTest_5220", WiggleTest_5220.class);
       manager.register("navXProcessedOp", navXProcessedOp.class);
   }
 }

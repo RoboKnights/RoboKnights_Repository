@@ -57,17 +57,19 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public static final int PARK = 0;
     public static final int COLLECTION = 1;
     public static final int RAMP = 2;
-    public static final int OTHER_SIDE = 3;
+    public static final int OTHER_RAMP = 3;
     public static final int CLEAR = 4;
     public static final int BACK_CLEAR = 5;
-    public static final int NUM_PATHS = 6;
+    public static final int GOAL_CLEAR = 6;
+    public static final int DEFENSE = 7;
+    public static final int NUM_PATHS = 8;
 
     public static final int START_RAMP = 0;
     public static final int START_CORNER = 1;
     public static final int START_STRAIGHT = 2;
     public static final int NUM_STARTS = 3;
 
-    public double lineBlockedTime = 15500;
+    public double lineBlockedTime = 19500;
     private boolean lineBlocked = false;
 
     public static final int OFF_RAMP_STALL_TIME = 4000;
@@ -293,9 +295,11 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 case PARK: return "PARK";
                 case COLLECTION: return "COLLECTION";
                 case RAMP: return "RAMP";
-                case OTHER_SIDE: return "OTHER SIDE";
+                case OTHER_RAMP: return "OTHER RAMP";
                 case CLEAR: return "CLEAR";
                 case BACK_CLEAR: return "BACK CLEAR";
+                case GOAL_CLEAR: return "GOAL CLEAR";
+                case DEFENSE: return "DEFENSE";
                 default: return "Error: Invalid Path Number.";
             }
         }
@@ -320,13 +324,17 @@ public class Autonomous_5220_v1 extends OpMode_5220
         colorSensorDown.enableLed(true);
     }
 
-    private class HookRetractor extends Thread
+    private class HookAdjustReleaser extends Thread
     {
         public void run ()
         {
-            setHookAdjustPosition(0.68);
-            opMode.sleep(1400);
-            setHookAdjustPosition(0.0);
+            hookAdjustRelease();
+
+            setLiftPower(0.35);
+            opMode.sleep(775);
+            waitNextCycle();
+            setLiftPower(0);
+
 
         }
     }
@@ -346,19 +354,23 @@ public class Autonomous_5220_v1 extends OpMode_5220
         move (-50, ENCODER);
         telemetry.addData("1", "Done moving..");
         */
-
+/*
         driveToLine(-0.24);
         waitFullCycle();
         move(-1.5, 0.14);
         turnAcrossLine(0.7);
         turnToLine(-0.25);
         followLineUntilTouch();
+        */
+
+        new HookAdjustReleaser().start();
+        while (runConditions());
 
     }
 
     public void autonomous ()
     {
-        new HookRetractor().start();
+        new HookAdjustReleaser().start();
         startToLine(color);
 
         followLineUntilTouch();
@@ -411,10 +423,16 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move(3);
                 rotateEncoder(-14, 0.5);
                 //swingTurn(28, RIGHT, 0.7);
+                move (-44);
+                //moveTime (5000, -0.22);
+
+
+                /*
                 move(-27);
                 while (runConditions() && gameTimer.time() < 27000);
                 moveTime(30000 - gameTimer.time() - 400, 0.10);
                 stopDrivetrain();
+                */
             }
 
             if (color == RED)
@@ -422,10 +440,30 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move(3);
                 rotateEncoder(13.2, 0.5);
                 //swingTurn(28, RIGHT, 0.7);
-                move(-31.15);
+                move(-42);
+                /*
+                move(-31.15); //was 31
                 while (runConditions() && gameTimer.time() < 27000);
                 moveTime(30000 - gameTimer.time() - 400, 0.10);
                 stopDrivetrain();
+                */
+            }
+
+            return;
+        }
+
+        if (path == GOAL_CLEAR)
+        {
+            if (color == BLUE)
+            {
+                //not setup yet
+            }
+
+            if (color == RED)
+            {
+                move(3);
+                rotateEncoder(-14.2, 1.0);
+                move (-23);
             }
 
             return;
@@ -462,7 +500,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
             stopDrivetrain(); //neccessary, otherwise would have to put this in 4 different places in climbRamp.
         }
 
-        else if (path == OTHER_SIDE)
+        else if (path == OTHER_RAMP)
         {
             if (color == RED)
             {
@@ -473,6 +511,24 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 rotateEncoder(-29.5);
             }
             move(-77);
+
+        }
+
+        else if (path == DEFENSE)
+        {
+            if (color == RED)
+            {
+                //rotateEncoder(27, 0.6); //FIGURE OUT VALUES LATER
+            }
+            else if (color == BLUE)
+            {
+                //rotateEncoder(-21.2);
+                rotateEncoder(7.3);
+                setSweeperPower(-1.0);
+                move(44.7);
+                setSweeperPower(0);
+            }
+
 
         }
 
@@ -530,8 +586,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 */
 
                 move(-84, ENCODER);
-                rotateEncoder(7.0, 0.5);
-                move(-19, ENCODER);
+                rotateEncoder(7.1, 0.5);
+                move(-20.7, ENCODER);
                 rotateEncoder(-8.0, 0.5);
                 driveToLine(-0.24);
                 move(-1.5, 0.14);
@@ -626,7 +682,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
                 */
 
-                move (-111, ENCODER);
+                move (-112, ENCODER); //was 111
                 sleep(250);
                 waitFullCycle();
                 rotateEncoder(-14.15, 0.5);
@@ -943,6 +999,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
     public void main ()
     {
         //new ProgramKiller().start(); //PROGRAM KILLER MESSES UP AUTONOMOUS.
+        ftcRCA.color = color;
         new DebuggerDisplayLoop().start();
         waitFullCycle();
 
@@ -962,8 +1019,8 @@ public class Autonomous_5220_v1 extends OpMode_5220
 
         }
 
-        lineBlockedTime = 100000; //just for debug
-        //test();
+        lineBlockedTime = 27500; //just for debug
+       // test();
         autonomous();
         stopMusic();
     }

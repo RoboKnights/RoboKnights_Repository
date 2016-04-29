@@ -62,6 +62,8 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
     private double g1Stick1Xinit;
     private double g1Stick1Yinit;
 
+    private boolean color;
+
     private boolean reverseDriveOn = false;
     private boolean slowDriveOn = false;
     private boolean polarOn = false;
@@ -119,6 +121,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
         super.initialize();
         g1Stick1Xinit = gamepad1.left_stick_x;
         g1Stick1Yinit = gamepad1.left_stick_y;
+        color = ftcRCA.color;
     }
 
     //MAIN PROGRAM:
@@ -385,7 +388,7 @@ public class TeleOp_5220_v1 extends OpMode_5220 //this is a comment. It is a lon
 
             if (!polarOn && gamepad1.right_bumper)
             {
-                sweeperPower = 0.8;
+                sweeperPower = 1.0;
                 resetAutomationOn = false;
             }
 

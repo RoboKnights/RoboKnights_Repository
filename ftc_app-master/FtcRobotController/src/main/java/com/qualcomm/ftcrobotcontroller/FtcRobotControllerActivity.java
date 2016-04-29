@@ -111,6 +111,8 @@ public class FtcRobotControllerActivity extends Activity {
 
   public static FtcRobotControllerActivity ftcRCA;
 
+  public static boolean color = false;
+
   /*
 
    */

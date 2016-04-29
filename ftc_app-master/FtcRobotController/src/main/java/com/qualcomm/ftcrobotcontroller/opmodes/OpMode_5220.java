@@ -136,6 +136,8 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
 
 
     protected static final double CLIMBER_FLING_TIME = 1.0;
+    protected static final double HOOK_ADJUST_RELEASE_TIME = 2.0;
+    protected static final double HOOK_ADJUST_RELEASE_DISTANCE = 0.7;
 
     protected static final double LINE_WHITE_THRESHOLD = 50;
 
@@ -1345,6 +1347,25 @@ public abstract class OpMode_5220 extends LinearOpMode //FIGURE OUT HOW TO GET D
         moveDumper(DOWN);
        // writeToLog("Climber flinging is done.");
 
+    }
+
+    public void hookAdjustRelease ()
+    {
+        if (!runConditions()) return;
+        Stopwatch timer = new Stopwatch();
+        double timeInMillis = HOOK_ADJUST_RELEASE_TIME * 1000.0;
+        waitFullCycle();
+        while (runConditions() && timer.time() < timeInMillis)
+        {
+            double newPosition = (timer.time() / timeInMillis) * HOOK_ADJUST_RELEASE_DISTANCE;
+            if (newPosition > HOOK_ADJUST_RELEASE_DISTANCE) newPosition = HOOK_ADJUST_RELEASE_DISTANCE;
+            setHookAdjustPosition (newPosition);
+            waitNextCycle();
+        }
+        sleep (1000);
+        waitNextCycle();
+        setHookAdjustPosition(0);
+        waitFullCycle();
     }
 
     public double getFloorBrightness ()
