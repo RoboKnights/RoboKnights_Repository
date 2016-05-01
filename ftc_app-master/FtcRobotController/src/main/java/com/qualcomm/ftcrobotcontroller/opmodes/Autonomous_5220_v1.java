@@ -423,7 +423,7 @@ public class Autonomous_5220_v1 extends OpMode_5220
                 move(3);
                 rotateEncoder(-14, 0.5);
                 //swingTurn(28, RIGHT, 0.7);
-                move (-44);
+                move(-44);
                 //moveTime (5000, -0.22);
 
 
@@ -519,6 +519,10 @@ public class Autonomous_5220_v1 extends OpMode_5220
             if (color == RED)
             {
                 //rotateEncoder(27, 0.6); //FIGURE OUT VALUES LATER
+                rotateEncoder(-9);
+                setSweeperPower(-1.0);
+                move(43);
+                setSweeperPower(0);
             }
             else if (color == BLUE)
             {
